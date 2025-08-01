@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Pantin Animateur</title>
+  <style>
+    body { font-family: sans-serif; background: #181818; color: #eaeaea; margin:0; }
+    #controls { text-align: center; margin-bottom: 24px; }
+    #controls button { margin: 0 6px; font-size: 1.2em; padding: 7px 14px; border-radius: 5px; border: 1px solid #888; background: #333; color: #eee; cursor: pointer; }
+    #controls button:hover { background: #2c6; color: #222; border-color: #3a3; }
+    #frameInfo { margin: 0 14px; font-weight: bold; }
+  </style>
+  <!-- Interact.js CDN obligatoire pour interactions.js -->
+<script src="https://cdn.jsdelivr.net/npm/interactjs/dist/interact.min.js"></script>
+
+</head>
+<body>
+  <h1 style="text-align:center;">Pantin Animateur</h1>
+  <div id="theatre">
+  <object id="pantin" data="manu.svg" type="image/svg+xml"></object>
+  </div>
+  <div id="controls"></div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
+
