@@ -1,30 +1,38 @@
 // src/svgLoader.js
 
 /**
- * Charge le SVG via l'objet <object id="pantin"> et prépare :
+ * Charge le SVG depuis un fichier et l'insère directement dans le DOM
+ * (plus d'élément <object> qui limite l'affichage). La fonction prépare :
  *  - memberList : liste des ids des groupes animables
- *  - pivots : objet { id: { x, y } } pour chaque membre (point pivot exact, pas centre bbox)
- *  - svgDoc : document SVG manipulable
+ *  - pivots : objet { id: { x, y } } pour chaque membre (point pivot exact)
+ *  - svgDoc : l'élément SVG manipulable
  *  - joints : liste des [segment, pivot, extrémité]
  *
- * @param {string} objectId - l'id de l'objet HTML (ex: "pantin")
+ * @param {string} containerId - id du conteneur où insérer le SVG
+ * @param {string} url        - chemin vers le fichier SVG
  * @returns {Promise<{svgDoc, memberList, pivots, joints}>}
  */
-export function loadSVG(objectId = "pantin") {
+export function loadSVG(containerId = "pantinContainer", url = "manu.svg") {
   return new Promise((resolve, reject) => {
-    const obj = document.getElementById(objectId);
-    if (!obj) return reject(new Error(`Objet #${objectId} introuvable`));
+    const container = document.getElementById(containerId);
+    if (!container) return reject(new Error(`Container #${containerId} introuvable`));
 
-    // Si déjà chargé
-    if (obj.contentDocument && obj.contentDocument.documentElement) {
-      prepare(obj.contentDocument);
-      return;
-    }
-
-    obj.addEventListener("load", () => {
-      if (!obj.contentDocument) return reject(new Error("SVG non chargé"));
-      prepare(obj.contentDocument);
-    });
+    fetch(url)
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.text();
+      })
+      .then(txt => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(txt, "image/svg+xml");
+        const svgEl = doc.documentElement;
+        svgEl.setAttribute("width", "100%");
+        svgEl.setAttribute("height", "100%");
+        container.innerHTML = "";
+        container.appendChild(svgEl);
+        prepare(svgEl);
+      })
+      .catch(err => reject(err));
 
     function prepare(svgDoc) {
       const root = svgDoc.documentElement;

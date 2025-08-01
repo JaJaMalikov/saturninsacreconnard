@@ -6,11 +6,11 @@ import { setupInteractions } from './interactions.js';
 import { setupPantinGlobalInteractions } from './interactions.js';
 import { initUI } from './ui.js';
 
-// ID de l'objet <object> dans index.html
-const OBJ_ID = "pantin";
+// ID du conteneur pour le SVG
+const OBJ_ID = "pantinContainer";
 
 // Charge le SVG et initialise toute l'app
-loadSVG(OBJ_ID).then(({ svgDoc, memberList, pivots }) => {
+loadSVG(OBJ_ID, "manu.svg").then(({ svgDoc, memberList, pivots }) => {
 
   // --- 1. Instancie la timeline (1 frame initiale vierge) ---
   const timeline = new Timeline(memberList);
@@ -33,7 +33,7 @@ loadSVG(OBJ_ID).then(({ svgDoc, memberList, pivots }) => {
       setRotation(el, angle, pivot);
     });
   }
-setupPantinGlobalInteractions(svgDoc, {
+const pantinControls = setupPantinGlobalInteractions(svgDoc, {
   rootGroupId: "manu_test",   // ton groupe racine
   grabId: "torse",             // id du torse pour le centre et le handle
   onChange: () => { /* callback pour undo/redo, sauvegarde, etc. */ }
@@ -49,7 +49,7 @@ setupPantinGlobalInteractions(svgDoc, {
   // --- 4. Branche l'UI ---
   initUI(timeline, () => {
     applyFrameToSVG(timeline.getCurrentFrame());
-  });
+  }, pantinControls);
 
   // --- 5. Première application ---
   applyFrameToSVG(timeline.getCurrentFrame());
