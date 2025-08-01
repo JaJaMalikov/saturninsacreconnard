@@ -2,15 +2,14 @@
 
 import { loadSVG } from './svgLoader.js';
 import { Timeline } from './timeline.js';
-import { setupInteractions } from './interactions.js';
-import { setupPantinGlobalInteractions } from './interactions.js';
+import { setupInteractions, setupPantinGlobalInteractions } from './interactions.js';
 import { initUI } from './ui.js';
 
-// ID de l'objet <object> dans index.html
+// ID du conteneur dans index.html
 const OBJ_ID = "pantin";
 
 // Charge le SVG et initialise toute l'app
-loadSVG(OBJ_ID).then(({ svgDoc, memberList, pivots }) => {
+loadSVG(OBJ_ID, 'manu.svg').then(({ svgDoc, memberList, pivots, pivotMap }) => {
 
   // --- 1. Instancie la timeline (1 frame initiale vierge) ---
   const timeline = new Timeline(memberList);
@@ -25,21 +24,23 @@ loadSVG(OBJ_ID).then(({ svgDoc, memberList, pivots }) => {
     memberList.forEach(id => {
       const el = svgDoc.getElementById(id);
       if (!el) return;
-      const pivot = pivots[id];
+      const pivotId = pivotMap[id];
+      const pEl = svgDoc.getElementById(pivotId);
+      if (!pEl) return;
+      const box = pEl.getBBox();
+      const pivot = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
       const angle = frame[id]?.rotate || 0;
-      // MAJ attribut data
       el.dataset.rotate = angle;
-      // MAJ transform SVG
       setRotation(el, angle, pivot);
     });
   }
-setupPantinGlobalInteractions(svgDoc, {
+const pantinCtrl = setupPantinGlobalInteractions(svgDoc, {
   rootGroupId: "manu_test",   // ton groupe racine
   grabId: "torse",             // id du torse pour le centre et le handle
   onChange: () => { /* callback pour undo/redo, sauvegarde, etc. */ }
 });
   // --- 3. Branche les interactions (rotations) ---
-  setupInteractions(svgDoc, memberList, pivots, timeline);
+  setupInteractions(svgDoc, memberList, pivotMap, timeline);
   // Réapplique la frame après chaque modification via interactions
   svgDoc.addEventListener('mouseup', () => {
     applyFrameToSVG(timeline.getCurrentFrame());
@@ -49,7 +50,7 @@ setupPantinGlobalInteractions(svgDoc, {
   // --- 4. Branche l'UI ---
   initUI(timeline, () => {
     applyFrameToSVG(timeline.getCurrentFrame());
-  });
+  }, pantinCtrl);
 
   // --- 5. Première application ---
   applyFrameToSVG(timeline.getCurrentFrame());

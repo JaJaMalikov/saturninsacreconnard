@@ -1,33 +1,33 @@
 // src/svgLoader.js
 
 /**
- * Charge le SVG via l'objet <object id="pantin"> et prépare :
+ * Charge le SVG dans un conteneur HTML et prépare :
  *  - memberList : liste des ids des groupes animables
  *  - pivots : objet { id: { x, y } } pour chaque membre (point pivot exact, pas centre bbox)
  *  - svgDoc : document SVG manipulable
  *  - joints : liste des [segment, pivot, extrémité]
  *
- * @param {string} objectId - l'id de l'objet HTML (ex: "pantin")
- * @returns {Promise<{svgDoc, memberList, pivots, joints}>}
+ * @param {string} containerId - id de l'élément conteneur où injecter le SVG
+ * @param {string} url - chemin du fichier SVG
+ * @returns {Promise<{svgDoc, memberList, pivots, joints, pivotMap}>}
  */
-export function loadSVG(objectId = "pantin") {
-  return new Promise((resolve, reject) => {
-    const obj = document.getElementById(objectId);
-    if (!obj) return reject(new Error(`Objet #${objectId} introuvable`));
+export async function loadSVG(containerId = "pantin", url = "manu.svg") {
+  const container = document.getElementById(containerId);
+  if (!container) throw new Error(`Élément #${containerId} introuvable`);
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`Échec chargement ${url}`);
+  const text = await resp.text();
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(text, "image/svg+xml");
+  const svgEl = document.importNode(doc.documentElement, true);
+  svgEl.setAttribute("id", containerId);
+  container.replaceWith(svgEl);
 
-    // Si déjà chargé
-    if (obj.contentDocument && obj.contentDocument.documentElement) {
-      prepare(obj.contentDocument);
-      return;
-    }
+  return prepare(svgEl);
 
-    obj.addEventListener("load", () => {
-      if (!obj.contentDocument) return reject(new Error("SVG non chargé"));
-      prepare(obj.contentDocument);
-    });
-
-    function prepare(svgDoc) {
-      const root = svgDoc.documentElement;
+  function prepare(svgElement) {
+      const svgDoc = svgElement.ownerDocument;
+      const root = svgElement;
 
       // -- Re-parenting comme dans ton code d'origine --
       [
@@ -66,6 +66,8 @@ export function loadSVG(objectId = "pantin") {
         new Set(joints.map(([seg]) => seg))
       );
 
+      const pivotMap = {};
+
       // -- Calcul précis des pivots --
       // Pour chaque segment, le pivot est la position du node pivot (son centre bbox ou son centre "visuel" si c'est un cercle)
       const pivots = {};
@@ -85,10 +87,10 @@ export function loadSVG(objectId = "pantin") {
           pt = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
         }
         pivots[segment] = pt;
+        pivotMap[segment] = pivot;
       });
 
-      resolve({ svgDoc, memberList, pivots, joints });
+      return { svgDoc, memberList, pivots, joints, pivotMap };
     }
-  });
 }
 

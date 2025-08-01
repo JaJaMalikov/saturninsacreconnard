@@ -1,10 +1,16 @@
 // src/interactions.js
 
-export function setupInteractions(svgDoc, memberList, pivots, timeline) {
+export function setupInteractions(svgDoc, memberList, pivotMap, timeline) {
   memberList.forEach(id => {
     const el = svgDoc.getElementById(id);
     if (!el) return;
-    const pivot = pivots[id];
+    const pivotId = pivotMap[id];
+    const pivotEl = svgDoc.getElementById(pivotId);
+    if (!pivotEl) return;
+    function getPivot() {
+      const box = pivotEl.getBBox();
+      return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+    }
     let isRotating = false;
     let startAngle = 0;
     let baseAngle = 0;
@@ -15,7 +21,8 @@ export function setupInteractions(svgDoc, memberList, pivots, timeline) {
       isRotating = true;
       el.style.cursor = "grabbing";
       const pt = getSVGCoords(svgDoc, e);
-      startAngle = Math.atan2(pt.y - pivot.y, pt.x - pivot.x);
+      const piv = getPivot();
+      startAngle = Math.atan2(pt.y - piv.y, pt.x - piv.x);
       baseAngle = parseFloat(el.dataset.rotate) || 0;
       e.preventDefault();
       e.stopPropagation();
@@ -24,11 +31,12 @@ export function setupInteractions(svgDoc, memberList, pivots, timeline) {
     svgDoc.addEventListener('mousemove', function(e) {
       if (!isRotating) return;
       const pt = getSVGCoords(svgDoc, e);
-      let angle = Math.atan2(pt.y - pivot.y, pt.x - pivot.x);
+      const piv = getPivot();
+      let angle = Math.atan2(pt.y - piv.y, pt.x - piv.x);
       let deltaDeg = (angle - startAngle) * 180 / Math.PI;
       let newAngle = baseAngle + deltaDeg;
       el.dataset.rotate = newAngle;
-      setRotation(el, newAngle, pivot);
+      setRotation(el, newAngle, piv);
       timeline.updateMember(id, { rotate: newAngle });
       // Rien d'autre ne se passe
     });
@@ -85,56 +93,35 @@ export function setupPantinGlobalInteractions(svgDoc, options) {
     return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
   }
 
-  // Etat du drag/resize/rotate
-  let mode = null; // "move" | "rotate" | "resize"
+  // Etat du drag
+  let mode = null; // "move"
   let startPt = null;
   let startTransform = {};
 
-  // Ajout de handles visuels (pour resize et rotate)
-  function createHandle(type, dx, dy, cursor, title) {
-    const ns = "http://www.w3.org/2000/svg";
-    const c = document.createElementNS(ns, "circle");
-    const center = getGrabCenter();
-    c.setAttribute("cx", center.x + dx);
-    c.setAttribute("cy", center.y + dy);
-    c.setAttribute("r", 10);
-    c.setAttribute("fill", "#4cf");
-    c.setAttribute("opacity", 0.6);
-    c.setAttribute("cursor", cursor);
-    c.setAttribute("data-handle", type);
-    c.setAttribute("title", title);
-    c.style.pointerEvents = "all";
-    svgDoc.documentElement.appendChild(c);
-    return c;
+  // Handle invisible pour le déplacement
+  const ns = "http://www.w3.org/2000/svg";
+  const moveHandle = document.createElementNS(ns, "circle");
+  moveHandle.setAttribute("r", 20);
+  moveHandle.setAttribute("fill", "transparent");
+  moveHandle.setAttribute("cursor", "move");
+  moveHandle.setAttribute("data-handle", "move");
+  moveHandle.style.pointerEvents = "all";
+  rootGroup.appendChild(moveHandle);
+
+  function updateHandle() {
+    const c = getGrabCenter();
+    moveHandle.setAttribute("cx", c.x);
+    moveHandle.setAttribute("cy", c.y);
   }
 
-  // Supprime tous les handles avant d'en ajouter
-  function removeHandles() {
-    svgDoc.querySelectorAll('circle[data-handle]').forEach(h => h.remove());
-  }
-
-  // Ajoute les handles (move, rotate, resize)
-  function addHandles() {
-    removeHandles();
-    const center = getGrabCenter();
-    // Move handle (au centre du torse)
-    const moveHandle = createHandle("move", 0, 0, "move", "Déplacer le pantin");
-    // Rotate handle (ex : à droite du torse)
-    const rotateHandle = createHandle("rotate", 40, 0, "crosshair", "Tourner le pantin");
-    // Resize handle (ex : en haut du torse)
-    const resizeHandle = createHandle("resize", 0, -60, "ns-resize", "Redimensionner le pantin");
-  }
-
-  addHandles();
+  updateHandle();
 
   let handleActive = null;
 
-  // Ecouteur de drag sur les handles
-  svgDoc.addEventListener('mousedown', function(e) {
-    const t = e.target;
-    if (!t.hasAttribute('data-handle')) return;
-    mode = t.getAttribute('data-handle');
-    handleActive = t;
+  // Ecouteur de drag sur le handle
+  moveHandle.addEventListener('mousedown', function(e) {
+    mode = 'move';
+    handleActive = moveHandle;
     startPt = getSVGCoords(svgDoc, e);
     // Stock la transform d'origine
     startTransform = {
@@ -153,24 +140,11 @@ export function setupPantinGlobalInteractions(svgDoc, options) {
   function onMove(e) {
     if (!mode) return;
     const pt = getSVGCoords(svgDoc, e);
-    const center = getGrabCenter();
     if (mode === "move") {
       const dx = pt.x - startPt.x;
       const dy = pt.y - startPt.y;
       rootGroup.dataset.tx = startTransform.tx + dx;
       rootGroup.dataset.ty = startTransform.ty + dy;
-    }
-    else if (mode === "rotate") {
-      const a0 = Math.atan2(startPt.y - center.y, startPt.x - center.x);
-      const a1 = Math.atan2(pt.y - center.y, pt.x - center.x);
-      let delta = (a1 - a0) * 180 / Math.PI;
-      rootGroup.dataset.rotate = startTransform.rotate + delta;
-    }
-    else if (mode === "resize") {
-      const dist0 = Math.hypot(startPt.x - center.x, startPt.y - center.y);
-      const dist1 = Math.hypot(pt.x - center.x, pt.y - center.y);
-      const scale = dist1 / dist0;
-      rootGroup.dataset.scale = Math.max(0.1, startTransform.scale * scale);
     }
     applyTransform();
   }
@@ -198,9 +172,25 @@ export function setupPantinGlobalInteractions(svgDoc, options) {
     let s = `scale(${scale})`;
     let r = `rotate(${angle},${center.x},${center.y})`;
     rootGroup.setAttribute('transform', `${t} ${r} ${s}`.trim());
-    removeHandles();
-    addHandles();
+    updateHandle();
   }
+
+  function setRotation(val) {
+    rootGroup.dataset.rotate = val;
+    applyTransform();
+    if (typeof onChange === "function") onChange();
+  }
+
+  function setScale(val) {
+    rootGroup.dataset.scale = val;
+    applyTransform();
+    if (typeof onChange === "function") onChange();
+  }
+
+  // Première application
+  applyTransform();
+
+  return { setRotation, setScale };
 
   // Utilitaire pour coord écran → SVG
   function getSVGCoords(svgDoc, evt) {
