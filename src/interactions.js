@@ -44,13 +44,12 @@ export function setupInteractions(svgDoc, memberList, pivots, timeline) {
   });
 }
 
-function getSVGCoords(svgDoc, evt) {
-  const pt = svgDoc.createElementNS("http://www.w3.org/2000/svg", "svg").createSVGPoint();
+function getSVGCoords(svgEl, evt) {
+  const pt = svgEl.createSVGPoint();
   pt.x = evt.clientX;
   pt.y = evt.clientY;
-  return svgDoc.documentElement.getScreenCTM()
-    ? pt.matrixTransform(svgDoc.documentElement.getScreenCTM().inverse())
-    : { x: evt.clientX, y: evt.clientY };
+  const ctm = svgEl.getScreenCTM();
+  return ctm ? pt.matrixTransform(ctm.inverse()) : { x: pt.x, y: pt.y };
 }
 
 function setRotation(el, angleDeg, pivot) {
@@ -86,25 +85,23 @@ export function setupPantinGlobalInteractions(svgDoc, options) {
   }
 
   // Etat du drag/resize/rotate
-  let mode = null; // "move" | "rotate" | "resize"
+  let mode = null; // "move"
   let startPt = null;
   let startTransform = {};
 
-  // Ajout de handles visuels (pour resize et rotate)
-  function createHandle(type, dx, dy, cursor, title) {
+  // Ajout d'un handle invisible pour le déplacement
+  function createHandle() {
     const ns = "http://www.w3.org/2000/svg";
     const c = document.createElementNS(ns, "circle");
     const center = getGrabCenter();
-    c.setAttribute("cx", center.x + dx);
-    c.setAttribute("cy", center.y + dy);
-    c.setAttribute("r", 10);
-    c.setAttribute("fill", "#4cf");
-    c.setAttribute("opacity", 0.6);
-    c.setAttribute("cursor", cursor);
-    c.setAttribute("data-handle", type);
-    c.setAttribute("title", title);
+    c.setAttribute("cx", center.x);
+    c.setAttribute("cy", center.y);
+    c.setAttribute("r", 20);
+    c.setAttribute("fill", "transparent");
+    c.setAttribute("cursor", "move");
+    c.setAttribute("data-handle", "move");
     c.style.pointerEvents = "all";
-    svgDoc.documentElement.appendChild(c);
+    svgDoc.appendChild(c);
     return c;
   }
 
@@ -116,13 +113,7 @@ export function setupPantinGlobalInteractions(svgDoc, options) {
   // Ajoute les handles (move, rotate, resize)
   function addHandles() {
     removeHandles();
-    const center = getGrabCenter();
-    // Move handle (au centre du torse)
-    const moveHandle = createHandle("move", 0, 0, "move", "Déplacer le pantin");
-    // Rotate handle (ex : à droite du torse)
-    const rotateHandle = createHandle("rotate", 40, 0, "crosshair", "Tourner le pantin");
-    // Resize handle (ex : en haut du torse)
-    const resizeHandle = createHandle("resize", 0, -60, "ns-resize", "Redimensionner le pantin");
+    createHandle();
   }
 
   addHandles();
@@ -160,18 +151,7 @@ export function setupPantinGlobalInteractions(svgDoc, options) {
       rootGroup.dataset.tx = startTransform.tx + dx;
       rootGroup.dataset.ty = startTransform.ty + dy;
     }
-    else if (mode === "rotate") {
-      const a0 = Math.atan2(startPt.y - center.y, startPt.x - center.x);
-      const a1 = Math.atan2(pt.y - center.y, pt.x - center.x);
-      let delta = (a1 - a0) * 180 / Math.PI;
-      rootGroup.dataset.rotate = startTransform.rotate + delta;
-    }
-    else if (mode === "resize") {
-      const dist0 = Math.hypot(startPt.x - center.x, startPt.y - center.y);
-      const dist1 = Math.hypot(pt.x - center.x, pt.y - center.y);
-      const scale = dist1 / dist0;
-      rootGroup.dataset.scale = Math.max(0.1, startTransform.scale * scale);
-    }
+    // uniquement déplacement
     applyTransform();
   }
 
@@ -192,8 +172,6 @@ export function setupPantinGlobalInteractions(svgDoc, options) {
     const scale = parseFloat(rootGroup.dataset.scale) || 1;
     const angle = parseFloat(rootGroup.dataset.rotate) || 0;
     const center = getGrabCenter();
-    // Transform = translate + rotate + scale autour du centre du torse
-    // Important : l'ordre des transforms est crucial pour du SVG
     let t = `translate(${tx},${ty})`;
     let s = `scale(${scale})`;
     let r = `rotate(${angle},${center.x},${center.y})`;
@@ -202,14 +180,24 @@ export function setupPantinGlobalInteractions(svgDoc, options) {
     addHandles();
   }
 
+  return {
+    setRotation(angle) {
+      rootGroup.dataset.rotate = angle;
+      applyTransform();
+    },
+    setScale(scale) {
+      rootGroup.dataset.scale = scale;
+      applyTransform();
+    }
+  };
+
   // Utilitaire pour coord écran → SVG
-  function getSVGCoords(svgDoc, evt) {
-    const pt = svgDoc.createElementNS("http://www.w3.org/2000/svg", "svg").createSVGPoint();
+  function getSVGCoords(svgEl, evt) {
+    const pt = svgEl.createSVGPoint();
     pt.x = evt.clientX;
     pt.y = evt.clientY;
-    return svgDoc.documentElement.getScreenCTM()
-      ? pt.matrixTransform(svgDoc.documentElement.getScreenCTM().inverse())
-      : { x: evt.clientX, y: evt.clientY };
+    const ctm = svgEl.getScreenCTM();
+    return ctm ? pt.matrixTransform(ctm.inverse()) : { x: pt.x, y: pt.y };
   }
 }
 

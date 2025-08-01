@@ -1,33 +1,33 @@
 // src/svgLoader.js
 
 /**
- * Charge le SVG via l'objet <object id="pantin"> et prépare :
+ * Charge le SVG dans l'élément cible et prépare :
  *  - memberList : liste des ids des groupes animables
  *  - pivots : objet { id: { x, y } } pour chaque membre (point pivot exact, pas centre bbox)
  *  - svgDoc : document SVG manipulable
  *  - joints : liste des [segment, pivot, extrémité]
  *
- * @param {string} objectId - l'id de l'objet HTML (ex: "pantin")
+ * @param {string} containerId - id de l'élément qui contiendra le SVG
+ * @param {string} url        - chemin du fichier SVG
  * @returns {Promise<{svgDoc, memberList, pivots, joints}>}
  */
-export function loadSVG(objectId = "pantin") {
+export function loadSVG(containerId = "pantin", url = "manu.svg") {
   return new Promise((resolve, reject) => {
-    const obj = document.getElementById(objectId);
-    if (!obj) return reject(new Error(`Objet #${objectId} introuvable`));
+    const container = document.getElementById(containerId);
+    if (!container) return reject(new Error(`Élément #${containerId} introuvable`));
 
-    // Si déjà chargé
-    if (obj.contentDocument && obj.contentDocument.documentElement) {
-      prepare(obj.contentDocument);
-      return;
-    }
-
-    obj.addEventListener("load", () => {
-      if (!obj.contentDocument) return reject(new Error("SVG non chargé"));
-      prepare(obj.contentDocument);
-    });
+    fetch(url)
+      .then(r => r.text())
+      .then(text => {
+        container.innerHTML = text;
+        const svgDoc = container.querySelector('svg');
+        if (!svgDoc) throw new Error('SVG introuvable');
+        prepare(svgDoc);
+      })
+      .catch(err => reject(err));
 
     function prepare(svgDoc) {
-      const root = svgDoc.documentElement;
+      const root = svgDoc;
 
       // -- Re-parenting comme dans ton code d'origine --
       [

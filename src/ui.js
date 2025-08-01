@@ -5,8 +5,9 @@
  *
  * @param {Timeline} timeline - instance de Timeline
  * @param {Function} onFrameChange - callback appelée après chaque modif (ex: pour réappliquer la frame sur le SVG)
+ * @param {Object} pantinCtrl - objet retourné par setupPantinGlobalInteractions
  */
-export function initUI(timeline, onFrameChange) {
+export function initUI(timeline, onFrameChange, pantinCtrl) {
   const controls = document.getElementById('controls');
   controls.innerHTML = `
     <button id="prevFrame">⏮️</button>
@@ -19,6 +20,12 @@ export function initUI(timeline, onFrameChange) {
     <button id="exportAnim">💾 Export</button>
     <input type="file" id="importAnim" style="display:none" />
     <button id="importAnimBtn">📂 Import</button>
+    <label style="margin-left:10px;">Rotation
+      <input type="range" id="rotateSlider" min="-180" max="180" value="0" step="1">
+    </label>
+    <label>Échelle
+      <input type="range" id="scaleSlider" min="0.1" max="3" value="1" step="0.1">
+    </label>
   `;
 
   // Référence rapide
@@ -111,6 +118,13 @@ export function initUI(timeline, onFrameChange) {
     };
     reader.readAsText(file);
     e.target.value = ''; // Reset input
+  };
+
+  document.getElementById('rotateSlider').oninput = (e) => {
+    pantinCtrl.setRotation(parseFloat(e.target.value));
+  };
+  document.getElementById('scaleSlider').oninput = (e) => {
+    pantinCtrl.setScale(parseFloat(e.target.value));
   };
 
   // Initial affichage

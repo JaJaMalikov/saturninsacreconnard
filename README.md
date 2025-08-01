@@ -4,11 +4,11 @@ Ce projet permet d'animer un pantin SVG directement dans le navigateur. Il est c
 
 ## Fonctionnement general
 
-1. **index.html** charge le fichier SVG `manu.svg` ainsi que le script principal `src/main.js`.
+1. **index.html** contient un conteneur `#pantin` dans lequel `svgLoader.js` insère le fichier `manu.svg` puis charge le script principal `src/main.js`.
 2. **svgLoader.js** importe le SVG, reparent certains elements pour obtenir une structure coherente et calcule les points pivots utilises pour les rotations.
 3. **timeline.js** gere une liste de *frames*. Chaque frame enregistre la rotation de chaque membre du pantin. Il est possible d'ajouter, supprimer ou lire les frames.
-4. **interactions.js** permet de faire tourner chaque membre a la souris et ajoute des interactions globales (deplacement, rotation et redimensionnement du pantin complet).
-5. **ui.js** affiche une petite interface (boutons de lecture, ajout de frame, import/export...) et synchronise ces actions avec la timeline.
+4. **interactions.js** permet de faire tourner chaque membre à la souris et gère le déplacement du pantin. La rotation et la mise à l'échelle se font désormais via des sliders dans l'UI.
+5. **ui.js** affiche une interface avec boutons (lecture, ajout de frame, import/export) ainsi que deux sliders pour la rotation et l'échelle. Toutes ces actions sont synchronisées avec la timeline.
 
 Lors du chargement, `main.js` instancie la timeline, branche les interactions et applique la frame courante sur le SVG. L'etat de l'animation est sauvegarde automatiquement dans `localStorage` apres chaque modification et recharge au demarrage si present.
 
