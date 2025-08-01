@@ -14,6 +14,11 @@ loadSVG(OBJ_ID).then(({ svgDoc, memberList, pivots }) => {
 
   // --- 1. Instancie la timeline (1 frame initiale vierge) ---
   const timeline = new Timeline(memberList);
+  // Chargement éventuel depuis localStorage
+  const saved = localStorage.getItem('animation');
+  if (saved) {
+    try { timeline.importJSON(saved); } catch (e) { console.warn(e); }
+  }
 
   // --- 2. Fonction : appliquer un frame de timeline au SVG ---
   function applyFrameToSVG(frame) {
@@ -34,9 +39,11 @@ setupPantinGlobalInteractions(svgDoc, {
   onChange: () => { /* callback pour undo/redo, sauvegarde, etc. */ }
 });
   // --- 3. Branche les interactions (rotations) ---
-  setupInteractions(svgDoc, memberList, pivots, timeline, () => {
-    // On sauvegarde et réapplique à chaque modif
+  setupInteractions(svgDoc, memberList, pivots, timeline);
+  // Réapplique la frame après chaque modification via interactions
+  svgDoc.addEventListener('mouseup', () => {
     applyFrameToSVG(timeline.getCurrentFrame());
+    localStorage.setItem('animation', timeline.exportJSON());
   });
 
   // --- 4. Branche l'UI ---

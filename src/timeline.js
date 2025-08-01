@@ -70,7 +70,7 @@ export class Timeline {
     // callback(frame, index)
     if (this.playing) return;
     this.playing = true;
-    let i = 0;
+    let i = this.current;
     this._interval = setInterval(() => {
       callback(this.frames[i], i);
       i++;

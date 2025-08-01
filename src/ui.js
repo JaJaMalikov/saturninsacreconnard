@@ -30,28 +30,36 @@ export function initUI(timeline, onFrameChange) {
   }
 
   // ---- Handlers ----
+  function save() {
+    localStorage.setItem('animation', timeline.exportJSON());
+  }
+
   document.getElementById('prevFrame').onclick = () => {
     timeline.prevFrame();
     updateFrameInfo();
     onFrameChange();
+    save();
   };
 
   document.getElementById('nextFrame').onclick = () => {
     timeline.nextFrame();
     updateFrameInfo();
     onFrameChange();
+    save();
   };
 
   document.getElementById('addFrame').onclick = () => {
     timeline.addFrame();
     updateFrameInfo();
     onFrameChange();
+    save();
   };
 
   document.getElementById('delFrame').onclick = () => {
     timeline.deleteFrame();
     updateFrameInfo();
     onFrameChange();
+    save();
   };
 
   document.getElementById('playAnim').onclick = () => {
@@ -66,6 +74,7 @@ export function initUI(timeline, onFrameChange) {
     timeline.stop();
     updateFrameInfo();
     onFrameChange();
+    save();
   };
 
   document.getElementById('exportAnim').onclick = () => {
@@ -95,6 +104,7 @@ export function initUI(timeline, onFrameChange) {
         timeline.importJSON(evt.target.result);
         updateFrameInfo();
         onFrameChange();
+        save();
       } catch (e) {
         alert("Erreur import: " + e.message);
       }
