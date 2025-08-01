@@ -4,9 +4,10 @@
  * Initialise l’UI de contrôle de la timeline
  *
  * @param {Timeline} timeline - instance de Timeline
+ * @param {Object} pantinCtrl - controleur retourné par setupPantinGlobalInteractions
  * @param {Function} onFrameChange - callback appelée après chaque modif (ex: pour réappliquer la frame sur le SVG)
  */
-export function initUI(timeline, onFrameChange) {
+export function initUI(timeline, pantinCtrl, onFrameChange) {
   const controls = document.getElementById('controls');
   controls.innerHTML = `
     <button id="prevFrame">⏮️</button>
@@ -19,6 +20,12 @@ export function initUI(timeline, onFrameChange) {
     <button id="exportAnim">💾 Export</button>
     <input type="file" id="importAnim" style="display:none" />
     <button id="importAnimBtn">📂 Import</button>
+    <label style="margin-left:10px;">Rotation
+      <input id="rotateSlider" type="range" min="-180" max="180" value="0" />
+    </label>
+    <label style="margin-left:10px;">Taille
+      <input id="scaleSlider" type="range" min="0.1" max="3" step="0.1" value="1" />
+    </label>
   `;
 
   // Référence rapide
@@ -112,6 +119,15 @@ export function initUI(timeline, onFrameChange) {
     reader.readAsText(file);
     e.target.value = ''; // Reset input
   };
+
+  // Contrôles rotation et échelle du pantin
+  const state = pantinCtrl.getState();
+  const rotSlider = document.getElementById('rotateSlider');
+  const scaleSlider = document.getElementById('scaleSlider');
+  rotSlider.value = state.rotate;
+  scaleSlider.value = state.scale;
+  rotSlider.oninput = (e) => pantinCtrl.setRotation(parseFloat(e.target.value));
+  scaleSlider.oninput = (e) => pantinCtrl.setScale(parseFloat(e.target.value));
 
   // Initial affichage
   updateFrameInfo();
