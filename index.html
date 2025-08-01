@@ -5,6 +5,8 @@
   <title>Pantin Animateur</title>
   <style>
     body { font-family: sans-serif; background: #181818; color: #eaeaea; margin:0; }
+    #theatre { width: 100%; height: 80vh; border: 1px solid #444; position: relative; }
+    #pantin { width: 100%; height: 100%; }
     #controls { text-align: center; margin-bottom: 24px; }
     #controls button { margin: 0 6px; font-size: 1.2em; padding: 7px 14px; border-radius: 5px; border: 1px solid #888; background: #333; color: #eee; cursor: pointer; }
     #controls button:hover { background: #2c6; color: #222; border-color: #3a3; }
@@ -20,6 +22,14 @@
   <object id="pantin" data="manu.svg" type="image/svg+xml"></object>
   </div>
   <div id="controls"></div>
+  <div id="transformControls" style="text-align:center; margin-top:10px;">
+    <label>Rotation
+      <input id="rotateSlider" type="range" min="-180" max="180" value="0" />
+    </label>
+    <label>Taille
+      <input id="scaleSlider" type="range" min="0.1" max="3" step="0.1" value="1" />
+    </label>
+  </div>
 
   <script type="module" src="./src/main.js"></script>
 </body>

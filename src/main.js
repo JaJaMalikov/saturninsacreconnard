@@ -36,6 +36,8 @@ loadSVG(OBJ_ID).then(({ svgDoc, memberList, pivots }) => {
 setupPantinGlobalInteractions(svgDoc, {
   rootGroupId: "manu_test",   // ton groupe racine
   grabId: "torse",             // id du torse pour le centre et le handle
+  rotateInputId: "rotateSlider",
+  scaleInputId: "scaleSlider",
   onChange: () => { /* callback pour undo/redo, sauvegarde, etc. */ }
 });
   // --- 3. Branche les interactions (rotations) ---

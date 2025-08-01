@@ -60,7 +60,7 @@ function setRotation(el, angleDeg, pivot) {
 }
 
 /**
- * Ajoute la manipulation globale (drag, rotate, resize) à un pantin SVG
+ * Ajoute la manipulation globale (drag + sliders rotation/taille) à un pantin SVG
  * @param {SVGDocument} svgDoc
  * @param {Object} options :
  *    - rootGroupId : id du groupe racine du pantin (ex : "manu_test")
@@ -68,9 +68,11 @@ function setRotation(el, angleDeg, pivot) {
  *    - onChange    : callback quand l'état change
  */
 export function setupPantinGlobalInteractions(svgDoc, options) {
-  const { rootGroupId, grabId, onChange } = options;
+  const { rootGroupId, grabId, onChange, rotateInputId, scaleInputId } = options;
   const rootGroup = svgDoc.getElementById(rootGroupId);
   const grabEl = svgDoc.getElementById(grabId);
+  const rotateInput = rotateInputId ? document.getElementById(rotateInputId) : null;
+  const scaleInput  = scaleInputId ? document.getElementById(scaleInputId)  : null;
   if (!rootGroup || !grabEl) return;
 
   // Initial state
@@ -86,20 +88,19 @@ export function setupPantinGlobalInteractions(svgDoc, options) {
   }
 
   // Etat du drag/resize/rotate
-  let mode = null; // "move" | "rotate" | "resize"
+  let mode = null; // "move"
   let startPt = null;
   let startTransform = {};
 
-  // Ajout de handles visuels (pour resize et rotate)
+  // Ajout d'un handle invisible pour le déplacement
   function createHandle(type, dx, dy, cursor, title) {
     const ns = "http://www.w3.org/2000/svg";
     const c = document.createElementNS(ns, "circle");
     const center = getGrabCenter();
     c.setAttribute("cx", center.x + dx);
     c.setAttribute("cy", center.y + dy);
-    c.setAttribute("r", 10);
-    c.setAttribute("fill", "#4cf");
-    c.setAttribute("opacity", 0.6);
+    c.setAttribute("r", 20);
+    c.setAttribute("fill", "transparent");
     c.setAttribute("cursor", cursor);
     c.setAttribute("data-handle", type);
     c.setAttribute("title", title);
@@ -113,19 +114,32 @@ export function setupPantinGlobalInteractions(svgDoc, options) {
     svgDoc.querySelectorAll('circle[data-handle]').forEach(h => h.remove());
   }
 
-  // Ajoute les handles (move, rotate, resize)
+  // Ajoute le handle de déplacement
   function addHandles() {
     removeHandles();
-    const center = getGrabCenter();
     // Move handle (au centre du torse)
-    const moveHandle = createHandle("move", 0, 0, "move", "Déplacer le pantin");
-    // Rotate handle (ex : à droite du torse)
-    const rotateHandle = createHandle("rotate", 40, 0, "crosshair", "Tourner le pantin");
-    // Resize handle (ex : en haut du torse)
-    const resizeHandle = createHandle("resize", 0, -60, "ns-resize", "Redimensionner le pantin");
+    createHandle("move", 0, 0, "move", "Déplacer le pantin");
   }
 
   addHandles();
+
+  if (rotateInput) {
+    rotateInput.value = rootGroup.dataset.rotate;
+    rotateInput.addEventListener('input', () => {
+      rootGroup.dataset.rotate = rotateInput.value;
+      applyTransform();
+      if (typeof onChange === 'function') onChange();
+    });
+  }
+
+  if (scaleInput) {
+    scaleInput.value = rootGroup.dataset.scale;
+    scaleInput.addEventListener('input', () => {
+      rootGroup.dataset.scale = scaleInput.value;
+      applyTransform();
+      if (typeof onChange === 'function') onChange();
+    });
+  }
 
   let handleActive = null;
 
@@ -160,18 +174,6 @@ export function setupPantinGlobalInteractions(svgDoc, options) {
       rootGroup.dataset.tx = startTransform.tx + dx;
       rootGroup.dataset.ty = startTransform.ty + dy;
     }
-    else if (mode === "rotate") {
-      const a0 = Math.atan2(startPt.y - center.y, startPt.x - center.x);
-      const a1 = Math.atan2(pt.y - center.y, pt.x - center.x);
-      let delta = (a1 - a0) * 180 / Math.PI;
-      rootGroup.dataset.rotate = startTransform.rotate + delta;
-    }
-    else if (mode === "resize") {
-      const dist0 = Math.hypot(startPt.x - center.x, startPt.y - center.y);
-      const dist1 = Math.hypot(pt.x - center.x, pt.y - center.y);
-      const scale = dist1 / dist0;
-      rootGroup.dataset.scale = Math.max(0.1, startTransform.scale * scale);
-    }
     applyTransform();
   }
 
@@ -198,6 +200,8 @@ export function setupPantinGlobalInteractions(svgDoc, options) {
     let s = `scale(${scale})`;
     let r = `rotate(${angle},${center.x},${center.y})`;
     rootGroup.setAttribute('transform', `${t} ${r} ${s}`.trim());
+    if (rotateInput) rotateInput.value = angle;
+    if (scaleInput) scaleInput.value = scale;
     removeHandles();
     addHandles();
   }
