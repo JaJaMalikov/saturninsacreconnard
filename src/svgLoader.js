@@ -29,6 +29,13 @@ export function loadSVG(objectId = "pantin") {
     function prepare(svgDoc) {
       const root = svgDoc.documentElement;
 
+      // Permet de déplacer le pantin hors de son cadre
+      root.setAttribute('overflow', 'visible');
+      const g = svgDoc.getElementById('manu_test');
+      if (g) g.removeAttribute('clip-path');
+      const clip = svgDoc.querySelector('clipPath#clip0_1_2');
+      if (clip && clip.parentNode) clip.parentNode.removeChild(clip);
+
       // -- Re-parenting comme dans ton code d'origine --
       [
         ["main_droite", "avant_bras_droite"],

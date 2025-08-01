@@ -16,6 +16,8 @@ Lors du chargement, `main.js` instancie la timeline, branche les interactions et
 
 - Lecture de l'animation a partir de la frame courante plutot que depuis le debut.
 - Sauvegarde automatique de la timeline dans `localStorage` et rechargement a l'ouverture de la page.
+- Ajout de curseurs pour faire tourner et redimensionner le pantin sans handles visibles.
+- Suppression du clip-path du SVG pour pouvoir deplacer le pantin sur toute la scene.
 
 ## Lancer le projet
 

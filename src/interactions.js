@@ -97,9 +97,15 @@ export function setupPantinGlobalInteractions(svgDoc, options) {
     const center = getGrabCenter();
     c.setAttribute("cx", center.x + dx);
     c.setAttribute("cy", center.y + dy);
-    c.setAttribute("r", 10);
-    c.setAttribute("fill", "#4cf");
-    c.setAttribute("opacity", 0.6);
+    c.setAttribute("r", 15);
+    if (type === "move") {
+      c.setAttribute("fill", "transparent");
+      c.setAttribute("stroke", "none");
+      c.setAttribute("opacity", 0);
+    } else {
+      c.setAttribute("fill", "#4cf");
+      c.setAttribute("opacity", 0.6);
+    }
     c.setAttribute("cursor", cursor);
     c.setAttribute("data-handle", type);
     c.setAttribute("title", title);
@@ -113,16 +119,10 @@ export function setupPantinGlobalInteractions(svgDoc, options) {
     svgDoc.querySelectorAll('circle[data-handle]').forEach(h => h.remove());
   }
 
-  // Ajoute les handles (move, rotate, resize)
+  // Ajoute uniquement le handle de déplacement (invisible)
   function addHandles() {
     removeHandles();
-    const center = getGrabCenter();
-    // Move handle (au centre du torse)
-    const moveHandle = createHandle("move", 0, 0, "move", "Déplacer le pantin");
-    // Rotate handle (ex : à droite du torse)
-    const rotateHandle = createHandle("rotate", 40, 0, "crosshair", "Tourner le pantin");
-    // Resize handle (ex : en haut du torse)
-    const resizeHandle = createHandle("resize", 0, -60, "ns-resize", "Redimensionner le pantin");
+    createHandle("move", 0, 0, "move", "Déplacer le pantin").setAttribute("opacity", 0);
   }
 
   addHandles();
@@ -202,6 +202,18 @@ export function setupPantinGlobalInteractions(svgDoc, options) {
     addHandles();
   }
 
+  function setScale(val) {
+    rootGroup.dataset.scale = parseFloat(val);
+    applyTransform();
+    if (typeof onChange === "function") onChange();
+  }
+
+  function setRotation(val) {
+    rootGroup.dataset.rotate = parseFloat(val);
+    applyTransform();
+    if (typeof onChange === "function") onChange();
+  }
+
   // Utilitaire pour coord écran → SVG
   function getSVGCoords(svgDoc, evt) {
     const pt = svgDoc.createElementNS("http://www.w3.org/2000/svg", "svg").createSVGPoint();
@@ -211,5 +223,7 @@ export function setupPantinGlobalInteractions(svgDoc, options) {
       ? pt.matrixTransform(svgDoc.documentElement.getScreenCTM().inverse())
       : { x: evt.clientX, y: evt.clientY };
   }
+
+  return { setScale, setRotation };
 }
 

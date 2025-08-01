@@ -6,7 +6,7 @@
  * @param {Timeline} timeline - instance de Timeline
  * @param {Function} onFrameChange - callback appelée après chaque modif (ex: pour réappliquer la frame sur le SVG)
  */
-export function initUI(timeline, onFrameChange) {
+export function initUI(timeline, pantinCtrl, onFrameChange) {
   const controls = document.getElementById('controls');
   controls.innerHTML = `
     <button id="prevFrame">⏮️</button>
@@ -19,10 +19,26 @@ export function initUI(timeline, onFrameChange) {
     <button id="exportAnim">💾 Export</button>
     <input type="file" id="importAnim" style="display:none" />
     <button id="importAnimBtn">📂 Import</button>
+    <label style="margin-left:20px;">Rotation
+      <input id="rotateSlider" type="range" min="-180" max="180" value="0">
+    </label>
+    <label style="margin-left:10px;">Taille
+      <input id="scaleSlider" type="range" min="0.1" max="3" step="0.1" value="1">
+    </label>
   `;
 
   // Référence rapide
   const frameInfo = document.getElementById('frameInfo');
+  const rotateSlider = document.getElementById('rotateSlider');
+  const scaleSlider = document.getElementById('scaleSlider');
+
+  rotateSlider.oninput = (e) => {
+    if (pantinCtrl && pantinCtrl.setRotation) pantinCtrl.setRotation(parseFloat(e.target.value));
+  };
+
+  scaleSlider.oninput = (e) => {
+    if (pantinCtrl && pantinCtrl.setScale) pantinCtrl.setScale(parseFloat(e.target.value));
+  };
 
   // Update de l'affichage frame courante
   function updateFrameInfo() {
