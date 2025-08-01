@@ -28,6 +28,7 @@ export function loadSVG(objectId = "pantin") {
 
     function prepare(svgDoc) {
       const root = svgDoc.documentElement;
+      root.setAttribute('overflow', 'visible');
 
       // -- Re-parenting comme dans ton code d'origine --
       [
