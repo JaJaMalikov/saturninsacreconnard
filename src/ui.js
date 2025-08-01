@@ -6,7 +6,7 @@
  * @param {Timeline} timeline - instance de Timeline
  * @param {Function} onFrameChange - callback appelée après chaque modif (ex: pour réappliquer la frame sur le SVG)
  */
-export function initUI(timeline, onFrameChange) {
+export function initUI(timeline, onFrameChange, pantinControls) {
   const controls = document.getElementById('controls');
   controls.innerHTML = `
     <button id="prevFrame">⏮️</button>
@@ -19,6 +19,12 @@ export function initUI(timeline, onFrameChange) {
     <button id="exportAnim">💾 Export</button>
     <input type="file" id="importAnim" style="display:none" />
     <button id="importAnimBtn">📂 Import</button>
+    <label style="margin-left:20px;">Rotation
+      <input type="range" id="pantinRotate" min="-180" max="180" value="0">
+    </label>
+    <label style="margin-left:10px;">Taille
+      <input type="range" id="pantinScale" min="0.1" max="3" step="0.1" value="1">
+    </label>
   `;
 
   // Référence rapide
@@ -112,6 +118,16 @@ export function initUI(timeline, onFrameChange) {
     reader.readAsText(file);
     e.target.value = ''; // Reset input
   };
+
+  // Sliders pour rotation et taille du pantin
+  const rotateInput = document.getElementById('pantinRotate');
+  const scaleInput = document.getElementById('pantinScale');
+  if (rotateInput && pantinControls) {
+    rotateInput.oninput = (e) => pantinControls.setRotate(parseFloat(e.target.value));
+  }
+  if (scaleInput && pantinControls) {
+    scaleInput.oninput = (e) => pantinControls.setScale(parseFloat(e.target.value));
+  }
 
   // Initial affichage
   updateFrameInfo();

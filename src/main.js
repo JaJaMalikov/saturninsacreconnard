@@ -33,7 +33,7 @@ loadSVG(OBJ_ID).then(({ svgDoc, memberList, pivots }) => {
       setRotation(el, angle, pivot);
     });
   }
-setupPantinGlobalInteractions(svgDoc, {
+const pantinControls = setupPantinGlobalInteractions(svgDoc, {
   rootGroupId: "manu_test",   // ton groupe racine
   grabId: "torse",             // id du torse pour le centre et le handle
   onChange: () => { /* callback pour undo/redo, sauvegarde, etc. */ }
@@ -49,7 +49,7 @@ setupPantinGlobalInteractions(svgDoc, {
   // --- 4. Branche l'UI ---
   initUI(timeline, () => {
     applyFrameToSVG(timeline.getCurrentFrame());
-  });
+  }, pantinControls);
 
   // --- 5. Première application ---
   applyFrameToSVG(timeline.getCurrentFrame());
