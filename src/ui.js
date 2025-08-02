@@ -19,7 +19,7 @@ export function initUI(timeline, onFrameChange) {
     <button id="exportAnim">💾 Export</button>
     <input type="file" id="importAnim" style="display:none" />
     <button id="importAnimBtn">📂 Import</button>
-    <button id="resetStorage" style="background: #c33; color: white;">⚠️ Reset</button>
+      <button id="resetStorage" class="danger">⚠️ Reset</button>
   `;
 
   // Référence rapide
