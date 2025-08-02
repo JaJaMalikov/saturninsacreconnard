@@ -205,5 +205,9 @@ function getLocalMousePoint(evt, parentElement) {
 }
 
 function setRotation(el, angleDeg, pivot) {
-  el.setAttribute('transform', `rotate(${angleDeg},${pivot.x},${pivot.y})`);
+  const base = (el.getAttribute('transform') || '')
+    .replace(/rotate\([^)]+\)/, '')
+    .trim();
+  const rotateStr = `rotate(${angleDeg},${pivot.x},${pivot.y})`;
+  el.setAttribute('transform', `${base} ${rotateStr}`.trim());
 }
