@@ -1,5 +1,8 @@
 **MACRON‑O‑TRON 3000**
 
+![apercu](https://github.com/user-attachments/assets/243fd05d-de03-4068-abe9-b780baf8999f)
+
+
 **Vue d'ensemble**\
 Le **MACRON‑O‑TRON 3000** est une application web interactive permettant de créer et d'animer des marionnettes SVG directement dans votre navigateur. Conçue pour offrir une expérience fluide, elle propose un ensemble d’outils pour la manipulation et l’animation de fichiers vectoriels.
 
@@ -42,5 +45,9 @@ Le **MACRON‑O‑TRON 3000** est une application web interactive permettant de
 ## Lancement
 
 Après démarrage du serveur, accédez à `http://localhost:8000/index.html` pour utiliser l’application.
+
+## 📄 Licence
+
+[The Unlicense](https://unlicense.org/) — libre de droit, libre d’usage, libre d’esprit ✊
 
 ---
