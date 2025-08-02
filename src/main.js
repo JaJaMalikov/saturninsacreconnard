@@ -1,57 +1,66 @@
-// src/main.js
-
 import { loadSVG } from './svgLoader.js';
 import { Timeline } from './timeline.js';
-import { setupInteractions } from './interactions.js';
-import { setupPantinGlobalInteractions } from './interactions.js';
+import { setupInteractions, setupPantinGlobalInteractions } from './interactions.js';
 import { initUI } from './ui.js';
 
-// ID de l'objet <object> dans index.html
-const OBJ_ID = "pantin";
+// --- Constantes ---
+const SVG_URL = 'manu.svg';
+const THEATRE_ID = 'theatre';
+const PANTIN_ROOT_ID = 'manu_test'; // ID du groupe racine du pantin dans le SVG
+const GRAB_ID = 'torse'; // ID de l'élément pour le drag
 
-// Charge le SVG et initialise toute l'app
-loadSVG(OBJ_ID).then(({ svgDoc, memberList, pivots }) => {
+// --- Chargement et initialisation ---
+loadSVG(SVG_URL, THEATRE_ID).then(({ svgElement, memberList, pivots }) => {
 
-  // --- 1. Instancie la timeline (1 frame initiale vierge) ---
   const timeline = new Timeline(memberList);
-  // Chargement éventuel depuis localStorage
   const saved = localStorage.getItem('animation');
   if (saved) {
     try { timeline.importJSON(saved); } catch (e) { console.warn(e); }
   }
 
-  // --- 2. Fonction : appliquer un frame de timeline au SVG ---
   function applyFrameToSVG(frame) {
+    if (!frame) return;
     memberList.forEach(id => {
-      const el = svgDoc.getElementById(id);
+      const el = svgElement.querySelector(`#${id}`);
       if (!el) return;
       const pivot = pivots[id];
       const angle = frame[id]?.rotate || 0;
-      // MAJ attribut data
       el.dataset.rotate = angle;
-      // MAJ transform SVG
-      setRotation(el, angle, pivot);
+      // On force la transformation de rotation, en ignorant les autres
+      el.setAttribute('transform', `rotate(${angle},${pivot.x},${pivot.y})`);
     });
   }
-setupPantinGlobalInteractions(svgDoc, {
-  rootGroupId: "manu_test",   // ton groupe racine
-  grabId: "torse",             // id du torse pour le centre et le handle
-  onChange: () => { /* callback pour undo/redo, sauvegarde, etc. */ }
-});
-  // --- 3. Branche les interactions (rotations) ---
-  setupInteractions(svgDoc, memberList, pivots, timeline);
-  // Réapplique la frame après chaque modification via interactions
-  svgDoc.addEventListener('mouseup', () => {
-    applyFrameToSVG(timeline.getCurrentFrame());
-    localStorage.setItem('animation', timeline.exportJSON());
+
+  // --- Setup des interactions ---
+  // 1. Interactions sur les membres
+  setupInteractions(svgElement, memberList, pivots, timeline);
+
+  // 2. Interactions globales (drag, sliders pour scale/rotate)
+  setupPantinGlobalInteractions(svgElement, {
+    rootGroupId: PANTIN_ROOT_ID,
+    grabId: GRAB_ID,
+    scaleSliderId: 'scale-slider',
+    rotateSliderId: 'rotate-slider',
   });
 
-  // --- 4. Branche l'UI ---
+  // --- UI et Timeline ---
   initUI(timeline, () => {
     applyFrameToSVG(timeline.getCurrentFrame());
   });
 
-  // --- 5. Première application ---
+  // Sauvegarde après manipulation
+  svgElement.addEventListener('mouseup', () => {
+    localStorage.setItem('animation', timeline.exportJSON());
+  });
+  document.getElementById('scale-slider').addEventListener('input', () => {
+    // On pourrait vouloir sauvegarder l'état global du pantin ici
+  });
+  document.getElementById('rotate-slider').addEventListener('input', () => {
+    // On pourrait vouloir sauvegarder l'état global du pantin ici
+  });
+
+
+  // --- Application initiale ---
   applyFrameToSVG(timeline.getCurrentFrame());
 
   // --- Utilitaire pour la rotation SVG ---
@@ -62,6 +71,7 @@ setupPantinGlobalInteractions(svgDoc, {
   }
 
 }).catch(err => {
-  alert("Erreur SVG : " + err.message);
+  console.error("Erreur d'initialisation:", err);
+  alert("Erreur fatale : " + err.message);
 });
 

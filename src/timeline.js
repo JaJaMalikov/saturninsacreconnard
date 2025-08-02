@@ -66,17 +66,19 @@ export class Timeline {
     return this.getCurrentFrame();
   }
 
-  play(callback, fps = 8) {
+  play(callback, onEnd, fps = 8) {
     // callback(frame, index)
     if (this.playing) return;
     this.playing = true;
     let i = this.current;
     this._interval = setInterval(() => {
-      callback(this.frames[i], i);
-      i++;
       if (i >= this.frames.length) {
         this.stop();
+        if (typeof onEnd === 'function') onEnd();
+        return;
       }
+      callback(this.frames[i], i);
+      i++;
     }, 1000 / fps);
   }
 

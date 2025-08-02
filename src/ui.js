@@ -19,6 +19,7 @@ export function initUI(timeline, onFrameChange) {
     <button id="exportAnim">💾 Export</button>
     <input type="file" id="importAnim" style="display:none" />
     <button id="importAnimBtn">📂 Import</button>
+    <button id="resetStorage" style="background: #c33; color: white;">⚠️ Reset</button>
   `;
 
   // Référence rapide
@@ -67,11 +68,18 @@ export function initUI(timeline, onFrameChange) {
       timeline.setCurrentFrame(idx);
       updateFrameInfo();
       onFrameChange();
+    }, () => {
+      // Callback de fin : retour à la frame 1
+      timeline.setCurrentFrame(0);
+      updateFrameInfo();
+      onFrameChange();
     });
   };
 
   document.getElementById('stopAnim').onclick = () => {
     timeline.stop();
+    // Retour à la frame 1
+    timeline.setCurrentFrame(0);
     updateFrameInfo();
     onFrameChange();
     save();
@@ -111,6 +119,14 @@ export function initUI(timeline, onFrameChange) {
     };
     reader.readAsText(file);
     e.target.value = ''; // Reset input
+  };
+
+  document.getElementById('resetStorage').onclick = () => {
+    if (confirm("Êtes-vous sûr de vouloir tout effacer ? Cette action est irréversible.")) {
+      localStorage.removeItem('animation');
+      localStorage.removeItem('pantinGlobalState');
+      window.location.reload();
+    }
   };
 
   // Initial affichage

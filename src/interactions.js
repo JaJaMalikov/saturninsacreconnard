@@ -1,215 +1,209 @@
 // src/interactions.js
 
-export function setupInteractions(svgDoc, memberList, pivots, timeline) {
-  memberList.forEach(id => {
-    const el = svgDoc.getElementById(id);
-    if (!el) return;
-    const pivot = pivots[id];
-    let isRotating = false;
-    let startAngle = 0;
-    let baseAngle = 0;
+const PANTIN_STATE_KEY = 'pantinGlobalState';
 
-    el.style.cursor = "grab";
+// --- State Management ---
+const pantinState = {
+  tx: 0, ty: 0,
+  scale: 1,
+  rotate: 0,
+  rootGroup: null,
+  svgElement: null,
+};
 
-    el.addEventListener('mousedown', function(e) {
-      isRotating = true;
-      el.style.cursor = "grabbing";
-      const pt = getSVGCoords(svgDoc, e);
-      startAngle = Math.atan2(pt.y - pivot.y, pt.x - pivot.x);
-      baseAngle = parseFloat(el.dataset.rotate) || 0;
-      e.preventDefault();
-      e.stopPropagation();
-    });
+function saveGlobalState() {
+  const stateToSave = {
+    tx: pantinState.tx,
+    ty: pantinState.ty,
+    scale: pantinState.scale,
+    rotate: pantinState.rotate,
+  };
+  localStorage.setItem(PANTIN_STATE_KEY, JSON.stringify(stateToSave));
+}
 
-    svgDoc.addEventListener('mousemove', function(e) {
-      if (!isRotating) return;
-      const pt = getSVGCoords(svgDoc, e);
-      let angle = Math.atan2(pt.y - pivot.y, pt.x - pivot.x);
-      let deltaDeg = (angle - startAngle) * 180 / Math.PI;
-      let newAngle = baseAngle + deltaDeg;
-      el.dataset.rotate = newAngle;
-      setRotation(el, newAngle, pivot);
-      timeline.updateMember(id, { rotate: newAngle });
-      // Rien d'autre ne se passe
-    });
+function loadGlobalState() {
+  const saved = localStorage.getItem(PANTIN_STATE_KEY);
+  if (saved) {
+    try {
+      const loaded = JSON.parse(saved);
+      pantinState.tx = loaded.tx || 0;
+      pantinState.ty = loaded.ty || 0;
+      pantinState.scale = loaded.scale || 1;
+      pantinState.rotate = loaded.rotate || 0;
+    } catch (e) {
+      console.error("Failed to load pantin state:", e);
+    }
+  }
+}
 
-    svgDoc.addEventListener('mouseup', function() {
-      isRotating = false;
-      el.style.cursor = "grab";
-    });
-    svgDoc.addEventListener('mouseleave', function() {
-      isRotating = false;
-      el.style.cursor = "grab";
-    });
+function getGrabCenter() {
+  const grabEl = pantinState.rootGroup.querySelector('#torse');
+  if (!grabEl) return { x: 0, y: 0 };
+  const box = grabEl.getBBox();
+  return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+}
+
+function applyGlobalTransform() {
+  if (!pantinState.rootGroup) return;
+  const center = getGrabCenter();
+  pantinState.rootGroup.setAttribute('transform',
+    `translate(${pantinState.tx}, ${pantinState.ty}) ` +
+    `rotate(${pantinState.rotate}, ${center.x}, ${center.y}) ` +
+    `scale(${pantinState.scale})`
+  );
+}
+
+// --- Global Interactions (Sliders & Drag) ---
+export function setupPantinGlobalInteractions(svgElement, options) {
+  const { rootGroupId, grabId, scaleSliderId, rotateSliderId } = options;
+  pantinState.svgElement = svgElement;
+  pantinState.rootGroup = svgElement.querySelector(`#${rootGroupId}`);
+  const grabEl = svgElement.querySelector(`#${grabId}`);
+  const scaleSlider = document.getElementById(scaleSliderId);
+  const rotateSlider = document.getElementById(rotateSliderId);
+
+  if (!pantinState.rootGroup || !grabEl || !scaleSlider || !rotateSlider) {
+    console.error("Missing elements for global interactions.");
+    return;
+  }
+
+  loadGlobalState();
+
+  scaleSlider.value = pantinState.scale;
+  rotateSlider.value = pantinState.rotate;
+
+  scaleSlider.addEventListener('input', e => {
+    pantinState.scale = parseFloat(e.target.value);
+    applyGlobalTransform();
+    saveGlobalState();
   });
-}
 
-function getSVGCoords(svgDoc, evt) {
-  const pt = svgDoc.createElementNS("http://www.w3.org/2000/svg", "svg").createSVGPoint();
-  pt.x = evt.clientX;
-  pt.y = evt.clientY;
-  return svgDoc.documentElement.getScreenCTM()
-    ? pt.matrixTransform(svgDoc.documentElement.getScreenCTM().inverse())
-    : { x: evt.clientX, y: evt.clientY };
-}
+  rotateSlider.addEventListener('input', e => {
+    pantinState.rotate = parseFloat(e.target.value);
+    applyGlobalTransform();
+    saveGlobalState();
+  });
 
-function setRotation(el, angleDeg, pivot) {
-  let base = (el.getAttribute('transform') || '').replace(/rotate\([^)]+\)/, '').trim();
-  let rotateStr = `rotate(${angleDeg},${pivot.x},${pivot.y})`;
-  el.setAttribute('transform', `${base} ${rotateStr}`.trim());
-}
+  let isDragging = false;
+  let startPt = { x: 0, y: 0 };
 
-/**
- * Ajoute la manipulation globale (drag, rotate, resize) à un pantin SVG
- * @param {SVGDocument} svgDoc
- * @param {Object} options :
- *    - rootGroupId : id du groupe racine du pantin (ex : "manu_test")
- *    - grabId      : id de l'élément qui sert de point de grab (ex : "torse")
- *    - onChange    : callback quand l'état change
- */
-export function setupPantinGlobalInteractions(svgDoc, options) {
-  const { rootGroupId, grabId, onChange } = options;
-  const rootGroup = svgDoc.getElementById(rootGroupId);
-  const grabEl = svgDoc.getElementById(grabId);
-  if (!rootGroup || !grabEl) return;
-
-  // Initial state
-  if (!rootGroup.dataset.tx) rootGroup.dataset.tx = 0;
-  if (!rootGroup.dataset.ty) rootGroup.dataset.ty = 0;
-  if (!rootGroup.dataset.scale) rootGroup.dataset.scale = 1;
-  if (!rootGroup.dataset.rotate) rootGroup.dataset.rotate = 0;
-
-  // Calcul du point de grab = centre du bounding box de grabId
-  function getGrabCenter() {
-    const box = grabEl.getBBox();
-    return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
-  }
-
-  // Etat du drag/resize/rotate
-  let mode = null; // "move" | "rotate" | "resize"
-  let startPt = null;
-  let startTransform = {};
-
-  // Ajout de handles visuels (pour resize et rotate)
-  function createHandle(type, dx, dy, cursor, title) {
-    const ns = "http://www.w3.org/2000/svg";
-    const c = document.createElementNS(ns, "circle");
-    const center = getGrabCenter();
-    c.setAttribute("cx", center.x + dx);
-    c.setAttribute("cy", center.y + dy);
-    c.setAttribute("r", 10);
-    c.setAttribute("fill", "#4cf");
-    c.setAttribute("opacity", 0.6);
-    c.setAttribute("cursor", cursor);
-    c.setAttribute("data-handle", type);
-    c.setAttribute("title", title);
-    c.style.pointerEvents = "all";
-    svgDoc.documentElement.appendChild(c);
-    return c;
-  }
-
-  // Supprime tous les handles avant d'en ajouter
-  function removeHandles() {
-    svgDoc.querySelectorAll('circle[data-handle]').forEach(h => h.remove());
-  }
-
-  // Ajoute les handles (move, rotate, resize)
-  function addHandles() {
-    removeHandles();
-    const center = getGrabCenter();
-    // Move handle (au centre du torse)
-    const moveHandle = createHandle("move", 0, 0, "move", "Déplacer le pantin");
-    // Rotate handle (ex : à droite du torse)
-    const rotateHandle = createHandle("rotate", 40, 0, "crosshair", "Tourner le pantin");
-    // Resize handle (ex : en haut du torse)
-    const resizeHandle = createHandle("resize", 0, -60, "ns-resize", "Redimensionner le pantin");
-  }
-
-  addHandles();
-
-  let handleActive = null;
-
-  // Ecouteur de drag sur les handles
-  svgDoc.addEventListener('mousedown', function(e) {
-    const t = e.target;
-    if (!t.hasAttribute('data-handle')) return;
-    mode = t.getAttribute('data-handle');
-    handleActive = t;
-    startPt = getSVGCoords(svgDoc, e);
-    // Stock la transform d'origine
-    startTransform = {
-      tx: parseFloat(rootGroup.dataset.tx) || 0,
-      ty: parseFloat(rootGroup.dataset.ty) || 0,
-      scale: parseFloat(rootGroup.dataset.scale) || 1,
-      rotate: parseFloat(rootGroup.dataset.rotate) || 0
-    };
-    svgDoc.addEventListener('mousemove', onMove);
-    svgDoc.addEventListener('mouseup', onUp);
-    svgDoc.addEventListener('mouseleave', onUp);
+  grabEl.style.cursor = 'move';
+  grabEl.addEventListener('mousedown', e => {
+    isDragging = true;
+    startPt = getSVGCoords(e);
+    grabEl.style.cursor = 'grabbing';
     e.preventDefault();
     e.stopPropagation();
   });
 
-  function onMove(e) {
-    if (!mode) return;
-    const pt = getSVGCoords(svgDoc, e);
-    const center = getGrabCenter();
-    if (mode === "move") {
-      const dx = pt.x - startPt.x;
-      const dy = pt.y - startPt.y;
-      rootGroup.dataset.tx = startTransform.tx + dx;
-      rootGroup.dataset.ty = startTransform.ty + dy;
-    }
-    else if (mode === "rotate") {
-      const a0 = Math.atan2(startPt.y - center.y, startPt.x - center.x);
-      const a1 = Math.atan2(pt.y - center.y, pt.x - center.x);
-      let delta = (a1 - a0) * 180 / Math.PI;
-      rootGroup.dataset.rotate = startTransform.rotate + delta;
-    }
-    else if (mode === "resize") {
-      const dist0 = Math.hypot(startPt.x - center.x, startPt.y - center.y);
-      const dist1 = Math.hypot(pt.x - center.x, pt.y - center.y);
-      const scale = dist1 / dist0;
-      rootGroup.dataset.scale = Math.max(0.1, startTransform.scale * scale);
-    }
-    applyTransform();
-  }
+  svgElement.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    const pt = getSVGCoords(e);
+    const dx = (pt.x - startPt.x);
+    const dy = (pt.y - startPt.y);
+    pantinState.tx += dx;
+    pantinState.ty += dy;
+    startPt = pt;
+    applyGlobalTransform();
+  });
 
-  function onUp(e) {
-    if (mode) {
-      mode = null;
-      handleActive = null;
-      svgDoc.removeEventListener('mousemove', onMove);
-      svgDoc.removeEventListener('mouseup', onUp);
-      svgDoc.removeEventListener('mouseleave', onUp);
-      if (typeof onChange === "function") onChange();
-    }
-  }
+  const stopDragging = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    grabEl.style.cursor = 'move';
+    saveGlobalState();
+  };
 
-  function applyTransform() {
-    const tx = parseFloat(rootGroup.dataset.tx) || 0;
-    const ty = parseFloat(rootGroup.dataset.ty) || 0;
-    const scale = parseFloat(rootGroup.dataset.scale) || 1;
-    const angle = parseFloat(rootGroup.dataset.rotate) || 0;
-    const center = getGrabCenter();
-    // Transform = translate + rotate + scale autour du centre du torse
-    // Important : l'ordre des transforms est crucial pour du SVG
-    let t = `translate(${tx},${ty})`;
-    let s = `scale(${scale})`;
-    let r = `rotate(${angle},${center.x},${center.y})`;
-    rootGroup.setAttribute('transform', `${t} ${r} ${s}`.trim());
-    removeHandles();
-    addHandles();
-  }
+  svgElement.addEventListener('mouseup', stopDragging);
+  svgElement.addEventListener('mouseleave', stopDragging);
 
-  // Utilitaire pour coord écran → SVG
-  function getSVGCoords(svgDoc, evt) {
-    const pt = svgDoc.createElementNS("http://www.w3.org/2000/svg", "svg").createSVGPoint();
-    pt.x = evt.clientX;
-    pt.y = evt.clientY;
-    return svgDoc.documentElement.getScreenCTM()
-      ? pt.matrixTransform(svgDoc.documentElement.getScreenCTM().inverse())
-      : { x: evt.clientX, y: evt.clientY };
-  }
+  applyGlobalTransform();
 }
 
+// --- Member Rotations (The Correct, Relative-Drag Method with Correct Coordinates) ---
+export function setupInteractions(svgElement, memberList, pivots, timeline) {
+  memberList.forEach(id => {
+    const el = svgElement.querySelector(`#${id}`);
+    if (!el || !el.parentNode) return;
+
+    const pivotInParentCoords = pivots[id];
+    if (!pivotInParentCoords) return;
+
+    let isRotating = false;
+    let baseAngle = 0;
+    let startMouseAngle = 0;
+
+    el.style.cursor = "grab";
+
+    const startRotation = (e) => {
+      isRotating = true;
+      el.style.cursor = "grabbing";
+      e.preventDefault();
+      e.stopPropagation();
+
+      const localMousePoint = getLocalMousePoint(e, el.parentNode);
+      
+      baseAngle = parseFloat(el.dataset.rotate) || 0;
+      startMouseAngle = Math.atan2(
+        localMousePoint.y - pivotInParentCoords.y, 
+        localMousePoint.x - pivotInParentCoords.x
+      ) * (180 / Math.PI);
+      
+      svgElement.addEventListener('mousemove', processRotation);
+      svgElement.addEventListener('mouseup', stopRotation);
+      svgElement.addEventListener('mouseleave', stopRotation);
+    };
+
+    const processRotation = (e) => {
+      if (!isRotating) return;
+      
+      const localMousePoint = getLocalMousePoint(e, el.parentNode);
+
+      const currentMouseAngle = Math.atan2(
+        localMousePoint.y - pivotInParentCoords.y, 
+        localMousePoint.x - pivotInParentCoords.x
+      ) * (180 / Math.PI);
+
+      let deltaAngle = currentMouseAngle - startMouseAngle;
+
+      if (deltaAngle > 180) deltaAngle -= 360;
+      if (deltaAngle < -180) deltaAngle += 360;
+
+      const newAngle = baseAngle + deltaAngle;
+
+      el.dataset.rotate = newAngle;
+      setRotation(el, newAngle, pivotInParentCoords);
+      timeline.updateMember(id, { rotate: newAngle });
+    };
+
+    const stopRotation = () => {
+      if (!isRotating) return;
+      isRotating = false;
+      el.style.cursor = "grab";
+      svgElement.removeEventListener('mousemove', processRotation);
+      svgElement.removeEventListener('mouseup', stopRotation);
+      svgElement.removeEventListener('mouseleave', stopRotation);
+    };
+
+    el.addEventListener('mousedown', startRotation);
+  });
+}
+
+// --- Utility Functions ---
+
+function getSVGCoords(evt) {
+  const pt = pantinState.svgElement.createSVGPoint();
+  pt.x = evt.clientX;
+  pt.y = evt.clientY;
+  return pt.matrixTransform(pantinState.svgElement.getScreenCTM().inverse());
+}
+
+function getLocalMousePoint(evt, parentElement) {
+    const mousePoint = getSVGCoords(evt);
+    const toParentLocalMatrix = parentElement.getCTM().inverse();
+    return mousePoint.matrixTransform(toParentLocalMatrix);
+}
+
+function setRotation(el, angleDeg, pivot) {
+  el.setAttribute('transform', `rotate(${angleDeg},${pivot.x},${pivot.y})`);
+}
