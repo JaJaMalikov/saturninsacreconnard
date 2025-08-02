@@ -2,13 +2,14 @@
 
 /**
  * Gestion de la timeline d'animation (frames)
- * Un frame = { segmentId: { rotate: angleDeg }, ... }
- * L'ensemble est un tableau : animation[frameIndex] = { ... }
+ * Une frame = {
+ *   transform: { tx, ty, scale, rotate },
+ *   members: { segmentId: { rotate: angleDeg }, ... }
+ * }
  */
 
 export class Timeline {
   constructor(memberList, initialFrame = null) {
-    // memberList : array des IDs des segments animables
     this.memberList = memberList;
     this.frames = [initialFrame || this.createEmptyFrame()];
     this.current = 0;
@@ -17,10 +18,12 @@ export class Timeline {
   }
 
   createEmptyFrame() {
-    // Génère un frame vierge (tous les membres à rotation 0)
-    const frame = {};
-    this.memberList.forEach(id => frame[id] = { rotate: 0 });
-    return frame;
+    const members = {};
+    this.memberList.forEach(id => (members[id] = { rotate: 0 }));
+    return {
+      transform: { tx: 0, ty: 0, scale: 1, rotate: 0 },
+      members,
+    };
   }
 
   getCurrentFrame() {
@@ -34,13 +37,17 @@ export class Timeline {
   }
 
   updateMember(id, value) {
-    // Modifie la rotation d'un membre à la frame courante
     if (!this.memberList.includes(id)) return;
-    this.frames[this.current][id] = { ...this.frames[this.current][id], ...value };
+    const frame = this.getCurrentFrame();
+    frame.members[id] = { ...frame.members[id], ...value };
+  }
+
+  updateTransform(values) {
+    const frame = this.getCurrentFrame();
+    frame.transform = { ...frame.transform, ...values };
   }
 
   addFrame(duplicate = true) {
-    // Ajoute une nouvelle frame (clone de la courante par défaut)
     let newFrame = duplicate
       ? JSON.parse(JSON.stringify(this.getCurrentFrame()))
       : this.createEmptyFrame();
@@ -50,7 +57,7 @@ export class Timeline {
   }
 
   deleteFrame(index = this.current) {
-    if (this.frames.length <= 1) return; // Minimum 1 frame
+    if (this.frames.length <= 1) return;
     this.frames.splice(index, 1);
     if (this.current >= this.frames.length) this.current = this.frames.length - 1;
     return this.getCurrentFrame();
@@ -67,7 +74,6 @@ export class Timeline {
   }
 
   play(callback, onEnd, fps = 8) {
-    // callback(frame, index)
     if (this.playing) return;
     this.playing = true;
     let i = this.current;
@@ -95,18 +101,30 @@ export class Timeline {
   importJSON(json) {
     try {
       const arr = JSON.parse(json);
-      if (!Array.isArray(arr)) throw "Invalid format";
-      // On vérifie que chaque frame a bien tous les membres
-      arr.forEach(f => {
-        this.memberList.forEach(id => {
-          if (!f[id]) f[id] = { rotate: 0 };
-        });
+      if (!Array.isArray(arr)) throw 'Invalid format';
+
+      // Rétro-compatibilité : convertir l'ancien format
+      const migratedFrames = arr.map(f => {
+        if (f.members && f.transform) return f; // Déjà au bon format
+        return this._migrateOldFrame(f);
       });
-      this.frames = arr;
+
+      this.frames = migratedFrames;
       this.current = 0;
     } catch (e) {
-      throw new Error("Échec import : " + e);
+      throw new Error('Échec import : ' + e);
     }
+  }
+
+  _migrateOldFrame(oldFrame) {
+    const newFrame = this.createEmptyFrame();
+    this.memberList.forEach(id => {
+      if (oldFrame[id] && typeof oldFrame[id].rotate !== 'undefined') {
+        newFrame.members[id] = { rotate: oldFrame[id].rotate };
+      }
+    });
+    // Les transformations globales seront celles par défaut
+    return newFrame;
   }
 }
 

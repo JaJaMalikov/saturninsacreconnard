@@ -1,135 +1,128 @@
-// src/ui.js
-
 /**
- * Initialise l’UI de contrôle de la timeline
- *
- * @param {Timeline} timeline - instance de Timeline
- * @param {Function} onFrameChange - callback appelée après chaque modif (ex: pour réappliquer la frame sur le SVG)
+ * Initialise l’UI et la connecte à la timeline.
+ * @param {Timeline} timeline - L'instance de la timeline.
+ * @param {Function} onFrameChange - Callback pour rafraîchir le SVG.
+ * @param {Function} onSave - Callback pour sauvegarder l'état.
  */
-export function initUI(timeline, onFrameChange) {
-  const controls = document.getElementById('controls');
-  controls.innerHTML = `
-    <button id="prevFrame">⏮️</button>
-    <span id="frameInfo">Frame 1 / 1</span>
-    <button id="nextFrame">⏭️</button>
-    <button id="addFrame">➕ Frame</button>
-    <button id="delFrame">🗑️ Frame</button>
-    <button id="playAnim">▶️ Play</button>
-    <button id="stopAnim">⏹️ Stop</button>
-    <button id="exportAnim">💾 Export</button>
-    <input type="file" id="importAnim" style="display:none" />
-    <button id="importAnimBtn">📂 Import</button>
-    <button id="resetStorage" style="background: #c33; color: white;">⚠️ Reset</button>
-  `;
-
-  // Référence rapide
+export function initUI(timeline, onFrameChange, onSave) {
   const frameInfo = document.getElementById('frameInfo');
+  const timelineSlider = document.getElementById('timeline-slider');
 
-  // Update de l'affichage frame courante
-  function updateFrameInfo() {
-    frameInfo.textContent = `Frame ${timeline.current + 1} / ${timeline.frames.length}`;
+  // Met à jour tous les éléments de l'UI en fonction de l'état de la timeline.
+  function updateUI() {
+    const frameCount = timeline.frames.length;
+    const currentIndex = timeline.current;
+
+    // Info textuelle
+    frameInfo.textContent = `${currentIndex + 1} / ${frameCount}`;
+
+    // Curseur de la timeline
+    timelineSlider.max = frameCount - 1;
+    timelineSlider.value = currentIndex;
+
+    // Appel pour rafraîchir le SVG et les sliders de l'inspecteur
+    onFrameChange();
   }
 
-  // ---- Handlers ----
-  function save() {
-    localStorage.setItem('animation', timeline.exportJSON());
-  }
+  // --- Connexion des événements --- //
 
+  // Curseur principal
+  timelineSlider.addEventListener('input', () => {
+    timeline.setCurrentFrame(parseInt(timelineSlider.value, 10));
+    updateUI();
+  });
+  timelineSlider.addEventListener('change', onSave); // Sauvegarde quand on relâche
+
+  // Boutons de lecture
   document.getElementById('prevFrame').onclick = () => {
     timeline.prevFrame();
-    updateFrameInfo();
-    onFrameChange();
-    save();
+    updateUI();
+    onSave();
   };
 
   document.getElementById('nextFrame').onclick = () => {
     timeline.nextFrame();
-    updateFrameInfo();
-    onFrameChange();
-    save();
-  };
-
-  document.getElementById('addFrame').onclick = () => {
-    timeline.addFrame();
-    updateFrameInfo();
-    onFrameChange();
-    save();
-  };
-
-  document.getElementById('delFrame').onclick = () => {
-    timeline.deleteFrame();
-    updateFrameInfo();
-    onFrameChange();
-    save();
+    updateUI();
+    onSave();
   };
 
   document.getElementById('playAnim').onclick = () => {
-    timeline.play((frame, idx) => {
-      timeline.setCurrentFrame(idx);
-      updateFrameInfo();
-      onFrameChange();
-    }, () => {
-      // Callback de fin : retour à la frame 1
-      timeline.setCurrentFrame(0);
-      updateFrameInfo();
-      onFrameChange();
-    });
+    const playBtn = document.getElementById('playAnim');
+    playBtn.textContent = '⏸️'; // Change l'icône pour Pause
+
+    timeline.play(
+      (frame, index) => {
+        timeline.setCurrentFrame(index);
+        updateUI();
+      },
+      () => {
+        playBtn.textContent = '▶️'; // Rétablit l'icône Play à la fin
+        onSave();
+      },
+      10 // fps
+    );
   };
 
   document.getElementById('stopAnim').onclick = () => {
     timeline.stop();
-    // Retour à la frame 1
-    timeline.setCurrentFrame(0);
-    updateFrameInfo();
-    onFrameChange();
-    save();
+    document.getElementById('playAnim').textContent = '▶️';
+    // Pas de changement de frame au stop, l'utilisateur peut vouloir s'arrêter sur une frame précise
   };
 
+  // Actions sur les frames
+  document.getElementById('addFrame').onclick = () => {
+    timeline.addFrame();
+    updateUI();
+    onSave();
+  };
+
+  document.getElementById('delFrame').onclick = () => {
+    if (timeline.frames.length > 1) {
+      timeline.deleteFrame();
+      updateUI();
+      onSave();
+    }
+  };
+
+  // Actions de l'application
   document.getElementById('exportAnim').onclick = () => {
     const blob = new Blob([timeline.exportJSON()], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'animation.json';
-    document.body.appendChild(a);
+    a.download = `animation-${Date.now()}.json`;
     a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 100);
+    URL.revokeObjectURL(url);
   };
 
-  // Import JSON (bouton + file input caché)
   document.getElementById('importAnimBtn').onclick = () => {
     document.getElementById('importAnim').click();
   };
-  document.getElementById('importAnim').onchange = (e) => {
+
+  document.getElementById('importAnim').onchange = e => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = function(evt) {
+    reader.onload = evt => {
       try {
         timeline.importJSON(evt.target.result);
-        updateFrameInfo();
-        onFrameChange();
-        save();
-      } catch (e) {
-        alert("Erreur import: " + e.message);
+        updateUI();
+        onSave();
+      } catch (err) {
+        alert(`Erreur lors de l'importation : ${err.message}`);
       }
     };
     reader.readAsText(file);
-    e.target.value = ''; // Reset input
+    e.target.value = ''; // Permet de réimporter le même fichier
   };
 
   document.getElementById('resetStorage').onclick = () => {
-    if (confirm("Êtes-vous sûr de vouloir tout effacer ? Cette action est irréversible.")) {
+    if (confirm("Voulez-vous vraiment réinitialiser le projet ?\nCette action est irréversible.")) {
       localStorage.removeItem('animation');
-      localStorage.removeItem('pantinGlobalState');
       window.location.reload();
     }
   };
 
-  // Initial affichage
-  updateFrameInfo();
+  // Premier affichage
+  updateUI();
 }
-

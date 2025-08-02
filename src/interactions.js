@@ -1,12 +1,7 @@
 // src/interactions.js
 
 // --- Global State Management ---
-const PANTIN_STATE_KEY = 'pantinGlobalState';
 const pantinState = {
-  tx: 0,
-  ty: 0,
-  scale: 1,
-  rotate: 0,
   rootGroup: null,
   svgElement: null,
 };
@@ -39,6 +34,7 @@ function loadGlobalState() {
 
 function getGrabCenter() {
   const el = pantinState.rootGroup.querySelector('#torse');
+  if (!el) return { x: 0, y: 0 };
   const box = el.getBBox();
   return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
 }
@@ -54,7 +50,7 @@ function applyGlobalTransform() {
 }
 
 /** Setup global interactions: drag on torse, scale & rotate sliders. */
-export function setupPantinGlobalInteractions(svgElement, options) {
+export function setupPantinGlobalInteractions(svgElement, options, timeline, onUpdate, onEnd) {
   const { rootGroupId, grabId, scaleSliderId, rotateSliderId } = options;
   pantinState.svgElement = svgElement;
   pantinState.rootGroup = svgElement.querySelector(`#${rootGroupId}`);
@@ -63,20 +59,21 @@ export function setupPantinGlobalInteractions(svgElement, options) {
   const rotateSlider = document.getElementById(rotateSliderId);
   if (!pantinState.rootGroup || !grabEl || !scaleSlider || !rotateSlider) return;
 
-  loadGlobalState();
-  scaleSlider.value = pantinState.scale;
-  rotateSlider.value = pantinState.rotate;
+  const initialTransform = timeline.getCurrentFrame().transform;
+  scaleSlider.value = initialTransform.scale;
+  rotateSlider.value = initialTransform.rotate;
 
   scaleSlider.addEventListener('input', e => {
-    pantinState.scale = parseFloat(e.target.value);
-    applyGlobalTransform();
-    saveGlobalState();
+    timeline.updateTransform({ scale: parseFloat(e.target.value) });
+    onUpdate();
   });
+  scaleSlider.addEventListener('change', onEnd); // Save on release
+
   rotateSlider.addEventListener('input', e => {
-    pantinState.rotate = parseFloat(e.target.value);
-    applyGlobalTransform();
-    saveGlobalState();
+    timeline.updateTransform({ rotate: parseFloat(e.target.value) });
+    onUpdate();
   });
+  rotateSlider.addEventListener('change', onEnd); // Save on release
 
   let dragging = false;
   let startPt;
@@ -87,23 +84,27 @@ export function setupPantinGlobalInteractions(svgElement, options) {
     grabEl.style.cursor = 'grabbing';
     e.preventDefault();
   });
+
   svgElement.addEventListener('mousemove', e => {
     if (!dragging) return;
     const pt = getSVGCoords(e);
-    pantinState.tx += pt.x - startPt.x;
-    pantinState.ty += pt.y - startPt.y;
+    const frame = timeline.getCurrentFrame();
+    timeline.updateTransform({
+      tx: frame.transform.tx + (pt.x - startPt.x),
+      ty: frame.transform.ty + (pt.y - startPt.y),
+    });
     startPt = pt;
-    applyGlobalTransform();
+    onUpdate();
   });
+
   const endDrag = () => {
     if (!dragging) return;
     dragging = false;
     grabEl.style.cursor = 'move';
-    saveGlobalState();
+    onEnd();
   };
   svgElement.addEventListener('mouseup', endDrag);
   svgElement.addEventListener('mouseleave', endDrag);
-  applyGlobalTransform();
 }
 
 // --- Utilities ---
@@ -126,7 +127,7 @@ function applyRotation(el, angle, pivot) {
  * @param pivots - not used here
  * @param timeline - has updateMember(id, state)
  */
-export function setupInteractions(svgElement, memberList, _, timeline) {
+export function setupInteractions(svgElement, memberList, _, timeline, onUpdate, onEnd) {
   // Anatomical pivot and terminal mappings (IDs of <g> elements)
   const pivotMap = {
     tete: 'cou',
@@ -199,9 +200,8 @@ export function setupInteractions(svgElement, memberList, _, timeline) {
         e.clientX - pivotScreen.x
       ) * 180 / Math.PI;
       let newAng = ((mouseAng - baseOri + 180) % 360) - 180;
-      applyRotation(seg, newAng, pivotLocal);
-      seg.dataset.rotate = newAng;
       timeline.updateMember(id, { rotate: newAng });
+      onUpdate();
     }
 
     function onUp(e) {
@@ -209,6 +209,7 @@ export function setupInteractions(svgElement, memberList, _, timeline) {
       seg.style.cursor = 'grab';
       seg.releasePointerCapture && seg.releasePointerCapture(e.pointerId);
       svgElement.removeEventListener('pointermove', onMove);
+      onEnd();
     }
   });
 }
