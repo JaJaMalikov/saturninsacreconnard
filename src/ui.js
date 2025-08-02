@@ -1,3 +1,5 @@
+import { updateOnionSkinSettings } from './onionSkin.js';
+
 /**
  * Initialise l’UI et la connecte à la timeline.
  * @param {Timeline} timeline - L'instance de la timeline.
@@ -5,87 +7,95 @@
  * @param {Function} onSave - Callback pour sauvegarder l'état.
  */
 export function initUI(timeline, onFrameChange, onSave) {
+  console.log("initUI called.");
   const frameInfo = document.getElementById('frameInfo');
   const timelineSlider = document.getElementById('timeline-slider');
+  const fpsInput = document.getElementById('fps-input');
 
-  // Met à jour tous les éléments de l'UI en fonction de l'état de la timeline.
+  // --- Panneau Inspecteur Escamotable ---
+  const appContainer = document.getElementById('app-container');
+  const inspectorToggleBtn = document.getElementById('inspector-toggle-btn');
+  const inspectorStateKey = 'inspector-collapsed';
+
+  if (localStorage.getItem(inspectorStateKey) === 'true') {
+    appContainer.classList.add('inspector-collapsed');
+  }
+
+  inspectorToggleBtn.onclick = () => {
+    console.log("Inspector toggle button clicked.");
+    appContainer.classList.toggle('inspector-collapsed');
+    localStorage.setItem(inspectorStateKey, appContainer.classList.contains('inspector-collapsed'));
+  };
+
+  // --- Mise à jour de l'UI --- //
   function updateUI() {
+    console.log("updateUI called.");
     const frameCount = timeline.frames.length;
     const currentIndex = timeline.current;
 
-    // Info textuelle
     frameInfo.textContent = `${currentIndex + 1} / ${frameCount}`;
-
-    // Curseur de la timeline
-    timelineSlider.max = frameCount - 1;
+    timelineSlider.max = frameCount > 1 ? frameCount - 1 : 0;
     timelineSlider.value = currentIndex;
 
-    // Appel pour rafraîchir le SVG et les sliders de l'inspecteur
-    onFrameChange();
+    onFrameChange(); // Rafraîchit le SVG et les valeurs de l'inspecteur
   }
 
-  // --- Connexion des événements --- //
+  // --- Connexions des événements --- //
 
-  // Curseur principal
+  // Timeline
   timelineSlider.addEventListener('input', () => {
+    console.log("Timeline slider input.");
     timeline.setCurrentFrame(parseInt(timelineSlider.value, 10));
     updateUI();
   });
-  timelineSlider.addEventListener('change', onSave); // Sauvegarde quand on relâche
+  timelineSlider.addEventListener('change', onSave);
 
-  // Boutons de lecture
-  document.getElementById('prevFrame').onclick = () => {
-    timeline.prevFrame();
-    updateUI();
-    onSave();
-  };
-
-  document.getElementById('nextFrame').onclick = () => {
-    timeline.nextFrame();
-    updateUI();
-    onSave();
-  };
+  document.getElementById('prevFrame').onclick = () => { console.log("Prev frame button clicked."); timeline.prevFrame(); updateUI(); onSave(); };
+  document.getElementById('nextFrame').onclick = () => { console.log("Next frame button clicked."); timeline.nextFrame(); updateUI(); onSave(); };
 
   document.getElementById('playAnim').onclick = () => {
+    console.log("Play button clicked.");
     const playBtn = document.getElementById('playAnim');
-    playBtn.textContent = '⏸️'; // Change l'icône pour Pause
+    if (timeline.playing) return;
+
+    playBtn.textContent = '⏸️';
+    const fps = parseInt(fpsInput.value, 10) || 10;
+
+    let originalOnionSkinState = onionSkinToggle.checked;
+    updateOnionSkinSettings({ enabled: false }); // Disable onion skin during playback
+    onFrameChange(); // Refresh to hide onion skins immediately
 
     timeline.play(
-      (frame, index) => {
-        timeline.setCurrentFrame(index);
-        updateUI();
-      },
+      (frame, index) => { timeline.setCurrentFrame(index); updateUI(); },
       () => {
-        playBtn.textContent = '▶️'; // Rétablit l'icône Play à la fin
+        playBtn.textContent = '▶️';
+        updateOnionSkinSettings({ enabled: originalOnionSkinState }); // Restore original state
+        onFrameChange(); // Refresh to show onion skins if they were enabled
         onSave();
       },
-      10 // fps
+      fps
     );
   };
 
   document.getElementById('stopAnim').onclick = () => {
+    console.log("Stop button clicked.");
     timeline.stop();
+    timeline.setCurrentFrame(0);
     document.getElementById('playAnim').textContent = '▶️';
-    // Pas de changement de frame au stop, l'utilisateur peut vouloir s'arrêter sur une frame précise
-  };
-
-  // Actions sur les frames
-  document.getElementById('addFrame').onclick = () => {
-    timeline.addFrame();
     updateUI();
     onSave();
   };
 
+  // Actions sur les frames
+  document.getElementById('addFrame').onclick = () => { console.log("Add frame button clicked."); timeline.addFrame(); updateUI(); onSave(); };
   document.getElementById('delFrame').onclick = () => {
-    if (timeline.frames.length > 1) {
-      timeline.deleteFrame();
-      updateUI();
-      onSave();
-    }
+    console.log("Delete frame button clicked.");
+    if (timeline.frames.length > 1) { timeline.deleteFrame(); updateUI(); onSave(); }
   };
 
   // Actions de l'application
   document.getElementById('exportAnim').onclick = () => {
+    console.log("Export button clicked.");
     const blob = new Blob([timeline.exportJSON()], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -95,11 +105,9 @@ export function initUI(timeline, onFrameChange, onSave) {
     URL.revokeObjectURL(url);
   };
 
-  document.getElementById('importAnimBtn').onclick = () => {
-    document.getElementById('importAnim').click();
-  };
-
+  document.getElementById('importAnimBtn').onclick = () => { console.log("Import button clicked."); document.getElementById('importAnim').click(); };
   document.getElementById('importAnim').onchange = e => {
+    console.log("Import file selected.");
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
@@ -108,20 +116,60 @@ export function initUI(timeline, onFrameChange, onSave) {
         timeline.importJSON(evt.target.result);
         updateUI();
         onSave();
-      } catch (err) {
-        alert(`Erreur lors de l'importation : ${err.message}`);
-      }
+      } catch (err) { alert(`Erreur d'importation : ${err.message}`); }
     };
     reader.readAsText(file);
-    e.target.value = ''; // Permet de réimporter le même fichier
+    e.target.value = '';
   };
 
   document.getElementById('resetStorage').onclick = () => {
+    console.log("Reset storage button clicked.");
     if (confirm("Voulez-vous vraiment réinitialiser le projet ?\nCette action est irréversible.")) {
       localStorage.removeItem('animation');
+      localStorage.removeItem(inspectorStateKey);
       window.location.reload();
     }
   };
+
+  // --- Contrôles de l'inspecteur --- //
+  const controls = {
+    scale: { plus: 'scale-plus', minus: 'scale-minus', value: 'scale-value', step: 0.1 },
+    rotate: { plus: 'rotate-plus', minus: 'rotate-minus', value: 'rotate-value', step: 1 },
+  };
+
+  for (const [key, ids] of Object.entries(controls)) {
+    document.getElementById(ids.plus).onclick = () => { console.log(`${key} plus button clicked.`); updateTransform(key, ids.step);};
+    document.getElementById(ids.minus).onclick = () => { console.log(`${key} minus button clicked.`); updateTransform(key, -ids.step);};
+  }
+
+  function updateTransform(key, delta) {
+    console.log(`updateTransform for ${key} by ${delta}.`);
+    const currentFrame = timeline.getCurrentFrame();
+    const currentValue = currentFrame.transform[key];
+    const newValue = currentValue + delta;
+    timeline.updateTransform({ [key]: newValue });
+    updateUI();
+    onSave();
+  }
+
+  // --- Contrôles Onion Skin ---
+  const onionSkinToggle = document.getElementById('onion-skin-toggle');
+  const pastFramesInput = document.getElementById('past-frames');
+  const futureFramesInput = document.getElementById('future-frames');
+
+  const updateOnionSkin = () => {
+    console.log("updateOnionSkin called.");
+    updateOnionSkinSettings({
+      enabled: onionSkinToggle.checked,
+      pastFrames: parseInt(pastFramesInput.value, 10) || 0,
+      futureFrames: parseInt(futureFramesInput.value, 10) || 0,
+    });
+    onFrameChange(); // Redessine pour appliquer les changements
+  };
+
+  onionSkinToggle.addEventListener('change', updateOnionSkin);
+  pastFramesInput.addEventListener('change', updateOnionSkin);
+  futureFramesInput.addEventListener('change', updateOnionSkin);
 
   // Premier affichage
   updateUI();

@@ -5,6 +5,7 @@
   --text-color: #eaeaea;
   --accent-color: #2c6;
   --accent-hover-color: #3ad;
+  --inspector-width: 250px;
 }
 
 * {
@@ -19,18 +20,23 @@ body, html {
   color: var(--text-color);
   height: 100vh;
   width: 100vw;
-  overflow: hidden; /* Empêche le scroll global */
+  overflow: hidden;
 }
 
 .app-container {
   display: grid;
-  grid-template-columns: 1fr 250px; /* Théâtre | Inspecteur */
-  grid-template-rows: 1fr auto; /* Théâtre/Inspecteur | Timeline */
+  grid-template-columns: 1fr var(--inspector-width);
+  grid-template-rows: 1fr auto;
   grid-template-areas:
     "theatre inspector"
     "timeline timeline";
   height: 100vh;
   width: 100vw;
+  transition: grid-template-columns 0.3s ease-in-out;
+}
+
+.app-container.inspector-collapsed {
+  grid-template-columns: 1fr 0px;
 }
 
 #theatre {
@@ -51,18 +57,57 @@ body, html {
   background-color: var(--panel-bg-color);
   border-left: 1px solid var(--border-color);
   padding: 16px;
-  overflow-y: auto;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
-#inspector-panel h3 {
-  margin-top: 0;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 8px;
+
+
+#selection-info {
+  margin-top: 16px;
+  padding: 8px;
+  background-color: var(--bg-color);
+  border-radius: 4px;
 }
 
-#pantin-controls label {
+#selection-info label {
+  font-weight: bold;
   display: block;
-  margin: 16px 0 8px 0;
+  margin-bottom: 4px;
+}
+
+#selected-element-name {
+  color: var(--accent-color);
+}
+
+.control-group {
+  margin: 20px 0;
+}
+
+.control-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.9em;
+  color: #aaa;
+}
+
+.value-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.value-stepper button {
+  width: 30px;
+  height: 30px;
+  font-size: 1.2em;
+  padding: 0;
+}
+
+.value-stepper span {
+  font-size: 1.1em;
+  font-variant-numeric: tabular-nums;
+  padding: 0 10px;
 }
 
 #timeline-panel {
@@ -83,6 +128,26 @@ body, html {
 input[type="range"] {
   width: 100%;
   cursor: pointer;
+}
+
+.fps-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.fps-control label {
+  margin: 0;
+}
+
+.fps-control input[type="number"] {
+  width: 60px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 4px;
 }
 
 button {
@@ -112,4 +177,20 @@ button:hover {
   background-color: var(--bg-color);
   padding: 4px 8px;
   border-radius: 3px;
+}
+
+.onion-skin-ghost {
+  pointer-events: none; /* Make ghosts non-interactive */
+  opacity: 0.3; /* Semi-transparent */
+  transition: opacity 0.1s ease-out; /* Smooth fade */
+}
+
+.onion-skin-past {
+  /* Example color for past frames */
+  filter: hue-rotate(180deg) saturate(1.5); /* Blueish tint */
+}
+
+.onion-skin-future {
+  /* Example color for future frames */
+  filter: hue-rotate(90deg) saturate(1.5); /* Greenish tint */
 }
