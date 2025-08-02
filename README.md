@@ -1,6 +1,6 @@
 # Pantin Animateur
 
-![Pantin Animateur Screenshot](screenshot.png) <!-- Placeholder for a future screenshot -->
+![Pantin Animateur Screenshot](apercu.gif) <!-- Placeholder for a future screenshot -->
 
 ## 🚀 Vue d'ensemble
 
