@@ -1,10 +1,10 @@
 // src/interactions.js
 
+// --- Global State Management ---
 const PANTIN_STATE_KEY = 'pantinGlobalState';
-
-// --- State Management ---
 const pantinState = {
-  tx: 0, ty: 0,
+  tx: 0,
+  ty: 0,
   scale: 1,
   rotate: 0,
   rootGroup: null,
@@ -12,48 +12,48 @@ const pantinState = {
 };
 
 function saveGlobalState() {
-  const stateToSave = {
-    tx: pantinState.tx,
-    ty: pantinState.ty,
-    scale: pantinState.scale,
-    rotate: pantinState.rotate,
-  };
-  localStorage.setItem(PANTIN_STATE_KEY, JSON.stringify(stateToSave));
+  localStorage.setItem(
+    PANTIN_STATE_KEY,
+    JSON.stringify({
+      tx: pantinState.tx,
+      ty: pantinState.ty,
+      scale: pantinState.scale,
+      rotate: pantinState.rotate,
+    })
+  );
 }
 
 function loadGlobalState() {
   const saved = localStorage.getItem(PANTIN_STATE_KEY);
-  if (saved) {
-    try {
-      const loaded = JSON.parse(saved);
-      pantinState.tx = loaded.tx || 0;
-      pantinState.ty = loaded.ty || 0;
-      pantinState.scale = loaded.scale || 1;
-      pantinState.rotate = loaded.rotate || 0;
-    } catch (e) {
-      console.error("Failed to load pantin state:", e);
-    }
+  if (!saved) return;
+  try {
+    const { tx = 0, ty = 0, scale = 1, rotate = 0 } = JSON.parse(saved);
+    pantinState.tx = tx;
+    pantinState.ty = ty;
+    pantinState.scale = scale;
+    pantinState.rotate = rotate;
+  } catch {
+    // ignore
   }
 }
 
 function getGrabCenter() {
-  const grabEl = pantinState.rootGroup.querySelector('#torse');
-  if (!grabEl) return { x: 0, y: 0 };
-  const box = grabEl.getBBox();
+  const el = pantinState.rootGroup.querySelector('#torse');
+  const box = el.getBBox();
   return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
 }
 
 function applyGlobalTransform() {
-  if (!pantinState.rootGroup) return;
   const center = getGrabCenter();
-  pantinState.rootGroup.setAttribute('transform',
-    `translate(${pantinState.tx}, ${pantinState.ty}) ` +
-    `rotate(${pantinState.rotate}, ${center.x}, ${center.y}) ` +
-    `scale(${pantinState.scale})`
+  pantinState.rootGroup.setAttribute(
+    'transform',
+    `translate(${pantinState.tx},${pantinState.ty}) ` +
+      `rotate(${pantinState.rotate},${center.x},${center.y}) ` +
+      `scale(${pantinState.scale})`
   );
 }
 
-// --- Global Interactions (Sliders & Drag) ---
+/** Setup global interactions: drag on torse, scale & rotate sliders. */
 export function setupPantinGlobalInteractions(svgElement, options) {
   const { rootGroupId, grabId, scaleSliderId, rotateSliderId } = options;
   pantinState.svgElement = svgElement;
@@ -61,14 +61,9 @@ export function setupPantinGlobalInteractions(svgElement, options) {
   const grabEl = svgElement.querySelector(`#${grabId}`);
   const scaleSlider = document.getElementById(scaleSliderId);
   const rotateSlider = document.getElementById(rotateSliderId);
-
-  if (!pantinState.rootGroup || !grabEl || !scaleSlider || !rotateSlider) {
-    console.error("Missing elements for global interactions.");
-    return;
-  }
+  if (!pantinState.rootGroup || !grabEl || !scaleSlider || !rotateSlider) return;
 
   loadGlobalState();
-
   scaleSlider.value = pantinState.scale;
   rotateSlider.value = pantinState.rotate;
 
@@ -77,120 +72,41 @@ export function setupPantinGlobalInteractions(svgElement, options) {
     applyGlobalTransform();
     saveGlobalState();
   });
-
   rotateSlider.addEventListener('input', e => {
     pantinState.rotate = parseFloat(e.target.value);
     applyGlobalTransform();
     saveGlobalState();
   });
 
-  let isDragging = false;
-  let startPt = { x: 0, y: 0 };
-
+  let dragging = false;
+  let startPt;
   grabEl.style.cursor = 'move';
   grabEl.addEventListener('mousedown', e => {
-    isDragging = true;
+    dragging = true;
     startPt = getSVGCoords(e);
     grabEl.style.cursor = 'grabbing';
     e.preventDefault();
-    e.stopPropagation();
   });
-
   svgElement.addEventListener('mousemove', e => {
-    if (!isDragging) return;
+    if (!dragging) return;
     const pt = getSVGCoords(e);
-    const dx = (pt.x - startPt.x);
-    const dy = (pt.y - startPt.y);
-    pantinState.tx += dx;
-    pantinState.ty += dy;
+    pantinState.tx += pt.x - startPt.x;
+    pantinState.ty += pt.y - startPt.y;
     startPt = pt;
     applyGlobalTransform();
   });
-
-  const stopDragging = () => {
-    if (!isDragging) return;
-    isDragging = false;
+  const endDrag = () => {
+    if (!dragging) return;
+    dragging = false;
     grabEl.style.cursor = 'move';
     saveGlobalState();
   };
-
-  svgElement.addEventListener('mouseup', stopDragging);
-  svgElement.addEventListener('mouseleave', stopDragging);
-
+  svgElement.addEventListener('mouseup', endDrag);
+  svgElement.addEventListener('mouseleave', endDrag);
   applyGlobalTransform();
 }
 
-// --- Member Rotations (The Correct, Relative-Drag Method with Correct Coordinates) ---
-export function setupInteractions(svgElement, memberList, pivots, timeline) {
-  memberList.forEach(id => {
-    const el = svgElement.querySelector(`#${id}`);
-    if (!el || !el.parentNode) return;
-
-    const pivotInParentCoords = pivots[id];
-    if (!pivotInParentCoords) return;
-
-    let isRotating = false;
-    let baseAngle = 0;
-    let startMouseAngle = 0;
-
-    el.style.cursor = "grab";
-
-    const startRotation = (e) => {
-      isRotating = true;
-      el.style.cursor = "grabbing";
-      e.preventDefault();
-      e.stopPropagation();
-
-      const localMousePoint = getLocalMousePoint(e, el.parentNode);
-      
-      baseAngle = parseFloat(el.dataset.rotate) || 0;
-      startMouseAngle = Math.atan2(
-        localMousePoint.y - pivotInParentCoords.y, 
-        localMousePoint.x - pivotInParentCoords.x
-      ) * (180 / Math.PI);
-      
-      svgElement.addEventListener('mousemove', processRotation);
-      svgElement.addEventListener('mouseup', stopRotation);
-      svgElement.addEventListener('mouseleave', stopRotation);
-    };
-
-    const processRotation = (e) => {
-      if (!isRotating) return;
-      
-      const localMousePoint = getLocalMousePoint(e, el.parentNode);
-
-      const currentMouseAngle = Math.atan2(
-        localMousePoint.y - pivotInParentCoords.y, 
-        localMousePoint.x - pivotInParentCoords.x
-      ) * (180 / Math.PI);
-
-      let deltaAngle = currentMouseAngle - startMouseAngle;
-
-      if (deltaAngle > 180) deltaAngle -= 360;
-      if (deltaAngle < -180) deltaAngle += 360;
-
-      const newAngle = baseAngle + deltaAngle;
-
-      el.dataset.rotate = newAngle;
-      setRotation(el, newAngle, pivotInParentCoords);
-      timeline.updateMember(id, { rotate: newAngle });
-    };
-
-    const stopRotation = () => {
-      if (!isRotating) return;
-      isRotating = false;
-      el.style.cursor = "grab";
-      svgElement.removeEventListener('mousemove', processRotation);
-      svgElement.removeEventListener('mouseup', stopRotation);
-      svgElement.removeEventListener('mouseleave', stopRotation);
-    };
-
-    el.addEventListener('mousedown', startRotation);
-  });
-}
-
-// --- Utility Functions ---
-
+// --- Utilities ---
 function getSVGCoords(evt) {
   const pt = pantinState.svgElement.createSVGPoint();
   pt.x = evt.clientX;
@@ -198,12 +114,102 @@ function getSVGCoords(evt) {
   return pt.matrixTransform(pantinState.svgElement.getScreenCTM().inverse());
 }
 
-function getLocalMousePoint(evt, parentElement) {
-    const mousePoint = getSVGCoords(evt);
-    const toParentLocalMatrix = parentElement.getCTM().inverse();
-    return mousePoint.matrixTransform(toParentLocalMatrix);
+function applyRotation(el, angle, pivot) {
+  el.setAttribute('transform', `rotate(${angle},${pivot.x},${pivot.y})`);
 }
 
-function setRotation(el, angleDeg, pivot) {
-  el.setAttribute('transform', `rotate(${angleDeg},${pivot.x},${pivot.y})`);
+/**
+ * Setup individual segment rotations: each segment points toward cursor,
+ * respecting global transforms on rootGroup.
+ * @param svgElement - the SVG DOM element
+ * @param memberList - array of string IDs for segments
+ * @param pivots - not used here
+ * @param timeline - has updateMember(id, state)
+ */
+export function setupInteractions(svgElement, memberList, _, timeline) {
+  // Anatomical pivot and terminal mappings (IDs of <g> elements)
+  const pivotMap = {
+    tete: 'cou',
+    bras_gauche: 'epaule_gauche',
+    avant_bras_gauche: 'coude_gauche',
+    bras_droite: 'epaule_droite',
+    avant_bras_droite: 'coude_droite',
+    jambe_gauche: 'hanche_gauche',
+    tibia_gauche: 'genou_gauche',
+    jambe_droite: 'hanche_droite',
+    tibia_droite: 'genou_droite',
+  };
+  const terminalMap = {
+    avant_bras_droite: 'main_droite',
+    avant_bras_gauche: 'main_gauche',
+    tibia_droite: 'pied_droite',
+    tibia_gauche: 'pied_gauche',
+  };
+
+  memberList.forEach(id => {
+    const seg = svgElement.getElementById(id);
+    if (!seg) return;
+    const pivotEl = svgElement.getElementById(pivotMap[id] || id);
+    const termEl = svgElement.getElementById(terminalMap[id] || id);
+
+    let rotating = false;
+    let baseOri = 0;
+    let pivotScreen;
+    let pivotLocal;
+
+    seg.style.cursor = 'grab';
+    seg.addEventListener('pointerdown', e => {
+      e.stopPropagation(); e.preventDefault();
+      rotating = true;
+      seg.setPointerCapture(e.pointerId);
+      seg.style.cursor = 'grabbing';
+
+      // compute pivot in viewBox coords
+      const pBox = pivotEl.getBBox();
+      pivotLocal = { x: pBox.x + pBox.width / 2, y: pBox.y + pBox.height / 2 };
+
+      // compute pivot screen coords (includes global transform)
+      const pPt = svgElement.createSVGPoint();
+      pPt.x = pivotLocal.x; pPt.y = pivotLocal.y;
+      pivotScreen = pPt.matrixTransform(pivotEl.getScreenCTM());
+
+      // compute terminal screen coords
+      const tBox = termEl.getBBox();
+      const tPt = svgElement.createSVGPoint();
+      tPt.x = tBox.x + tBox.width / 2;
+      tPt.y = tBox.y + tBox.height / 2;
+      const termScreen = tPt.matrixTransform(termEl.getScreenCTM());
+
+      // initial angle (pivot→terminal)
+      baseOri = Math.atan2(
+        termScreen.y - pivotScreen.y,
+        termScreen.x - pivotScreen.x
+      ) * 180 / Math.PI;
+
+      svgElement.addEventListener('pointermove', onMove);
+      svgElement.addEventListener('pointerup', onUp, { once: true });
+      svgElement.addEventListener('pointerleave', onUp, { once: true });
+    });
+
+    function onMove(e) {
+      if (!rotating) return;
+      // angle pivotScreen→cursor (screen coords)
+      const mouseAng = Math.atan2(
+        e.clientY - pivotScreen.y,
+        e.clientX - pivotScreen.x
+      ) * 180 / Math.PI;
+      let newAng = ((mouseAng - baseOri + 180) % 360) - 180;
+      applyRotation(seg, newAng, pivotLocal);
+      seg.dataset.rotate = newAng;
+      timeline.updateMember(id, { rotate: newAng });
+    }
+
+    function onUp(e) {
+      rotating = false;
+      seg.style.cursor = 'grab';
+      seg.releasePointerCapture && seg.releasePointerCapture(e.pointerId);
+      svgElement.removeEventListener('pointermove', onMove);
+    }
+  });
 }
+
