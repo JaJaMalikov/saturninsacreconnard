@@ -120,7 +120,7 @@ export function setupPantinGlobalInteractions(svgElement, options) {
   applyGlobalTransform();
 }
 
-// --- Member Rotations (The Correct, Relative-Drag Method with Correct Coordinates) ---
+// --- Member Rotations (segment follows the mouse around its pivot) ---
 export function setupInteractions(svgElement, memberList, pivots, timeline) {
   memberList.forEach(id => {
     const el = svgElement.querySelector(`#${id}`);
@@ -130,8 +130,6 @@ export function setupInteractions(svgElement, memberList, pivots, timeline) {
     if (!pivotInParentCoords) return;
 
     let isRotating = false;
-    let baseAngle = 0;
-    let startMouseAngle = 0;
 
     el.style.cursor = "grab";
 
@@ -141,14 +139,8 @@ export function setupInteractions(svgElement, memberList, pivots, timeline) {
       e.preventDefault();
       e.stopPropagation();
 
-      const localMousePoint = getLocalMousePoint(e, el.parentNode);
-      
-      baseAngle = parseFloat(el.dataset.rotate) || 0;
-      startMouseAngle = Math.atan2(
-        localMousePoint.y - pivotInParentCoords.y, 
-        localMousePoint.x - pivotInParentCoords.x
-      ) * (180 / Math.PI);
-      
+      processRotation(e);
+
       svgElement.addEventListener('mousemove', processRotation);
       svgElement.addEventListener('mouseup', stopRotation);
       svgElement.addEventListener('mouseleave', stopRotation);
@@ -156,24 +148,17 @@ export function setupInteractions(svgElement, memberList, pivots, timeline) {
 
     const processRotation = (e) => {
       if (!isRotating) return;
-      
+
       const localMousePoint = getLocalMousePoint(e, el.parentNode);
 
       const currentMouseAngle = Math.atan2(
-        localMousePoint.y - pivotInParentCoords.y, 
+        localMousePoint.y - pivotInParentCoords.y,
         localMousePoint.x - pivotInParentCoords.x
       ) * (180 / Math.PI);
 
-      let deltaAngle = currentMouseAngle - startMouseAngle;
-
-      if (deltaAngle > 180) deltaAngle -= 360;
-      if (deltaAngle < -180) deltaAngle += 360;
-
-      const newAngle = baseAngle + deltaAngle;
-
-      el.dataset.rotate = newAngle;
-      setRotation(el, newAngle, pivotInParentCoords);
-      timeline.updateMember(id, { rotate: newAngle });
+      el.dataset.rotate = currentMouseAngle;
+      setRotation(el, currentMouseAngle, pivotInParentCoords);
+      timeline.updateMember(id, { rotate: currentMouseAngle });
     };
 
     const stopRotation = () => {
