@@ -1,3 +1,8 @@
+**MACRON‑O‑TRON 3000**
+
+![apercu](https://github.com/user-attachments/assets/243fd05d-de03-4068-abe9-b780baf8999f)
+
+
 ## 😎 Présentation
 
 Tu en as assez de la communication aseptisée ? Passe à la vitesse supérieure avec le **MACRON‑O‑TRON 3000**, l’outil ultime pour créer ta marionnette présidentielle et la faire bouger comme bon te semble, le tout sans sortir de ton navigateur.
@@ -33,6 +38,10 @@ python -m http.server
 ```
 
 Puis ouvre `http://localhost:8000` et que le spectacle commence ! 🎭
+
+## 📄 Licence
+
+[The Unlicense](https://unlicense.org/) — libre de droit, libre d’usage, libre d’esprit ✊
 
 ---
 
