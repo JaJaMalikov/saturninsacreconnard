@@ -1,0 +1,80 @@
+:root {
+  --bg: #181818;
+  --fg: #eaeaea;
+  --accent-hover: #2c6;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+}
+
+header {
+  background: #202020;
+  padding: 10px 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+
+main {
+  flex: 1;
+  display: flex;
+}
+
+#theatre {
+  flex: 1;
+  overflow: hidden;
+  touch-action: none;
+}
+
+footer {
+  background: #202020;
+  box-shadow: 0 -2px 4px rgba(0,0,0,0.4);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#controls {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#controls button {
+  font-size: 1.1em;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #333;
+  color: var(--fg);
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+
+#controls button:hover {
+  background: var(--accent-hover);
+  color: #000;
+}
+
+#frameInfo {
+  margin: 0 14px;
+  font-weight: bold;
+}
+
+#pantin-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+#pantin-controls input[type=range] {
+  width: 150px;
+}
