@@ -1,10 +1,10 @@
-# Pantin Animateur
+# MACRON-O-TRON 3000
 
 ![Pantin Animateur Screenshot](apercu.gif) <!-- Placeholder for a future screenshot -->
 
 ## 🚀 Vue d'ensemble
 
-**Pantin Animateur** est une application web interactive conçue pour animer des personnages SVG directement dans votre navigateur. Transformez des illustrations statiques en animations dynamiques grâce à une interface utilisateur intuitive et des outils d'animation essentiels.
+**Le MACRON-O-TRON 3000** est une application web interactive conçue pour, toi aussi, créer ta marionnette présidentielle, l'animer directement dans ton navigateur, sans devoir passer par Bernard A. Deviens le véritable acteur disruptif de la Répunlique En Merde que tu as toujours mérité d'être. Tu peux même, pour seulement 49.3€, transformer nimporte quel random ou repris de justice en ministre et ainsi former LE gouvernement que le monde nous envie déjà !!!
 
 ## ✨ Fonctionnalités Clés
 
@@ -32,7 +32,7 @@ Le projet est modulaire et bien organisé :
 
 ## 🚀 Lancer le Projet
 
-En raison des politiques de sécurité des navigateurs (CORS), le chargement des fichiers SVG locaux nécessite un serveur web. Voici quelques méthodes simples pour lancer un serveur local :
+En raison des politiques (même ici ils arrivent à nous casser les couilles) de sécurité des navigateurs (CORS), le chargement des fichiers SVG locaux nécessite un serveur web. Voici quelques méthodes simples pour lancer un serveur local :
 
 ### Méthode 1 : Utiliser Python (recommandé pour la simplicité)
 
@@ -62,12 +62,6 @@ Ensuite, ouvrez votre navigateur et accédez à `http://localhost:8080` (ou le p
 
 Une fois le serveur lancé, ouvrez simplement `index.html` via l'adresse locale fournie par le serveur (par exemple, `http://localhost:8000/index.html`).
 
-## 💡 Améliorations Futures Possibles
-
-*   **Sélection Multi-Objets :** Permettre la sélection et la manipulation de plusieurs éléments SVG.
-*   **Éditeur de Courbes :** Ajouter un éditeur graphique pour affiner les courbes d'animation (interpolation).
-*   **Export Vidéo/GIF :** Option d'exporter l'animation finale sous différents formats.
-
 ---
 
-Développé avec passion pour l'animation 2D. N'hésitez pas à explorer et à créer !
+Développé avec passion pour l'amour de la nation, de la patrie, heuuu non, du parti, heu..... je ne sais plus... c'est l'un des deux, enfin je crois... Enfin, parce que nous la vallons bien.
