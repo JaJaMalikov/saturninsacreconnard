@@ -32,7 +32,35 @@ Le projet est modulaire et bien organisé :
 
 ## 🚀 Lancer le Projet
 
-Pour lancer **Pantin Animateur**, il vous suffit d'ouvrir le fichier `index.html` dans n'importe quel navigateur web moderne. Toutes les dépendances sont embarquées, aucune installation supplémentaire n'est requise.
+En raison des politiques de sécurité des navigateurs (CORS), le chargement des fichiers SVG locaux nécessite un serveur web. Voici quelques méthodes simples pour lancer un serveur local :
+
+### Méthode 1 : Utiliser Python (recommandé pour la simplicité)
+
+Si Python est installé sur votre système, ouvrez un terminal dans le répertoire racine du projet (`Pantin Animateur`) et exécutez la commande suivante :
+
+```bash
+python -m http.server
+```
+
+Ensuite, ouvrez votre navigateur et accédez à `http://localhost:8000` (ou le port indiqué par Python).
+
+### Méthode 2 : Utiliser Node.js (si vous avez npm)
+
+Si vous avez Node.js et npm installés, vous pouvez installer un serveur HTTP simple globalement :
+
+```bash
+npm install -g http-server
+```
+
+Puis, dans le répertoire racine du projet, exécutez :
+
+```bash
+http-server
+```
+
+Ensuite, ouvrez votre navigateur et accédez à `http://localhost:8080` (ou le port indiqué par `http-server`).
+
+Une fois le serveur lancé, ouvrez simplement `index.html` via l'adresse locale fournie par le serveur (par exemple, `http://localhost:8000/index.html`).
 
 ## 💡 Améliorations Futures Possibles
 
