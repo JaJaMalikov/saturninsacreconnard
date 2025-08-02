@@ -4,7 +4,7 @@
 
 ## 🚀 Vue d'ensemble
 
-**Le MACRON-O-TRON 3000** est une application web interactive conçue pour, toi aussi, créer ta marionnette présidentielle, l'animer directement dans ton navigateur, sans devoir passer par Bernard A. Deviens le véritable acteur disruptif de la Répunlique En Merde que tu as toujours mérité d'être. Tu peux même, pour seulement 49.3€, transformer nimporte quel random ou repris de justice en ministre et ainsi former LE gouvernement que le monde nous envie déjà !!!
+**Le MACRON-O-TRON 3000** est une application web interactive conçue pour, toi aussi, créer ta marionnette présidentielle, l'animer directement dans ton navigateur, sans devoir passer par Bernard A. Deviens le véritable acteur disruptif de la Répulique En Merde que tu as toujours mérité d'être. Tu peux même, pour seulement 49.3€, transformer nimporte quel random ou repris de justice en ministre et ainsi former LE gouvernement que le monde nous envie déjà !!!
 
 ## ✨ Fonctionnalités Clés
 
