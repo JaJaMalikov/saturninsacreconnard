@@ -1,23 +1,45 @@
 # Pantin Animateur
 
-Ce projet permet d'animer un pantin SVG directement dans le navigateur. Il est compose d'un fichier HTML minimal et de plusieurs modules JavaScript.
+![Pantin Animateur Screenshot](screenshot.png) <!-- Placeholder for a future screenshot -->
 
-## Fonctionnement general
+## 🚀 Vue d'ensemble
 
-1. **index.html** charge le fichier SVG `manu.svg` ainsi que le script principal `src/main.js`.
-2. **svgLoader.js** importe le SVG, reparent certains elements pour obtenir une structure coherente et calcule les points pivots utilises pour les rotations.
-3. **timeline.js** gere une liste de *frames*. Chaque frame enregistre la rotation de chaque membre du pantin. Il est possible d'ajouter, supprimer ou lire les frames.
-4. **interactions.js** permet de faire tourner chaque membre a la souris et ajoute des interactions globales (deplacement, rotation et redimensionnement du pantin complet).
-5. **ui.js** affiche une petite interface (boutons de lecture, ajout de frame, import/export...) et synchronise ces actions avec la timeline.
+**Pantin Animateur** est une application web interactive conçue pour animer des personnages SVG directement dans votre navigateur. Transformez des illustrations statiques en animations dynamiques grâce à une interface utilisateur intuitive et des outils d'animation essentiels.
 
-Lors du chargement, `main.js` instancie la timeline, branche les interactions et applique la frame courante sur le SVG. L'etat de l'animation est sauvegarde automatiquement dans `localStorage` apres chaque modification et recharge au demarrage si present.
+## ✨ Fonctionnalités Clés
 
-## Ameliorations apportees
+*   **Animation SVG :** Chargez et manipulez des pantins SVG avec des contrôles précis pour chaque membre.
+*   **Timeline Avancée :** Gérez vos animations image par image avec une timeline interactive, permettant l'ajout, la suppression et la navigation fluide entre les frames.
+*   **Transformations Globales :** Contrôlez la position, la rotation et l'échelle de l'ensemble du pantin pour des mouvements complexes.
+*   **Onion Skinning (Pelure d'Oignon) :** Visualisez les images précédentes et suivantes en semi-transparence pour un ajustement précis des mouvements (désactivé pendant la lecture pour une meilleure visibilité).
+*   **Contrôle de la Vitesse :** Ajustez les Frames Per Second (FPS) pour une lecture d'animation personnalisée.
+*   **Persistance des Données :** Vos animations sont automatiquement sauvegardées localement dans votre navigateur et rechargées à l'ouverture.
+*   **Import/Export JSON :** Sauvegardez et partagez vos animations sous forme de fichiers JSON.
+*   **Interface Utilisateur Moderne :** Une interface épurée et professionnelle avec un panneau d'inspecteur escamotable pour une expérience utilisateur optimisée.
 
-- Lecture de l'animation a partir de la frame courante plutot que depuis le debut.
-- Sauvegarde automatique de la timeline dans `localStorage` et rechargement a l'ouverture de la page.
+## 🛠️ Structure du Projet
 
-## Lancer le projet
+Le projet est modulaire et bien organisé :
 
-Ouvrez simplement `index.html` dans un navigateur moderne. Toutes les dependances sont embarquees.
+*   `index.html` : La structure principale de l'application web.
+*   `style.css` : Styles CSS pour une interface moderne et réactive.
+*   `src/main.js` : Le point d'entrée de l'application, orchestrant le chargement et l'initialisation des modules.
+*   `src/svgLoader.js` : Gère le chargement et la préparation des fichiers SVG.
+*   `src/timeline.js` : Implémente la logique de la timeline d'animation (gestion des frames, lecture, etc.).
+*   `src/interactions.js` : Gère toutes les interactions utilisateur avec le pantin (rotation des membres, déplacement global).
+*   `src/ui.js` : Initialise et gère l'interface utilisateur, connectant les éléments HTML aux fonctionnalités JavaScript.
+*   `src/onionSkin.js` : Contient la logique spécifique à la fonctionnalité d'onion skinning.
 
+## 🚀 Lancer le Projet
+
+Pour lancer **Pantin Animateur**, il vous suffit d'ouvrir le fichier `index.html` dans n'importe quel navigateur web moderne. Toutes les dépendances sont embarquées, aucune installation supplémentaire n'est requise.
+
+## 💡 Améliorations Futures Possibles
+
+*   **Sélection Multi-Objets :** Permettre la sélection et la manipulation de plusieurs éléments SVG.
+*   **Éditeur de Courbes :** Ajouter un éditeur graphique pour affiner les courbes d'animation (interpolation).
+*   **Export Vidéo/GIF :** Option d'exporter l'animation finale sous différents formats.
+
+---
+
+Développé avec passion pour l'animation 2D. N'hésitez pas à explorer et à créer !
