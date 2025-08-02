@@ -4,7 +4,7 @@ import { Timeline } from './timeline.js';
 import { setupInteractions, setupPantinGlobalInteractions } from './interactions.js';
 import { initUI } from './ui.js';
 
-const SVG_URL = 'manu.svg';
+const SVG_URL = 'assets/pantins/manu.svg';
 const THEATRE_ID = 'theatre';
 const PANTIN_ROOT_ID = 'manu_test';
 const GRAB_ID = 'torse';
