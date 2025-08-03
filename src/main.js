@@ -10,6 +10,10 @@ const THEATRE_ID = 'theatre';
 const PANTIN_ROOT_ID = 'manu_test';
 const GRAB_ID = 'torse';
 
+// Cache DOM references used on each frame update
+const scaleValueEl = document.getElementById('scale-value');
+const rotateValueEl = document.getElementById('rotate-value');
+
 async function main() {
   debugLog("main() started");
   try {
@@ -32,6 +36,8 @@ async function main() {
       }
     }
 
+    const centerCache = new WeakMap();
+
     const onFrameChange = () => {
       debugLog("onFrameChange triggered. Current frame:", timeline.current);
       const frame = timeline.getCurrentFrame();
@@ -41,11 +47,19 @@ async function main() {
       const applyFrameToPantinElement = (targetFrame, targetRootGroup) => {
         debugLog("Applying frame to element:", targetRootGroup, "Frame data:", targetFrame);
         const { tx, ty, scale, rotate } = targetFrame.transform;
-        const grabEl = targetRootGroup.querySelector(`#${GRAB_ID}`); // Grab element is relative to the rootGroup
-        const bbox = grabEl ? grabEl.getBBox() : null;
-        const center = bbox ? { x: bbox.x + bbox.width / 2, y: bbox.y + bbox.height / 2 } : { x: 0, y: 0 };
-        
-        targetRootGroup.setAttribute('transform', `translate(${tx},${ty}) rotate(${rotate},${center.x},${center.y}) scale(${scale})`);
+
+        let center = centerCache.get(targetRootGroup);
+        if (!center) {
+          const grabEl = targetRootGroup.querySelector(`#${GRAB_ID}`);
+          const bbox = grabEl ? grabEl.getBBox() : null;
+          center = bbox ? { x: bbox.x + bbox.width / 2, y: bbox.y + bbox.height / 2 } : { x: 0, y: 0 };
+          centerCache.set(targetRootGroup, center);
+        }
+
+        targetRootGroup.setAttribute(
+          'transform',
+          `translate(${tx},${ty}) rotate(${rotate},${center.x},${center.y}) scale(${scale})`
+        );
 
         memberList.forEach(id => {
           const el = targetRootGroup.querySelector(`#${id}`);
@@ -60,8 +74,8 @@ async function main() {
       applyFrameToPantinElement(frame, svgElement.querySelector(`#${PANTIN_ROOT_ID}`));
 
       // Update inspector values
-      document.getElementById('scale-value').textContent = frame.transform.scale.toFixed(2);
-      document.getElementById('rotate-value').textContent = Math.round(frame.transform.rotate);
+      scaleValueEl.textContent = frame.transform.scale.toFixed(2);
+      rotateValueEl.textContent = Math.round(frame.transform.rotate);
 
       // Render onion skins
       renderOnionSkins(timeline, (ghostFrame, ghostElement) => applyFrameToPantinElement(ghostFrame, ghostElement));

@@ -12,6 +12,16 @@ export function initUI(timeline, onFrameChange, onSave) {
   const frameInfo = document.getElementById('frameInfo');
   const timelineSlider = document.getElementById('timeline-slider');
   const fpsInput = document.getElementById('fps-input');
+  const prevBtn = document.getElementById('prevFrame');
+  const nextBtn = document.getElementById('nextFrame');
+  const playBtn = document.getElementById('playAnim');
+  const stopBtn = document.getElementById('stopAnim');
+  const addBtn = document.getElementById('addFrame');
+  const delBtn = document.getElementById('delFrame');
+  const exportBtn = document.getElementById('exportAnim');
+  const importBtn = document.getElementById('importAnimBtn');
+  const importInput = document.getElementById('importAnim');
+  const resetBtn = document.getElementById('resetStorage');
 
   // --- Panneau Inspecteur Escamotable ---
   const appContainer = document.getElementById('app-container');
@@ -22,11 +32,14 @@ export function initUI(timeline, onFrameChange, onSave) {
     appContainer.classList.add('inspector-collapsed');
   }
 
-  inspectorToggleBtn.onclick = () => {
+  inspectorToggleBtn.addEventListener('click', () => {
     debugLog("Inspector toggle button clicked.");
     appContainer.classList.toggle('inspector-collapsed');
-    localStorage.setItem(inspectorStateKey, appContainer.classList.contains('inspector-collapsed'));
-  };
+    localStorage.setItem(
+      inspectorStateKey,
+      appContainer.classList.contains('inspector-collapsed')
+    );
+  });
 
   // --- Mise à jour de l'UI --- //
   function updateUI() {
@@ -50,13 +63,21 @@ export function initUI(timeline, onFrameChange, onSave) {
     updateUI();
   });
   timelineSlider.addEventListener('change', onSave);
+  prevBtn.addEventListener('click', () => {
+    debugLog("Prev frame button clicked.");
+    timeline.prevFrame();
+    updateUI();
+    onSave();
+  });
+  nextBtn.addEventListener('click', () => {
+    debugLog("Next frame button clicked.");
+    timeline.nextFrame();
+    updateUI();
+    onSave();
+  });
 
-  document.getElementById('prevFrame').onclick = () => { debugLog("Prev frame button clicked."); timeline.prevFrame(); updateUI(); onSave(); };
-  document.getElementById('nextFrame').onclick = () => { debugLog("Next frame button clicked."); timeline.nextFrame(); updateUI(); onSave(); };
-
-  document.getElementById('playAnim').onclick = () => {
+  playBtn.addEventListener('click', () => {
     debugLog("Play button clicked.");
-    const playBtn = document.getElementById('playAnim');
     if (timeline.playing) return;
 
     playBtn.textContent = '⏸️';
@@ -76,26 +97,35 @@ export function initUI(timeline, onFrameChange, onSave) {
       },
       fps
     );
-  };
+  });
 
-  document.getElementById('stopAnim').onclick = () => {
+  stopBtn.addEventListener('click', () => {
     debugLog("Stop button clicked.");
     timeline.stop();
     timeline.setCurrentFrame(0);
-    document.getElementById('playAnim').textContent = '▶️';
+    playBtn.textContent = '▶️';
     updateUI();
     onSave();
-  };
+  });
 
   // Actions sur les frames
-  document.getElementById('addFrame').onclick = () => { debugLog("Add frame button clicked."); timeline.addFrame(); updateUI(); onSave(); };
-  document.getElementById('delFrame').onclick = () => {
+  addBtn.addEventListener('click', () => {
+    debugLog("Add frame button clicked.");
+    timeline.addFrame();
+    updateUI();
+    onSave();
+  });
+  delBtn.addEventListener('click', () => {
     debugLog("Delete frame button clicked.");
-    if (timeline.frames.length > 1) { timeline.deleteFrame(); updateUI(); onSave(); }
-  };
+    if (timeline.frames.length > 1) {
+      timeline.deleteFrame();
+      updateUI();
+      onSave();
+    }
+  });
 
   // Actions de l'application
-  document.getElementById('exportAnim').onclick = () => {
+  exportBtn.addEventListener('click', () => {
     debugLog("Export button clicked.");
     const blob = new Blob([timeline.exportJSON()], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -104,16 +134,16 @@ export function initUI(timeline, onFrameChange, onSave) {
     a.download = `animation-${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
-  };
+  });
 
   // Le label "importAnimBtn" est déjà lié à l'input fichier via l'attribut "for".
   // Appeler programmatique `click()` déclenchait donc deux fois l'ouverture de la
   // boîte de dialogue. On se contente du comportement par défaut qui ne l'ouvre
   // qu'une seule fois tout en conservant le message de debug.
-  document.getElementById('importAnimBtn').onclick = () => {
+  importBtn.addEventListener('click', () => {
     debugLog("Import button clicked.");
-  };
-  document.getElementById('importAnim').onchange = e => {
+  });
+  importInput.addEventListener('change', e => {
     debugLog("Import file selected.");
     const file = e.target.files[0];
     if (!file) return;
@@ -123,20 +153,22 @@ export function initUI(timeline, onFrameChange, onSave) {
         timeline.importJSON(evt.target.result);
         updateUI();
         onSave();
-      } catch (err) { alert(`Erreur d'importation : ${err.message}`); }
+      } catch (err) {
+        alert(`Erreur d'importation : ${err.message}`);
+      }
     };
     reader.readAsText(file);
     e.target.value = '';
-  };
+  });
 
-  document.getElementById('resetStorage').onclick = () => {
+  resetBtn.addEventListener('click', () => {
     debugLog("Reset storage button clicked.");
     if (confirm("Voulez-vous vraiment réinitialiser le projet ?\nCette action est irréversible.")) {
       localStorage.removeItem('animation');
       localStorage.removeItem(inspectorStateKey);
       window.location.reload();
     }
-  };
+  });
 
   // --- Contrôles de l'inspecteur --- //
   const controls = {
@@ -145,8 +177,16 @@ export function initUI(timeline, onFrameChange, onSave) {
   };
 
   for (const [key, ids] of Object.entries(controls)) {
-    document.getElementById(ids.plus).onclick = () => { debugLog(`${key} plus button clicked.`); updateTransform(key, ids.step);};
-    document.getElementById(ids.minus).onclick = () => { debugLog(`${key} minus button clicked.`); updateTransform(key, -ids.step);};
+    const plusBtn = document.getElementById(ids.plus);
+    const minusBtn = document.getElementById(ids.minus);
+    plusBtn.addEventListener('click', () => {
+      debugLog(`${key} plus button clicked.`);
+      updateTransform(key, ids.step);
+    });
+    minusBtn.addEventListener('click', () => {
+      debugLog(`${key} minus button clicked.`);
+      updateTransform(key, -ids.step);
+    });
   }
 
   function updateTransform(key, delta) {
