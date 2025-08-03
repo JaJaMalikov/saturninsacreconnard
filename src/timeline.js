@@ -14,7 +14,7 @@ export class Timeline {
     this.frames = [initialFrame || this.createEmptyFrame()];
     this.current = 0;
     this.playing = false;
-    this._interval = null;
+    this._raf = null;
   }
 
   createEmptyFrame() {
@@ -77,21 +77,31 @@ export class Timeline {
     if (this.playing) return;
     this.playing = true;
     let i = this.current;
-    this._interval = setInterval(() => {
-      if (i >= this.frames.length) {
-        this.stop();
-        if (typeof onEnd === 'function') onEnd();
-        return;
+    const frameDuration = 1000 / fps;
+    let lastTime = null;
+    const step = timestamp => {
+      if (!this.playing) return;
+      if (lastTime === null) lastTime = timestamp;
+      const delta = timestamp - lastTime;
+      if (delta >= frameDuration) {
+        if (i >= this.frames.length) {
+          this.stop();
+          if (typeof onEnd === 'function') onEnd();
+          return;
+        }
+        callback(this.frames[i], i);
+        i++;
+        lastTime = timestamp;
       }
-      callback(this.frames[i], i);
-      i++;
-    }, 1000 / fps);
+      this._raf = requestAnimationFrame(step);
+    };
+    this._raf = requestAnimationFrame(step);
   }
 
   stop() {
     this.playing = false;
-    clearInterval(this._interval);
-    this._interval = null;
+    if (this._raf) cancelAnimationFrame(this._raf);
+    this._raf = null;
   }
 
   exportJSON() {
@@ -101,7 +111,7 @@ export class Timeline {
   importJSON(json) {
     try {
       const arr = JSON.parse(json);
-      if (!Array.isArray(arr)) throw 'Invalid format';
+      if (!Array.isArray(arr)) throw new Error('Invalid format');
 
       // Rétro-compatibilité : convertir l'ancien format
       const migratedFrames = arr.map(f => {

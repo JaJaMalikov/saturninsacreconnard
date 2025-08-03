@@ -1,3 +1,5 @@
+import * as logger from './logger.js';
+
 let svgElement = null;
 let pantinRoot = null;
 let onionLayer = null;
@@ -14,7 +16,7 @@ const settings = {
  * @param {string} rootId - L'ID du groupe racine du pantin.
  */
 export function initOnionSkin(svg, rootId) {
-  console.log("initOnionSkin called.");
+  logger.log("initOnionSkin called.");
   svgElement = svg;
   pantinRoot = svg.querySelector(`#${rootId}`);
 
@@ -30,7 +32,7 @@ export function initOnionSkin(svg, rootId) {
  * @param {object} newSettings - Les nouveaux paramètres à appliquer.
  */
 export function updateOnionSkinSettings(newSettings) {
-  console.log("updateOnionSkinSettings called with:", newSettings);
+  logger.log("updateOnionSkinSettings called with:", newSettings);
   Object.assign(settings, newSettings);
 }
 
@@ -40,39 +42,40 @@ export function updateOnionSkinSettings(newSettings) {
  * @param {Function} applyFrameToPantin - Une fonction pour appliquer l'état d'une frame à un élément pantin.
  */
 export function renderOnionSkins(timeline, applyFrameToPantin) {
-  console.log("renderOnionSkins called. Settings:", settings);
-  // Efface les anciens fantômes
-  while (onionLayer.firstChild) {
-    onionLayer.removeChild(onionLayer.firstChild);
-  }
+  logger.log("renderOnionSkins called. Settings:", settings);
+
+  if (!onionLayer) return;
+
+  const ghosts = [];
 
   if (!settings.enabled || !pantinRoot) {
-    console.log("Onion skin not enabled or pantinRoot not found.");
+    logger.log("Onion skin not enabled or pantinRoot not found.");
+    onionLayer.replaceChildren();
     return;
   }
 
   const current = timeline.current;
   const frames = timeline.frames;
 
-  // Rend les images passées
   for (let i = 1; i <= settings.pastFrames; i++) {
     const frameIndex = current - i;
     if (frameIndex >= 0) {
-      console.log("Creating past ghost for frame:", frameIndex);
+      logger.log("Creating past ghost for frame:", frameIndex);
       const ghost = createGhost(frames[frameIndex], 'past', applyFrameToPantin);
-      if (ghost) onionLayer.appendChild(ghost);
+      if (ghost) ghosts.push(ghost);
     }
   }
 
-  // Rend les images futures
   for (let i = 1; i <= settings.futureFrames; i++) {
     const frameIndex = current + i;
     if (frameIndex < frames.length) {
-      console.log("Creating future ghost for frame:", frameIndex);
+      logger.log("Creating future ghost for frame:", frameIndex);
       const ghost = createGhost(frames[frameIndex], 'future', applyFrameToPantin);
-      if (ghost) onionLayer.appendChild(ghost);
+      if (ghost) ghosts.push(ghost);
     }
   }
+
+  onionLayer.replaceChildren(...ghosts);
 }
 
 /**

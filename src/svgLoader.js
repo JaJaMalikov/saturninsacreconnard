@@ -26,7 +26,7 @@ export function loadSVG(url, targetId) {
       svgElement.setAttribute('height', '100%');
       svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-      const svgDoc = document;
+      const svgDoc = svgElement;
 
       [
         ["main_droite", "avant_bras_droite"],
