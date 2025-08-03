@@ -3,6 +3,7 @@ import { loadSVG } from './svgLoader.js';
 import { Timeline } from './timeline.js';
 import { setupInteractions, setupPantinGlobalInteractions } from './interactions.js';
 import { initUI } from './ui.js';
+import { setDebug, debugLog } from './logger.js';
 
 const SVG_URL = 'assets/pantins/manu.svg';
 const THEATRE_ID = 'theatre';
@@ -10,35 +11,36 @@ const PANTIN_ROOT_ID = 'manu_test';
 const GRAB_ID = 'torse';
 
 async function main() {
-  console.log("main() started");
+  setDebug(typeof window !== 'undefined' && window.DEBUG);
+  debugLog("main() started");
   try {
     const { svgElement, memberList, pivots } = await loadSVG(SVG_URL, THEATRE_ID);
-    console.log("SVG loaded, Timeline instantiated.");
+    debugLog("SVG loaded, Timeline instantiated.");
     const timeline = new Timeline(memberList);
 
     const onSave = () => {
       localStorage.setItem('animation', timeline.exportJSON());
-      console.log("Animation sauvegardée.");
+      debugLog("Animation sauvegardée.");
     };
 
     const savedData = localStorage.getItem('animation');
     if (savedData) {
       try {
         timeline.importJSON(savedData);
-        console.log("Animation chargée depuis localStorage.");
+        debugLog("Animation chargée depuis localStorage.");
       } catch (e) {
         console.warn("Impossible de charger l'animation sauvegardée:", e);
       }
     }
 
     const onFrameChange = () => {
-      console.log("onFrameChange triggered. Current frame:", timeline.current);
+      debugLog("onFrameChange triggered. Current frame:", timeline.current);
       const frame = timeline.getCurrentFrame();
       if (!frame) return;
 
       // Function to apply a frame to a given SVG element (main pantin or ghost)
       const applyFrameToPantinElement = (targetFrame, targetRootGroup) => {
-        console.log("Applying frame to element:", targetRootGroup, "Frame data:", targetFrame);
+        debugLog("Applying frame to element:", targetRootGroup, "Frame data:", targetFrame);
         const { tx, ty, scale, rotate } = targetFrame.transform;
         const grabEl = targetRootGroup.querySelector(`#${GRAB_ID}`); // Grab element is relative to the rootGroup
         const center = grabEl ? { x: grabEl.getBBox().x + grabEl.getBBox().width / 2, y: grabEl.getBBox().y + grabEl.getBBox().height / 2 } : { x: 0, y: 0 };
@@ -65,9 +67,7 @@ async function main() {
       renderOnionSkins(timeline, (ghostFrame, ghostElement) => applyFrameToPantinElement(ghostFrame, ghostElement));
     };
 
-    initOnionSkin(svgElement, PANTIN_ROOT_ID);
-
-    console.log("Initializing Onion Skin...");
+    debugLog("Initializing Onion Skin...");
     initOnionSkin(svgElement, PANTIN_ROOT_ID);
 
     const interactionOptions = {
@@ -75,12 +75,12 @@ async function main() {
       grabId: GRAB_ID,
     };
 
-    console.log("Setting up member interactions...");
+    debugLog("Setting up member interactions...");
     setupInteractions(svgElement, memberList, pivots, timeline, onFrameChange, onSave);
-    console.log("Setting up global pantin interactions...");
+    debugLog("Setting up global pantin interactions...");
     setupPantinGlobalInteractions(svgElement, interactionOptions, timeline, onFrameChange, onSave);
 
-    console.log("Initializing UI...");
+    debugLog("Initializing UI...");
     initUI(timeline, onFrameChange, onSave);
 
   } catch (err) {

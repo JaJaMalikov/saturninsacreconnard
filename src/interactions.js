@@ -1,6 +1,9 @@
 // src/interactions.js
 
+import { debugLog } from './logger.js';
+
 // --- Global State Management ---
+const PANTIN_STATE_KEY = 'pantin-global-state';
 const pantinState = {
   rootGroup: null,
   svgElement: null,
@@ -50,13 +53,14 @@ function applyGlobalTransform() {
 }
 
 /** Setup global interactions: drag on torse, scale & rotate sliders. */
+
 export function setupPantinGlobalInteractions(svgElement, options, timeline, onUpdate, onEnd) {
-  console.log("setupPantinGlobalInteractions called.");
+  debugLog("setupPantinGlobalInteractions called.");
   const { rootGroupId, grabId } = options;
   pantinState.svgElement = svgElement;
   pantinState.rootGroup = svgElement.querySelector(`#${rootGroupId}`);
   const grabEl = svgElement.querySelector(`#${grabId}`);
-  console.log('Grab element:', grabEl); // Ligne de débogage
+  debugLog('Grab element:', grabEl); // Ligne de débogage
 
   if (!pantinState.rootGroup || !grabEl) {
     console.warn("Missing elements for global pantin interactions.", {pantinRoot: pantinState.rootGroup, grabEl});
@@ -66,17 +70,18 @@ export function setupPantinGlobalInteractions(svgElement, options, timeline, onU
   let dragging = false;
   let startPt;
   grabEl.style.cursor = 'move';
-  grabEl.addEventListener('mousedown', e => {
-    console.log("Global drag: mousedown");
+  grabEl.addEventListener('pointerdown', e => {
+    debugLog("Global drag: pointerdown");
     dragging = true;
     startPt = getSVGCoords(e);
+    grabEl.setPointerCapture && grabEl.setPointerCapture(e.pointerId);
     grabEl.style.cursor = 'grabbing';
     e.preventDefault();
   });
 
-  svgElement.addEventListener('mousemove', e => {
+  svgElement.addEventListener('pointermove', e => {
     if (!dragging) return;
-    console.log("Global drag: mousemove");
+    debugLog("Global drag: pointermove");
     const pt = getSVGCoords(e);
     const frame = timeline.getCurrentFrame();
     timeline.updateTransform({
@@ -87,15 +92,16 @@ export function setupPantinGlobalInteractions(svgElement, options, timeline, onU
     onUpdate();
   });
 
-  const endDrag = () => {
+  const endDrag = e => {
     if (!dragging) return;
-    console.log("Global drag: mouseup/mouseleave");
+    debugLog("Global drag: pointerup/pointerleave");
     dragging = false;
     grabEl.style.cursor = 'move';
+    grabEl.releasePointerCapture && grabEl.releasePointerCapture(e.pointerId);
     onEnd();
   };
-  svgElement.addEventListener('mouseup', endDrag);
-  svgElement.addEventListener('mouseleave', endDrag);
+  svgElement.addEventListener('pointerup', endDrag);
+  svgElement.addEventListener('pointerleave', endDrag);
 }
 
 // --- Utilities ---
@@ -115,7 +121,7 @@ function getSVGCoords(evt) {
  * @param timeline - has updateMember(id, state)
  */
 export function setupInteractions(svgElement, memberList, pivots, timeline, onUpdate, onEnd) {
-  console.log("setupInteractions (members) called.");
+  debugLog("setupInteractions (members) called.");
   // Anatomical pivot and terminal mappings (IDs of <g> elements)
   const pivotMap = {
     tete: 'cou',
@@ -151,7 +157,7 @@ export function setupInteractions(svgElement, memberList, pivots, timeline, onUp
 
     seg.style.cursor = 'grab';
     seg.addEventListener('pointerdown', e => {
-      console.log(`Member ${id}: pointerdown`);
+      debugLog(`Member ${id}: pointerdown`);
       e.stopPropagation(); e.preventDefault();
       rotating = true;
       seg.setPointerCapture(e.pointerId);
@@ -186,7 +192,7 @@ export function setupInteractions(svgElement, memberList, pivots, timeline, onUp
 
     function onMove(e) {
       if (!rotating) return;
-      console.log(`Member ${id}: pointermove`);
+      debugLog(`Member ${id}: pointermove`);
       // angle pivotScreen→cursor (screen coords)
       const mouseAng = Math.atan2(
         e.clientY - pivotScreen.y,
@@ -198,7 +204,7 @@ export function setupInteractions(svgElement, memberList, pivots, timeline, onUp
     }
 
     function onUp(e) {
-      console.log(`Member ${id}: pointerup/pointerleave`);
+      debugLog(`Member ${id}: pointerup/pointerleave`);
       rotating = false;
       seg.style.cursor = 'grab';
       seg.releasePointerCapture && seg.releasePointerCapture(e.pointerId);

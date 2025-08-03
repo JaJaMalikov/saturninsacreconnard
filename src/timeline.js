@@ -77,20 +77,28 @@ export class Timeline {
     if (this.playing) return;
     this.playing = true;
     let i = this.current;
-    this._interval = setInterval(() => {
+    const frameDuration = 1000 / fps;
+    let last = performance.now();
+    const step = now => {
+      if (!this.playing) return;
       if (i >= this.frames.length) {
         this.stop();
         if (typeof onEnd === 'function') onEnd();
         return;
       }
-      callback(this.frames[i], i);
-      i++;
-    }, 1000 / fps);
+      if (now - last >= frameDuration) {
+        callback(this.frames[i], i);
+        i++;
+        last = now;
+      }
+      this._interval = requestAnimationFrame(step);
+    };
+    this._interval = requestAnimationFrame(step);
   }
 
   stop() {
     this.playing = false;
-    clearInterval(this._interval);
+    cancelAnimationFrame(this._interval);
     this._interval = null;
   }
 
@@ -101,7 +109,7 @@ export class Timeline {
   importJSON(json) {
     try {
       const arr = JSON.parse(json);
-      if (!Array.isArray(arr)) throw 'Invalid format';
+      if (!Array.isArray(arr)) throw new Error('Invalid format');
 
       // Rétro-compatibilité : convertir l'ancien format
       const migratedFrames = arr.map(f => {
