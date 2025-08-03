@@ -1,65 +1,24 @@
 // src/interactions.js
 
-// --- Global State Management ---
+import { log, warn } from './logger.js';
+
+// --- Global State ---
 const pantinState = {
   rootGroup: null,
   svgElement: null,
 };
 
-function saveGlobalState() {
-  localStorage.setItem(
-    PANTIN_STATE_KEY,
-    JSON.stringify({
-      tx: pantinState.tx,
-      ty: pantinState.ty,
-      scale: pantinState.scale,
-      rotate: pantinState.rotate,
-    })
-  );
-}
-
-function loadGlobalState() {
-  const saved = localStorage.getItem(PANTIN_STATE_KEY);
-  if (!saved) return;
-  try {
-    const { tx = 0, ty = 0, scale = 1, rotate = 0 } = JSON.parse(saved);
-    pantinState.tx = tx;
-    pantinState.ty = ty;
-    pantinState.scale = scale;
-    pantinState.rotate = rotate;
-  } catch {
-    // ignore
-  }
-}
-
-function getGrabCenter() {
-  const el = pantinState.rootGroup.querySelector('#torse');
-  if (!el) return { x: 0, y: 0 };
-  const box = el.getBBox();
-  return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
-}
-
-function applyGlobalTransform() {
-  const center = getGrabCenter();
-  pantinState.rootGroup.setAttribute(
-    'transform',
-    `translate(${pantinState.tx},${pantinState.ty}) ` +
-      `rotate(${pantinState.rotate},${center.x},${center.y}) ` +
-      `scale(${pantinState.scale})`
-  );
-}
-
 /** Setup global interactions: drag on torse, scale & rotate sliders. */
 export function setupPantinGlobalInteractions(svgElement, options, timeline, onUpdate, onEnd) {
-  console.log("setupPantinGlobalInteractions called.");
+  log("setupPantinGlobalInteractions called.");
   const { rootGroupId, grabId } = options;
   pantinState.svgElement = svgElement;
   pantinState.rootGroup = svgElement.querySelector(`#${rootGroupId}`);
   const grabEl = svgElement.querySelector(`#${grabId}`);
-  console.log('Grab element:', grabEl); // Ligne de débogage
+  log('Grab element:', grabEl); // Ligne de débogage
 
   if (!pantinState.rootGroup || !grabEl) {
-    console.warn("Missing elements for global pantin interactions.", {pantinRoot: pantinState.rootGroup, grabEl});
+    warn("Missing elements for global pantin interactions.", {pantinRoot: pantinState.rootGroup, grabEl});
     return;
   }
 
@@ -67,7 +26,7 @@ export function setupPantinGlobalInteractions(svgElement, options, timeline, onU
   let startPt;
   grabEl.style.cursor = 'move';
   grabEl.addEventListener('mousedown', e => {
-    console.log("Global drag: mousedown");
+    log("Global drag: mousedown");
     dragging = true;
     startPt = getSVGCoords(e);
     grabEl.style.cursor = 'grabbing';
@@ -76,7 +35,7 @@ export function setupPantinGlobalInteractions(svgElement, options, timeline, onU
 
   svgElement.addEventListener('mousemove', e => {
     if (!dragging) return;
-    console.log("Global drag: mousemove");
+    log("Global drag: mousemove");
     const pt = getSVGCoords(e);
     const frame = timeline.getCurrentFrame();
     timeline.updateTransform({
@@ -89,7 +48,7 @@ export function setupPantinGlobalInteractions(svgElement, options, timeline, onU
 
   const endDrag = () => {
     if (!dragging) return;
-    console.log("Global drag: mouseup/mouseleave");
+    log("Global drag: mouseup/mouseleave");
     dragging = false;
     grabEl.style.cursor = 'move';
     onEnd();
@@ -115,7 +74,7 @@ function getSVGCoords(evt) {
  * @param timeline - has updateMember(id, state)
  */
 export function setupInteractions(svgElement, memberList, pivots, timeline, onUpdate, onEnd) {
-  console.log("setupInteractions (members) called.");
+  log("setupInteractions (members) called.");
   // Anatomical pivot and terminal mappings (IDs of <g> elements)
   const pivotMap = {
     tete: 'cou',
@@ -138,7 +97,7 @@ export function setupInteractions(svgElement, memberList, pivots, timeline, onUp
   memberList.forEach(id => {
     const seg = svgElement.getElementById(id);
     if (!seg) {
-      console.warn(`Segment ${id} not found.`);
+      warn(`Segment ${id} not found.`);
       return;
     }
     const pivotEl = svgElement.getElementById(pivotMap[id] || id);
@@ -151,7 +110,7 @@ export function setupInteractions(svgElement, memberList, pivots, timeline, onUp
 
     seg.style.cursor = 'grab';
     seg.addEventListener('pointerdown', e => {
-      console.log(`Member ${id}: pointerdown`);
+      log(`Member ${id}: pointerdown`);
       e.stopPropagation(); e.preventDefault();
       rotating = true;
       seg.setPointerCapture(e.pointerId);
@@ -186,7 +145,7 @@ export function setupInteractions(svgElement, memberList, pivots, timeline, onUp
 
     function onMove(e) {
       if (!rotating) return;
-      console.log(`Member ${id}: pointermove`);
+      log(`Member ${id}: pointermove`);
       // angle pivotScreen→cursor (screen coords)
       const mouseAng = Math.atan2(
         e.clientY - pivotScreen.y,
@@ -198,7 +157,7 @@ export function setupInteractions(svgElement, memberList, pivots, timeline, onUp
     }
 
     function onUp(e) {
-      console.log(`Member ${id}: pointerup/pointerleave`);
+      log(`Member ${id}: pointerup/pointerleave`);
       rotating = false;
       seg.style.cursor = 'grab';
       seg.releasePointerCapture && seg.releasePointerCapture(e.pointerId);

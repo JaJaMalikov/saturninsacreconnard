@@ -26,22 +26,20 @@ export function loadSVG(url, targetId) {
       svgElement.setAttribute('height', '100%');
       svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-      const svgDoc = document;
-
       [
         ["main_droite", "avant_bras_droite"],
         ["main_gauche", "avant_bras_gauche"],
         ["pied_droite", "tibia_droite"],
         ["pied_gauche", "tibia_gauche"],
       ].forEach(([childId, parentId]) => {
-        const ch = svgDoc.getElementById(childId);
-        const pr = svgDoc.getElementById(parentId);
+        const ch = svgElement.getElementById(childId);
+        const pr = svgElement.getElementById(parentId);
         if (ch && pr && ch.parentNode !== pr) pr.appendChild(ch);
       });
 
-      const torso = svgDoc.getElementById("torse");
+      const torso = svgElement.getElementById("torse");
       ["tete", "bras_gauche", "bras_droite", "jambe_gauche", "jambe_droite"].forEach(id => {
-        const el = svgDoc.getElementById(id);
+        const el = svgElement.getElementById(id);
         if (el && torso && torso.parentNode) torso.parentNode.insertBefore(el, torso);
       });
 
@@ -61,8 +59,8 @@ export function loadSVG(url, targetId) {
 
       const pivots = {};
       joints.forEach(([segment, pivotId]) => {
-        const pivotEl = svgDoc.getElementById(pivotId);
-        const segmentEl = svgDoc.getElementById(segment);
+        const pivotEl = svgElement.getElementById(pivotId);
+        const segmentEl = svgElement.getElementById(segment);
         if (!pivotEl || !segmentEl || !segmentEl.parentNode) return;
 
         // Coordonnées globales du centre du pivot au chargement
