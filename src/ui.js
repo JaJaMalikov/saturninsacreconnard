@@ -106,7 +106,13 @@ export function initUI(timeline, onFrameChange, onSave) {
     URL.revokeObjectURL(url);
   };
 
-  document.getElementById('importAnimBtn').onclick = () => { debugLog("Import button clicked."); document.getElementById('importAnim').click(); };
+  // Le label "importAnimBtn" est déjà lié à l'input fichier via l'attribut "for".
+  // Appeler programmatique `click()` déclenchait donc deux fois l'ouverture de la
+  // boîte de dialogue. On se contente du comportement par défaut qui ne l'ouvre
+  // qu'une seule fois tout en conservant le message de debug.
+  document.getElementById('importAnimBtn').onclick = () => {
+    debugLog("Import button clicked.");
+  };
   document.getElementById('importAnim').onchange = e => {
     debugLog("Import file selected.");
     const file = e.target.files[0];
