@@ -26,7 +26,7 @@ export function loadSVG(url, targetId) {
       svgElement.setAttribute('height', '100%');
       svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-      const svgDoc = document;
+      const svgDoc = svgElement;
 
       [
         ["main_droite", "avant_bras_droite"],
@@ -39,7 +39,7 @@ export function loadSVG(url, targetId) {
         if (ch && pr && ch.parentNode !== pr) pr.appendChild(ch);
       });
 
-      const torso = svgDoc.getElementById("torse");
+      const torso = svgDoc.getElementById('torse');
       ["tete", "bras_gauche", "bras_droite", "jambe_gauche", "jambe_droite"].forEach(id => {
         const el = svgDoc.getElementById(id);
         if (el && torso && torso.parentNode) torso.parentNode.insertBefore(el, torso);
