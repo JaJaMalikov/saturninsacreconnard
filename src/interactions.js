@@ -19,22 +19,14 @@ export function setupPantinGlobalInteractions(svgElement, options, timeline, onU
 
   if (!pantinState.rootGroup || !grabEl) {
     console.warn("Missing elements for global pantin interactions.", {pantinRoot: pantinState.rootGroup, grabEl});
-    return;
+    return () => {};
   }
 
   let dragging = false;
   let startPt;
   grabEl.style.cursor = 'move';
-  grabEl.addEventListener('pointerdown', e => {
-    debugLog("Global drag: pointerdown");
-    dragging = true;
-    startPt = getSVGCoords(e);
-    grabEl.style.cursor = 'grabbing';
-    grabEl.setPointerCapture(e.pointerId);
-    e.preventDefault();
-  });
 
-  svgElement.addEventListener('pointermove', e => {
+  const onMove = e => {
     if (!dragging) return;
     debugLog("Global drag: pointermove");
     const pt = getSVGCoords(e);
@@ -45,7 +37,7 @@ export function setupPantinGlobalInteractions(svgElement, options, timeline, onU
     });
     startPt = pt;
     onUpdate();
-  });
+  };
 
   const endDrag = e => {
     if (!dragging) return;
@@ -53,10 +45,30 @@ export function setupPantinGlobalInteractions(svgElement, options, timeline, onU
     dragging = false;
     grabEl.style.cursor = 'move';
     grabEl.releasePointerCapture && grabEl.releasePointerCapture(e.pointerId);
+    svgElement.removeEventListener('pointermove', onMove);
     onEnd();
   };
+
+  const onPointerDown = e => {
+    debugLog("Global drag: pointerdown");
+    dragging = true;
+    startPt = getSVGCoords(e);
+    grabEl.style.cursor = 'grabbing';
+    grabEl.setPointerCapture(e.pointerId);
+    svgElement.addEventListener('pointermove', onMove);
+    e.preventDefault();
+  };
+
+  grabEl.addEventListener('pointerdown', onPointerDown);
   svgElement.addEventListener('pointerup', endDrag);
   svgElement.addEventListener('pointerleave', endDrag);
+
+  return () => {
+    grabEl.removeEventListener('pointerdown', onPointerDown);
+    svgElement.removeEventListener('pointermove', onMove);
+    svgElement.removeEventListener('pointerup', endDrag);
+    svgElement.removeEventListener('pointerleave', endDrag);
+  };
 }
 
 // --- Utilities ---
@@ -85,6 +97,8 @@ export function setupInteractions(svgElement, memberList, pivots, timeline, onUp
     tibia_gauche: 'pied_gauche',
   };
 
+  const cleanupFns = [];
+
   memberList.forEach(id => {
     const seg = svgElement.getElementById(id);
     if (!seg) {
@@ -99,7 +113,30 @@ export function setupInteractions(svgElement, memberList, pivots, timeline, onUp
     const pivotLocal = pivots[id];
 
     seg.style.cursor = 'grab';
-    seg.addEventListener('pointerdown', e => {
+
+    const onMove = e => {
+      if (!rotating) return;
+      debugLog(`Member ${id}: pointermove`);
+      // angle pivotScreen→cursor (screen coords)
+      const mouseAng = Math.atan2(
+        e.clientY - pivotScreen.y,
+        e.clientX - pivotScreen.x
+      ) * 180 / Math.PI;
+      let newAng = ((mouseAng - baseOri + 180) % 360) - 180;
+      timeline.updateMember(id, { rotate: newAng });
+      onUpdate();
+    };
+
+    const onUp = e => {
+      debugLog(`Member ${id}: pointerup/pointerleave`);
+      rotating = false;
+      seg.style.cursor = 'grab';
+      seg.releasePointerCapture && seg.releasePointerCapture(e.pointerId);
+      svgElement.removeEventListener('pointermove', onMove);
+      onEnd();
+    };
+
+    const onPointerDown = e => {
       debugLog(`Member ${id}: pointerdown`);
       e.stopPropagation(); e.preventDefault();
       rotating = true;
@@ -127,29 +164,12 @@ export function setupInteractions(svgElement, memberList, pivots, timeline, onUp
       svgElement.addEventListener('pointermove', onMove);
       svgElement.addEventListener('pointerup', onUp, { once: true });
       svgElement.addEventListener('pointerleave', onUp, { once: true });
-    });
+    };
 
-    function onMove(e) {
-      if (!rotating) return;
-      debugLog(`Member ${id}: pointermove`);
-      // angle pivotScreen→cursor (screen coords)
-      const mouseAng = Math.atan2(
-        e.clientY - pivotScreen.y,
-        e.clientX - pivotScreen.x
-      ) * 180 / Math.PI;
-      let newAng = ((mouseAng - baseOri + 180) % 360) - 180;
-      timeline.updateMember(id, { rotate: newAng });
-      onUpdate();
-    }
-
-    function onUp(e) {
-      debugLog(`Member ${id}: pointerup/pointerleave`);
-      rotating = false;
-      seg.style.cursor = 'grab';
-      seg.releasePointerCapture && seg.releasePointerCapture(e.pointerId);
-      svgElement.removeEventListener('pointermove', onMove);
-      onEnd();
-    }
+    seg.addEventListener('pointerdown', onPointerDown);
+    cleanupFns.push(() => seg.removeEventListener('pointerdown', onPointerDown));
   });
+
+  return () => cleanupFns.forEach(fn => fn());
 }
 

@@ -35,11 +35,11 @@ export function initUI(timeline, onFrameChange, onSave) {
     appContainer.classList.add('inspector-collapsed');
   }
 
-  inspectorToggleBtn.onclick = () => {
+  inspectorToggleBtn.addEventListener('click', () => {
     debugLog("Inspector toggle button clicked.");
     appContainer.classList.toggle('inspector-collapsed');
     localStorage.setItem(inspectorStateKey, appContainer.classList.contains('inspector-collapsed'));
-  };
+  });
 
   // --- Mise à jour de l'UI --- //
   function updateUI() {
@@ -178,8 +178,14 @@ export function initUI(timeline, onFrameChange, onSave) {
   };
 
   for (const [key, ids] of Object.entries(controls)) {
-    document.getElementById(ids.plus).onclick = () => { debugLog(`${key} plus button clicked.`); updateTransform(key, ids.step);};
-    document.getElementById(ids.minus).onclick = () => { debugLog(`${key} minus button clicked.`); updateTransform(key, -ids.step);};
+    document.getElementById(ids.plus).addEventListener('click', () => {
+      debugLog(`${key} plus button clicked.`);
+      updateTransform(key, ids.step);
+    });
+    document.getElementById(ids.minus).addEventListener('click', () => {
+      debugLog(`${key} minus button clicked.`);
+      updateTransform(key, -ids.step);
+    });
   }
 
   function updateTransform(key, delta) {
@@ -200,10 +206,12 @@ export function initUI(timeline, onFrameChange, onSave) {
   // --- Contrôles Onion Skin ---
   const updateOnionSkin = () => {
     debugLog("updateOnionSkin called.");
+    const past = Math.max(0, Math.min(10, parseInt(pastFramesInput.value, 10) || 0));
+    const future = Math.max(0, Math.min(10, parseInt(futureFramesInput.value, 10) || 0));
     updateOnionSkinSettings({
       enabled: onionSkinToggle.checked,
-      pastFrames: parseInt(pastFramesInput.value, 10) || 0,
-      futureFrames: parseInt(futureFramesInput.value, 10) || 0,
+      pastFrames: past,
+      futureFrames: future,
     });
     onFrameChange(); // Redessine pour appliquer les changements
   };

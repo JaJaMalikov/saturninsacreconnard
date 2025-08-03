@@ -16,9 +16,14 @@ export async function loadSVG(url, targetId) {
   const target = document.getElementById(targetId);
   if (!target) throw new Error(`Element cible #${targetId} introuvable`);
 
-  target.innerHTML = svgText;
-  const svgElement = target.querySelector('svg');
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(svgText, 'image/svg+xml');
+  const svgElement = doc.querySelector('svg');
   if (!svgElement) throw new Error('Aucun élément <svg> trouvé dans le fichier chargé.');
+  svgElement.querySelectorAll('script').forEach(s => s.remove());
+
+  target.innerHTML = '';
+  target.appendChild(svgElement);
 
   svgElement.setAttribute('width', '100%');
   svgElement.setAttribute('height', '100%');
@@ -62,22 +67,15 @@ export async function loadSVG(url, targetId) {
     if (!pivotEl || !segmentEl || !segmentEl.parentNode) return;
 
     // Coordonnées globales du centre du pivot au chargement
-    const pivotRect = pivotEl.getBoundingClientRect();
-    const svgRect = svgElement.getBoundingClientRect();
-    const globalPivotPos = {
-      x: pivotRect.left + pivotRect.width / 2 - svgRect.left,
-      y: pivotRect.top + pivotRect.height / 2 - svgRect.top,
-    };
+    const pivotBox = pivotEl.getBBox();
+    const pivotPoint = svgElement.createSVGPoint();
+    pivotPoint.x = pivotBox.x + pivotBox.width / 2;
+    pivotPoint.y = pivotBox.y + pivotBox.height / 2;
+    const globalPivot = pivotPoint.matrixTransform(pivotEl.getCTM());
 
-    // Matrice pour passer du repère global au repère local du parent
     const parentInverseCTM = segmentEl.parentNode.getCTM().inverse();
 
-    const point = svgElement.createSVGPoint();
-    point.x = globalPivotPos.x;
-    point.y = globalPivotPos.y;
-
-    // On stocke la coordonnée du pivot dans le repère de son parent
-    pivots[segment] = point.matrixTransform(parentInverseCTM);
+    pivots[segment] = globalPivot.matrixTransform(parentInverseCTM);
   });
 
   return { svgElement, memberList, pivots };

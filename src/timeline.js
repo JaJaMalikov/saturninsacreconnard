@@ -79,9 +79,11 @@ export class Timeline {
     return this.getCurrentFrame();
   }
 
-  play(callback, onEnd, fps = 8) {
+  play(callback, onEnd, fps = 8, options = {}) {
     if (this.playing) return;
+    const { loop = false, rewind = false, reverse = false } = options;
     this.playing = true;
+    const direction = reverse ? -1 : 1;
     let i = this.current;
     const frameDuration = 1000 / fps;
     let lastTime = performance.now();
@@ -89,13 +91,18 @@ export class Timeline {
     const step = time => {
       if (!this.playing) return;
       if (time - lastTime >= frameDuration) {
-        if (i >= this.frames.length) {
-          this.stop();
-          if (typeof onEnd === 'function') onEnd();
-          return;
+        if (i < 0 || i >= this.frames.length) {
+          if (loop) {
+            i = reverse ? this.frames.length - 1 : 0;
+          } else {
+            this.stop();
+            if (rewind) this.current = reverse ? this.frames.length - 1 : 0;
+            if (typeof onEnd === 'function') onEnd();
+            return;
+          }
         }
         callback(this.frames[i], i);
-        i++;
+        i += direction;
         lastTime = time;
       }
       this._rafId = requestAnimationFrame(step);
