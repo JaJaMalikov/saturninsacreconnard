@@ -1,0 +1,24 @@
+name: Deploy PR preview to GitHub Pages
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Deploy to gh-pages under /preview/<branch>
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: '.'  # tu peux le changer si le site est dans un sous-dossier
+          publish_branch: gh-pages
+          destination_dir: preview/${{ github.head_ref }}
+          keep_files: true  # évite d’effacer les autres previews
