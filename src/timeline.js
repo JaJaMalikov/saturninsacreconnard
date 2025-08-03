@@ -48,9 +48,16 @@ export class Timeline {
   }
 
   addFrame(duplicate = true) {
-    let newFrame = duplicate
-      ? JSON.parse(JSON.stringify(this.getCurrentFrame()))
-      : this.createEmptyFrame();
+    let newFrame;
+    if (duplicate) {
+      if (typeof structuredClone === 'function') {
+        newFrame = structuredClone(this.getCurrentFrame());
+      } else {
+        newFrame = JSON.parse(JSON.stringify(this.getCurrentFrame()));
+      }
+    } else {
+      newFrame = this.createEmptyFrame();
+    }
     this.frames.splice(this.current + 1, 0, newFrame);
     this.current++;
     return this.getCurrentFrame();

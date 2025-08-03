@@ -32,38 +32,37 @@ async function main() {
       }
     }
 
+    const scaleValueEl = document.getElementById('scale-value');
+    const rotateValueEl = document.getElementById('rotate-value');
+    const mainRoot = svgElement.querySelector(`#${PANTIN_ROOT_ID}`);
+    const grabEl = mainRoot.querySelector(`#${GRAB_ID}`);
+    const grabBox = grabEl.getBBox();
+    const grabCenter = { x: grabBox.x + grabBox.width / 2, y: grabBox.y + grabBox.height / 2 };
+
+    const applyFrameToPantinElement = (targetFrame, targetRootGroup) => {
+      debugLog("Applying frame to element:", targetRootGroup, "Frame data:", targetFrame);
+      const { tx, ty, scale, rotate } = targetFrame.transform;
+      targetRootGroup.setAttribute('transform', `translate(${tx},${ty}) rotate(${rotate},${grabCenter.x},${grabCenter.y}) scale(${scale})`);
+
+      memberList.forEach(id => {
+        const el = targetRootGroup.querySelector(`#${id}`);
+        if (!el) return;
+        const pivot = pivots[id];
+        const angle = targetFrame.members[id]?.rotate || 0;
+        el.setAttribute('transform', `rotate(${angle},${pivot.x},${pivot.y})`);
+      });
+    };
+
     const onFrameChange = () => {
       debugLog("onFrameChange triggered. Current frame:", timeline.current);
       const frame = timeline.getCurrentFrame();
       if (!frame) return;
 
-      // Function to apply a frame to a given SVG element (main pantin or ghost)
-      const applyFrameToPantinElement = (targetFrame, targetRootGroup) => {
-        debugLog("Applying frame to element:", targetRootGroup, "Frame data:", targetFrame);
-        const { tx, ty, scale, rotate } = targetFrame.transform;
-        const grabEl = targetRootGroup.querySelector(`#${GRAB_ID}`); // Grab element is relative to the rootGroup
-        const bbox = grabEl ? grabEl.getBBox() : null;
-        const center = bbox ? { x: bbox.x + bbox.width / 2, y: bbox.y + bbox.height / 2 } : { x: 0, y: 0 };
-        
-        targetRootGroup.setAttribute('transform', `translate(${tx},${ty}) rotate(${rotate},${center.x},${center.y}) scale(${scale})`);
+      applyFrameToPantinElement(frame, mainRoot);
 
-        memberList.forEach(id => {
-          const el = targetRootGroup.querySelector(`#${id}`);
-          if (!el) return;
-          const pivot = pivots[id];
-          const angle = targetFrame.members[id]?.rotate || 0;
-          el.setAttribute('transform', `rotate(${angle},${pivot.x},${pivot.y})`);
-        });
-      };
+      scaleValueEl.textContent = frame.transform.scale.toFixed(2);
+      rotateValueEl.textContent = Math.round(frame.transform.rotate);
 
-      // Apply to main pantin
-      applyFrameToPantinElement(frame, svgElement.querySelector(`#${PANTIN_ROOT_ID}`));
-
-      // Update inspector values
-      document.getElementById('scale-value').textContent = frame.transform.scale.toFixed(2);
-      document.getElementById('rotate-value').textContent = Math.round(frame.transform.rotate);
-
-      // Render onion skins
       renderOnionSkins(timeline, (ghostFrame, ghostElement) => applyFrameToPantinElement(ghostFrame, ghostElement));
     };
 

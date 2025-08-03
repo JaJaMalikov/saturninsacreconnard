@@ -25,17 +25,9 @@ export function setupPantinGlobalInteractions(svgElement, options, timeline, onU
   let dragging = false;
   let startPt;
   grabEl.style.cursor = 'move';
-  grabEl.addEventListener('mousedown', e => {
-    debugLog("Global drag: mousedown");
-    dragging = true;
-    startPt = getSVGCoords(e);
-    grabEl.style.cursor = 'grabbing';
-    e.preventDefault();
-  });
-
-  svgElement.addEventListener('mousemove', e => {
+  const onMove = e => {
     if (!dragging) return;
-    debugLog("Global drag: mousemove");
+    debugLog("Global drag: pointermove");
     const pt = getSVGCoords(e);
     const frame = timeline.getCurrentFrame();
     timeline.updateTransform({
@@ -44,17 +36,27 @@ export function setupPantinGlobalInteractions(svgElement, options, timeline, onU
     });
     startPt = pt;
     onUpdate();
-  });
-
-  const endDrag = () => {
+  };
+  const endDrag = e => {
     if (!dragging) return;
-    debugLog("Global drag: mouseup/mouseleave");
+    debugLog("Global drag: pointerup/pointercancel");
     dragging = false;
     grabEl.style.cursor = 'move';
+    grabEl.releasePointerCapture && e.pointerId && grabEl.releasePointerCapture(e.pointerId);
+    svgElement.removeEventListener('pointermove', onMove);
     onEnd();
   };
-  svgElement.addEventListener('mouseup', endDrag);
-  svgElement.addEventListener('mouseleave', endDrag);
+  grabEl.addEventListener('pointerdown', e => {
+    debugLog("Global drag: pointerdown");
+    dragging = true;
+    startPt = getSVGCoords(e);
+    grabEl.style.cursor = 'grabbing';
+    grabEl.setPointerCapture(e.pointerId);
+    svgElement.addEventListener('pointermove', onMove);
+    svgElement.addEventListener('pointerup', endDrag, { once: true });
+    svgElement.addEventListener('pointercancel', endDrag, { once: true });
+    e.preventDefault();
+  });
 }
 
 // --- Utilities ---
@@ -70,23 +72,12 @@ function getSVGCoords(evt) {
  * respecting global transforms on rootGroup.
  * @param svgElement - the SVG DOM element
  * @param memberList - array of string IDs for segments
- * @param pivots - not used here
+ * @param pivots - coordonnées des pivots pré-calculées
  * @param timeline - has updateMember(id, state)
  */
 export function setupInteractions(svgElement, memberList, pivots, timeline, onUpdate, onEnd) {
   debugLog("setupInteractions (members) called.");
-  // Anatomical pivot and terminal mappings (IDs of <g> elements)
-  const pivotMap = {
-    tete: 'cou',
-    bras_gauche: 'epaule_gauche',
-    avant_bras_gauche: 'coude_gauche',
-    bras_droite: 'epaule_droite',
-    avant_bras_droite: 'coude_droite',
-    jambe_gauche: 'hanche_gauche',
-    tibia_gauche: 'genou_gauche',
-    jambe_droite: 'hanche_droite',
-    tibia_droite: 'genou_droite',
-  };
+  // Map des segments pour calculer la direction initiale
   const terminalMap = {
     avant_bras_droite: 'main_droite',
     avant_bras_gauche: 'main_gauche',
@@ -100,7 +91,6 @@ export function setupInteractions(svgElement, memberList, pivots, timeline, onUp
       console.warn(`Segment ${id} not found.`);
       return;
     }
-    const pivotEl = svgElement.getElementById(pivotMap[id] || id);
     const termEl = svgElement.getElementById(terminalMap[id] || id);
 
     let rotating = false;
@@ -116,14 +106,13 @@ export function setupInteractions(svgElement, memberList, pivots, timeline, onUp
       seg.setPointerCapture(e.pointerId);
       seg.style.cursor = 'grabbing';
 
-      // compute pivot in viewBox coords
-      const pBox = pivotEl.getBBox();
-      pivotLocal = { x: pBox.x + pBox.width / 2, y: pBox.y + pBox.height / 2 };
+      // utilise les coordonnées de pivot pré-calculées
+      pivotLocal = pivots[id];
 
-      // compute pivot screen coords (includes global transform)
+      // convertit le pivot local en coordonnées écran (incluant la transformation globale)
       const pPt = svgElement.createSVGPoint();
       pPt.x = pivotLocal.x; pPt.y = pivotLocal.y;
-      pivotScreen = pPt.matrixTransform(pivotEl.getScreenCTM());
+      pivotScreen = pPt.matrixTransform(seg.parentNode.getScreenCTM());
 
       // compute terminal screen coords
       const tBox = termEl.getBBox();

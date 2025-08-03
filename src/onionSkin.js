@@ -85,11 +85,17 @@ export function renderOnionSkins(timeline, applyFrameToPantin) {
 function createGhost(frame, type, applyFrameToPantin) {
   if (!pantinRoot) return null;
   const ghost = pantinRoot.cloneNode(true);
-  ghost.id = ''; // Les clones ne doivent pas avoir le même ID
+  stripIds(ghost);
   ghost.classList.add('onion-skin-ghost', `onion-skin-${type}`);
   
   // Applique les transformations de la frame cible à ce fantôme
   applyFrameToPantin(frame, ghost);
 
   return ghost;
+}
+
+// Supprime récursivement les attributs id d'un noeud cloné
+function stripIds(node) {
+  node.removeAttribute && node.removeAttribute('id');
+  Array.from(node.children || []).forEach(stripIds);
 }
