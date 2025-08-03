@@ -17,6 +17,14 @@ async function main() {
     debugLog("SVG loaded, Timeline instantiated.");
     const timeline = new Timeline(memberList);
 
+    const rootGroup = svgElement.querySelector(`#${PANTIN_ROOT_ID}`);
+    const grabEl = rootGroup.querySelector(`#${GRAB_ID}`);
+    const grabBBox = grabEl.getBBox();
+    const grabCenter = { x: grabBBox.x + grabBBox.width / 2, y: grabBBox.y + grabBBox.height / 2 };
+
+    const scaleValueEl = document.getElementById('scale-value');
+    const rotateValueEl = document.getElementById('rotate-value');
+
     const onSave = () => {
       localStorage.setItem('animation', timeline.exportJSON());
       debugLog("Animation sauvegardée.");
@@ -37,15 +45,14 @@ async function main() {
       const frame = timeline.getCurrentFrame();
       if (!frame) return;
 
-      // Function to apply a frame to a given SVG element (main pantin or ghost)
       const applyFrameToPantinElement = (targetFrame, targetRootGroup) => {
         debugLog("Applying frame to element:", targetRootGroup, "Frame data:", targetFrame);
         const { tx, ty, scale, rotate } = targetFrame.transform;
-        const grabEl = targetRootGroup.querySelector(`#${GRAB_ID}`); // Grab element is relative to the rootGroup
-        const bbox = grabEl ? grabEl.getBBox() : null;
-        const center = bbox ? { x: bbox.x + bbox.width / 2, y: bbox.y + bbox.height / 2 } : { x: 0, y: 0 };
-        
-        targetRootGroup.setAttribute('transform', `translate(${tx},${ty}) rotate(${rotate},${center.x},${center.y}) scale(${scale})`);
+
+        targetRootGroup.setAttribute(
+          'transform',
+          `translate(${tx},${ty}) rotate(${rotate},${grabCenter.x},${grabCenter.y}) scale(${scale})`
+        );
 
         memberList.forEach(id => {
           const el = targetRootGroup.querySelector(`#${id}`);
@@ -56,14 +63,11 @@ async function main() {
         });
       };
 
-      // Apply to main pantin
-      applyFrameToPantinElement(frame, svgElement.querySelector(`#${PANTIN_ROOT_ID}`));
+      applyFrameToPantinElement(frame, rootGroup);
 
-      // Update inspector values
-      document.getElementById('scale-value').textContent = frame.transform.scale.toFixed(2);
-      document.getElementById('rotate-value').textContent = Math.round(frame.transform.rotate);
+      scaleValueEl.textContent = frame.transform.scale.toFixed(2);
+      rotateValueEl.textContent = Math.round(frame.transform.rotate);
 
-      // Render onion skins
       renderOnionSkins(timeline, (ghostFrame, ghostElement) => applyFrameToPantinElement(ghostFrame, ghostElement));
     };
 
