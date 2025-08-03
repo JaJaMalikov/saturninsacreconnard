@@ -12,6 +12,19 @@ export function initUI(timeline, onFrameChange, onSave) {
   const frameInfo = document.getElementById('frameInfo');
   const timelineSlider = document.getElementById('timeline-slider');
   const fpsInput = document.getElementById('fps-input');
+  const prevFrameBtn = document.getElementById('prevFrame');
+  const nextFrameBtn = document.getElementById('nextFrame');
+  const playBtn = document.getElementById('playAnim');
+  const stopBtn = document.getElementById('stopAnim');
+  const addFrameBtn = document.getElementById('addFrame');
+  const delFrameBtn = document.getElementById('delFrame');
+  const exportAnimBtn = document.getElementById('exportAnim');
+  const importAnimBtn = document.getElementById('importAnimBtn');
+  const importAnimInput = document.getElementById('importAnim');
+  const resetStorageBtn = document.getElementById('resetStorage');
+  const onionSkinToggle = document.getElementById('onion-skin-toggle');
+  const pastFramesInput = document.getElementById('past-frames');
+  const futureFramesInput = document.getElementById('future-frames');
 
   // --- Panneau Inspecteur Escamotable ---
   const appContainer = document.getElementById('app-container');
@@ -51,12 +64,21 @@ export function initUI(timeline, onFrameChange, onSave) {
   });
   timelineSlider.addEventListener('change', onSave);
 
-  document.getElementById('prevFrame').onclick = () => { debugLog("Prev frame button clicked."); timeline.prevFrame(); updateUI(); onSave(); };
-  document.getElementById('nextFrame').onclick = () => { debugLog("Next frame button clicked."); timeline.nextFrame(); updateUI(); onSave(); };
+  prevFrameBtn.addEventListener('click', () => {
+    debugLog('Prev frame button clicked.');
+    timeline.prevFrame();
+    updateUI();
+    onSave();
+  });
+  nextFrameBtn.addEventListener('click', () => {
+    debugLog('Next frame button clicked.');
+    timeline.nextFrame();
+    updateUI();
+    onSave();
+  });
 
-  document.getElementById('playAnim').onclick = () => {
-    debugLog("Play button clicked.");
-    const playBtn = document.getElementById('playAnim');
+  playBtn.addEventListener('click', () => {
+    debugLog('Play button clicked.');
     if (timeline.playing) return;
 
     playBtn.textContent = '⏸️';
@@ -76,27 +98,36 @@ export function initUI(timeline, onFrameChange, onSave) {
       },
       fps
     );
-  };
+  });
 
-  document.getElementById('stopAnim').onclick = () => {
-    debugLog("Stop button clicked.");
+  stopBtn.addEventListener('click', () => {
+    debugLog('Stop button clicked.');
     timeline.stop();
     timeline.setCurrentFrame(0);
-    document.getElementById('playAnim').textContent = '▶️';
+    playBtn.textContent = '▶️';
     updateUI();
     onSave();
-  };
+  });
 
   // Actions sur les frames
-  document.getElementById('addFrame').onclick = () => { debugLog("Add frame button clicked."); timeline.addFrame(); updateUI(); onSave(); };
-  document.getElementById('delFrame').onclick = () => {
-    debugLog("Delete frame button clicked.");
-    if (timeline.frames.length > 1) { timeline.deleteFrame(); updateUI(); onSave(); }
-  };
+  addFrameBtn.addEventListener('click', () => {
+    debugLog('Add frame button clicked.');
+    timeline.addFrame();
+    updateUI();
+    onSave();
+  });
+  delFrameBtn.addEventListener('click', () => {
+    debugLog('Delete frame button clicked.');
+    if (timeline.frames.length > 1) {
+      timeline.deleteFrame();
+      updateUI();
+      onSave();
+    }
+  });
 
   // Actions de l'application
-  document.getElementById('exportAnim').onclick = () => {
-    debugLog("Export button clicked.");
+  exportAnimBtn.addEventListener('click', () => {
+    debugLog('Export button clicked.');
     const blob = new Blob([timeline.exportJSON()], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -104,17 +135,17 @@ export function initUI(timeline, onFrameChange, onSave) {
     a.download = `animation-${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
-  };
+  });
 
   // Le label "importAnimBtn" est déjà lié à l'input fichier via l'attribut "for".
   // Appeler programmatique `click()` déclenchait donc deux fois l'ouverture de la
   // boîte de dialogue. On se contente du comportement par défaut qui ne l'ouvre
   // qu'une seule fois tout en conservant le message de debug.
-  document.getElementById('importAnimBtn').onclick = () => {
-    debugLog("Import button clicked.");
-  };
-  document.getElementById('importAnim').onchange = e => {
-    debugLog("Import file selected.");
+  importAnimBtn.addEventListener('click', () => {
+    debugLog('Import button clicked.');
+  });
+  importAnimInput.addEventListener('change', e => {
+    debugLog('Import file selected.');
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
@@ -123,20 +154,22 @@ export function initUI(timeline, onFrameChange, onSave) {
         timeline.importJSON(evt.target.result);
         updateUI();
         onSave();
-      } catch (err) { alert(`Erreur d'importation : ${err.message}`); }
+      } catch (err) {
+        alert(`Erreur d'importation : ${err.message}`);
+      }
     };
     reader.readAsText(file);
     e.target.value = '';
-  };
+  });
 
-  document.getElementById('resetStorage').onclick = () => {
-    debugLog("Reset storage button clicked.");
-    if (confirm("Voulez-vous vraiment réinitialiser le projet ?\nCette action est irréversible.")) {
+  resetStorageBtn.addEventListener('click', () => {
+    debugLog('Reset storage button clicked.');
+    if (confirm('Voulez-vous vraiment réinitialiser le projet ?\nCette action est irréversible.')) {
       localStorage.removeItem('animation');
       localStorage.removeItem(inspectorStateKey);
       window.location.reload();
     }
-  };
+  });
 
   // --- Contrôles de l'inspecteur --- //
   const controls = {
@@ -165,10 +198,6 @@ export function initUI(timeline, onFrameChange, onSave) {
   }
 
   // --- Contrôles Onion Skin ---
-  const onionSkinToggle = document.getElementById('onion-skin-toggle');
-  const pastFramesInput = document.getElementById('past-frames');
-  const futureFramesInput = document.getElementById('future-frames');
-
   const updateOnionSkin = () => {
     debugLog("updateOnionSkin called.");
     updateOnionSkinSettings({
