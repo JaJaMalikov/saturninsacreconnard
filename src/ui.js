@@ -1,4 +1,5 @@
 import { updateOnionSkinSettings } from './onionSkin.js';
+import { debugLog } from './debug.js';
 
 /**
  * Initialise l’UI et la connecte à la timeline.
@@ -7,7 +8,7 @@ import { updateOnionSkinSettings } from './onionSkin.js';
  * @param {Function} onSave - Callback pour sauvegarder l'état.
  */
 export function initUI(timeline, onFrameChange, onSave) {
-  console.log("initUI called.");
+  debugLog("initUI called.");
   const frameInfo = document.getElementById('frameInfo');
   const timelineSlider = document.getElementById('timeline-slider');
   const fpsInput = document.getElementById('fps-input');
@@ -22,14 +23,14 @@ export function initUI(timeline, onFrameChange, onSave) {
   }
 
   inspectorToggleBtn.onclick = () => {
-    console.log("Inspector toggle button clicked.");
+    debugLog("Inspector toggle button clicked.");
     appContainer.classList.toggle('inspector-collapsed');
     localStorage.setItem(inspectorStateKey, appContainer.classList.contains('inspector-collapsed'));
   };
 
   // --- Mise à jour de l'UI --- //
   function updateUI() {
-    console.log("updateUI called.");
+    debugLog("updateUI called.");
     const frameCount = timeline.frames.length;
     const currentIndex = timeline.current;
 
@@ -44,17 +45,17 @@ export function initUI(timeline, onFrameChange, onSave) {
 
   // Timeline
   timelineSlider.addEventListener('input', () => {
-    console.log("Timeline slider input.");
+    debugLog("Timeline slider input.");
     timeline.setCurrentFrame(parseInt(timelineSlider.value, 10));
     updateUI();
   });
   timelineSlider.addEventListener('change', onSave);
 
-  document.getElementById('prevFrame').onclick = () => { console.log("Prev frame button clicked."); timeline.prevFrame(); updateUI(); onSave(); };
-  document.getElementById('nextFrame').onclick = () => { console.log("Next frame button clicked."); timeline.nextFrame(); updateUI(); onSave(); };
+  document.getElementById('prevFrame').onclick = () => { debugLog("Prev frame button clicked."); timeline.prevFrame(); updateUI(); onSave(); };
+  document.getElementById('nextFrame').onclick = () => { debugLog("Next frame button clicked."); timeline.nextFrame(); updateUI(); onSave(); };
 
   document.getElementById('playAnim').onclick = () => {
-    console.log("Play button clicked.");
+    debugLog("Play button clicked.");
     const playBtn = document.getElementById('playAnim');
     if (timeline.playing) return;
 
@@ -78,7 +79,7 @@ export function initUI(timeline, onFrameChange, onSave) {
   };
 
   document.getElementById('stopAnim').onclick = () => {
-    console.log("Stop button clicked.");
+    debugLog("Stop button clicked.");
     timeline.stop();
     timeline.setCurrentFrame(0);
     document.getElementById('playAnim').textContent = '▶️';
@@ -87,15 +88,15 @@ export function initUI(timeline, onFrameChange, onSave) {
   };
 
   // Actions sur les frames
-  document.getElementById('addFrame').onclick = () => { console.log("Add frame button clicked."); timeline.addFrame(); updateUI(); onSave(); };
+  document.getElementById('addFrame').onclick = () => { debugLog("Add frame button clicked."); timeline.addFrame(); updateUI(); onSave(); };
   document.getElementById('delFrame').onclick = () => {
-    console.log("Delete frame button clicked.");
+    debugLog("Delete frame button clicked.");
     if (timeline.frames.length > 1) { timeline.deleteFrame(); updateUI(); onSave(); }
   };
 
   // Actions de l'application
   document.getElementById('exportAnim').onclick = () => {
-    console.log("Export button clicked.");
+    debugLog("Export button clicked.");
     const blob = new Blob([timeline.exportJSON()], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -105,9 +106,9 @@ export function initUI(timeline, onFrameChange, onSave) {
     URL.revokeObjectURL(url);
   };
 
-  document.getElementById('importAnimBtn').onclick = () => { console.log("Import button clicked."); document.getElementById('importAnim').click(); };
+  document.getElementById('importAnimBtn').onclick = () => { debugLog("Import button clicked."); document.getElementById('importAnim').click(); };
   document.getElementById('importAnim').onchange = e => {
-    console.log("Import file selected.");
+    debugLog("Import file selected.");
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
@@ -123,7 +124,7 @@ export function initUI(timeline, onFrameChange, onSave) {
   };
 
   document.getElementById('resetStorage').onclick = () => {
-    console.log("Reset storage button clicked.");
+    debugLog("Reset storage button clicked.");
     if (confirm("Voulez-vous vraiment réinitialiser le projet ?\nCette action est irréversible.")) {
       localStorage.removeItem('animation');
       localStorage.removeItem(inspectorStateKey);
@@ -138,15 +139,20 @@ export function initUI(timeline, onFrameChange, onSave) {
   };
 
   for (const [key, ids] of Object.entries(controls)) {
-    document.getElementById(ids.plus).onclick = () => { console.log(`${key} plus button clicked.`); updateTransform(key, ids.step);};
-    document.getElementById(ids.minus).onclick = () => { console.log(`${key} minus button clicked.`); updateTransform(key, -ids.step);};
+    document.getElementById(ids.plus).onclick = () => { debugLog(`${key} plus button clicked.`); updateTransform(key, ids.step);};
+    document.getElementById(ids.minus).onclick = () => { debugLog(`${key} minus button clicked.`); updateTransform(key, -ids.step);};
   }
 
   function updateTransform(key, delta) {
-    console.log(`updateTransform for ${key} by ${delta}.`);
+    debugLog(`updateTransform for ${key} by ${delta}.`);
     const currentFrame = timeline.getCurrentFrame();
     const currentValue = currentFrame.transform[key];
-    const newValue = currentValue + delta;
+    let newValue = currentValue + delta;
+    if (key === 'scale') {
+      newValue = Math.min(Math.max(newValue, 0.1), 10);
+    } else if (key === 'rotate') {
+      newValue = Math.min(Math.max(newValue, -180), 180);
+    }
     timeline.updateTransform({ [key]: newValue });
     updateUI();
     onSave();
@@ -158,7 +164,7 @@ export function initUI(timeline, onFrameChange, onSave) {
   const futureFramesInput = document.getElementById('future-frames');
 
   const updateOnionSkin = () => {
-    console.log("updateOnionSkin called.");
+    debugLog("updateOnionSkin called.");
     updateOnionSkinSettings({
       enabled: onionSkinToggle.checked,
       pastFrames: parseInt(pastFramesInput.value, 10) || 0,
