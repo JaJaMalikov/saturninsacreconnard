@@ -3,6 +3,9 @@ import { debugLog } from './debug.js';
 let svgElement = null;
 let pantinRoot = null;
 let onionLayer = null;
+let memberList = [];
+const pastGhosts = [];
+const futureGhosts = [];
 
 const settings = {
   enabled: false,
@@ -15,10 +18,11 @@ const settings = {
  * @param {SVGElement} svg - L'élément SVG principal.
  * @param {string} rootId - L'ID du groupe racine du pantin.
  */
-export function initOnionSkin(svg, rootId) {
+export function initOnionSkin(svg, rootId, members) {
   debugLog("initOnionSkin called.");
   svgElement = svg;
   pantinRoot = svg.querySelector(`#${rootId}`);
+  memberList = members || [];
 
   // Crée un calque dédié pour les fantômes afin de garder le DOM propre
   // et de s'assurer qu'ils sont rendus derrière le pantin principal.
@@ -33,7 +37,13 @@ export function initOnionSkin(svg, rootId) {
  */
 export function updateOnionSkinSettings(newSettings) {
   debugLog("updateOnionSkinSettings called with:", newSettings);
-  Object.assign(settings, newSettings);
+  if (typeof newSettings.enabled === 'boolean') settings.enabled = newSettings.enabled;
+  if (typeof newSettings.pastFrames === 'number') {
+    settings.pastFrames = Math.max(0, Math.min(10, Math.floor(newSettings.pastFrames)));
+  }
+  if (typeof newSettings.futureFrames === 'number') {
+    settings.futureFrames = Math.max(0, Math.min(10, Math.floor(newSettings.futureFrames)));
+  }
 }
 
 /**
@@ -43,7 +53,7 @@ export function updateOnionSkinSettings(newSettings) {
  */
 export function renderOnionSkins(timeline, applyFrameToPantin) {
   debugLog("renderOnionSkins called. Settings:", settings);
-  // Efface les anciens fantômes
+  // Efface les anciens fantômes du calque (les objets restent en cache)
   onionLayer.replaceChildren();
 
   if (!settings.enabled || !pantinRoot) {
@@ -53,49 +63,54 @@ export function renderOnionSkins(timeline, applyFrameToPantin) {
 
   const current = timeline.current;
   const frames = timeline.frames;
+  adjustGhosts(pastGhosts, settings.pastFrames, 'past');
+  adjustGhosts(futureGhosts, settings.futureFrames, 'future');
 
   // Rend les images passées
-  for (let i = 1; i <= settings.pastFrames; i++) {
-    const frameIndex = current - i;
+  for (let i = 0; i < settings.pastFrames; i++) {
+    const frameIndex = current - (i + 1);
+    const ghost = pastGhosts[i];
     if (frameIndex >= 0) {
-      debugLog("Creating past ghost for frame:", frameIndex);
-      const ghost = createGhost(frames[frameIndex], 'past', applyFrameToPantin);
-      if (ghost) onionLayer.appendChild(ghost);
+      debugLog("Updating past ghost for frame:", frameIndex);
+      applyFrameToPantin(frames[frameIndex], ghost, ghost._memberMap);
+      ghost.style.display = '';
+      onionLayer.appendChild(ghost);
+    } else {
+      ghost.style.display = 'none';
     }
   }
 
   // Rend les images futures
-  for (let i = 1; i <= settings.futureFrames; i++) {
-    const frameIndex = current + i;
+  for (let i = 0; i < settings.futureFrames; i++) {
+    const frameIndex = current + (i + 1);
+    const ghost = futureGhosts[i];
     if (frameIndex < frames.length) {
-      debugLog("Creating future ghost for frame:", frameIndex);
-      const ghost = createGhost(frames[frameIndex], 'future', applyFrameToPantin);
-      if (ghost) onionLayer.appendChild(ghost);
+      debugLog("Updating future ghost for frame:", frameIndex);
+      applyFrameToPantin(frames[frameIndex], ghost, ghost._memberMap);
+      ghost.style.display = '';
+      onionLayer.appendChild(ghost);
+    } else {
+      ghost.style.display = 'none';
     }
   }
 }
 
-/**
- * Crée un seul élément fantôme pour une frame donnée.
- * @param {object} frame - Les données de la frame à appliquer.
- * @param {'past' | 'future'} type - Le type de frame fantôme.
- * @param {Function} applyFrameToPantin - La fonction pour appliquer les transformations.
- * @returns {SVGElement | null} L'élément fantôme stylisé.
- */
-function createGhost(frame, type, applyFrameToPantin) {
-  if (!pantinRoot) return null;
-  const ghost = pantinRoot.cloneNode(true);
+function adjustGhosts(arr, count, type) {
+  while (arr.length < count) {
+    const ghost = pantinRoot.cloneNode(true);
+    const memberMap = {};
+    memberList.forEach(id => {
+      const el = ghost.querySelector(`#${id}`);
+      if (el) memberMap[id] = el;
+    });
+    ghost._memberMap = memberMap;
+    stripIds(ghost);
+    ghost.classList.add('onion-skin-ghost', `onion-skin-${type}`);
+    arr.push(ghost);
+  }
+}
 
-  // Applique les transformations de la frame cible à ce fantôme avant de retirer les IDs
-  applyFrameToPantin(frame, ghost);
-
-  // Remove all IDs to avoid duplicates in the DOM
-  (function stripIds(el) {
-    el.removeAttribute('id');
-    Array.from(el.children).forEach(stripIds);
-  })(ghost);
-
-  ghost.classList.add('onion-skin-ghost', `onion-skin-${type}`);
-
-  return ghost;
+function stripIds(el) {
+  el.removeAttribute('id');
+  Array.from(el.children).forEach(stripIds);
 }

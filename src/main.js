@@ -4,11 +4,9 @@ import { Timeline } from './timeline.js';
 import { setupInteractions, setupPantinGlobalInteractions } from './interactions.js';
 import { initUI } from './ui.js';
 import { debugLog } from './debug.js';
+import CONFIG from './config.js';
 
-const SVG_URL = 'assets/pantins/manu.svg';
-const THEATRE_ID = 'theatre';
-const PANTIN_ROOT_ID = 'manu_test';
-const GRAB_ID = 'torse';
+const { SVG_URL, THEATRE_ID, PANTIN_ROOT_ID, GRAB_ID } = CONFIG;
 
 async function main() {
   debugLog("main() started");
@@ -29,8 +27,15 @@ async function main() {
       ? { x: grabBox.x + grabBox.width / 2, y: grabBox.y + grabBox.height / 2 }
       : { x: 0, y: 0 };
 
+    const memberElements = {};
+    memberList.forEach(id => {
+      const el = pantinRootGroup?.querySelector(`#${id}`);
+      if (el) memberElements[id] = el;
+    });
+    pantinRootGroup._memberMap = memberElements;
+
     // Function to apply a frame to a given SVG element (main pantin or ghost)
-    const applyFrameToPantinElement = (targetFrame, targetRootGroup) => {
+    const applyFrameToPantinElement = (targetFrame, targetRootGroup, elementMap = targetRootGroup._memberMap || memberElements) => {
       debugLog("Applying frame to element:", targetRootGroup, "Frame data:", targetFrame);
       const { tx, ty, scale, rotate } = targetFrame.transform;
       targetRootGroup.setAttribute(
@@ -39,7 +44,7 @@ async function main() {
       );
 
       memberList.forEach(id => {
-        const el = targetRootGroup.querySelector(`#${id}`);
+        const el = elementMap[id];
         if (!el) return;
         const pivot = pivots[id];
         const angle = targetFrame.members[id]?.rotate || 0;
@@ -79,7 +84,7 @@ async function main() {
     };
 
     debugLog("Initializing Onion Skin...");
-    initOnionSkin(svgElement, PANTIN_ROOT_ID);
+    initOnionSkin(svgElement, PANTIN_ROOT_ID, memberList);
 
     const interactionOptions = {
       rootGroupId: PANTIN_ROOT_ID,
@@ -87,12 +92,17 @@ async function main() {
     };
 
     debugLog("Setting up member interactions...");
-    setupInteractions(svgElement, memberList, pivots, timeline, onFrameChange, onSave);
+    const teardownMembers = setupInteractions(svgElement, memberList, pivots, timeline, onFrameChange, onSave);
     debugLog("Setting up global pantin interactions...");
-    setupPantinGlobalInteractions(svgElement, interactionOptions, timeline, onFrameChange, onSave);
+    const teardownGlobal = setupPantinGlobalInteractions(svgElement, interactionOptions, timeline, onFrameChange, onSave);
 
     debugLog("Initializing UI...");
     initUI(timeline, onFrameChange, onSave);
+
+    window.addEventListener('beforeunload', () => {
+      teardownMembers();
+      teardownGlobal();
+    });
 
   } catch (err) {
     console.error("Erreur d'initialisation:", err);
