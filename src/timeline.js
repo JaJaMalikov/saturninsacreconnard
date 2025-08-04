@@ -9,9 +9,10 @@
  */
 
 export class Timeline {
-  constructor(memberList, initialFrame = null) {
+ constructor(memberList, initialFrame = null) {
     this.memberList = memberList;
     this.frames = [initialFrame || this.createEmptyFrame()];
+    this.objects = {};
     this.current = 0;
     this.playing = false;
     this._rafId = null;
@@ -23,6 +24,7 @@ export class Timeline {
     return {
       transform: { tx: 0, ty: 0, scale: 1, rotate: 0 },
       members,
+      objects: {},
     };
   }
 
@@ -47,6 +49,32 @@ export class Timeline {
     frame.transform = { ...frame.transform, ...values };
   }
 
+  addObject(id, meta, initialTransform = { tx: 0, ty: 0, scale: 1, rotate: 0 }) {
+    this.objects[id] = meta;
+    this.frames.forEach(f => {
+      f.objects[id] = { ...initialTransform };
+    });
+    return id;
+  }
+
+  deleteObject(id) {
+    delete this.objects[id];
+    this.frames.forEach(f => {
+      delete f.objects[id];
+    });
+  }
+
+  updateObjectTransform(id, values) {
+    const frame = this.getCurrentFrame();
+    if (!frame.objects[id]) return;
+    frame.objects[id] = { ...frame.objects[id], ...values };
+  }
+
+  updateObjectMeta(id, values) {
+    if (!this.objects[id]) return;
+    this.objects[id] = { ...this.objects[id], ...values };
+  }
+
   addFrame(duplicate = true) {
     let newFrame;
     if (duplicate) {
@@ -56,6 +84,9 @@ export class Timeline {
         : JSON.parse(JSON.stringify(currentFrame));
     } else {
       newFrame = this.createEmptyFrame();
+      Object.keys(this.objects).forEach(id => {
+        newFrame.objects[id] = { tx: 0, ty: 0, scale: 1, rotate: 0 };
+      });
     }
     this.frames.splice(this.current + 1, 0, newFrame);
     this.current++;
@@ -118,21 +149,25 @@ export class Timeline {
   }
 
   exportJSON() {
-    return JSON.stringify(this.frames, null, 2);
+    return JSON.stringify({ frames: this.frames, objects: this.objects }, null, 2);
   }
 
   importJSON(json) {
     try {
-      const arr = JSON.parse(json);
-      if (!Array.isArray(arr)) throw new Error('Invalid format');
-
-      // Rétro-compatibilité : convertir l'ancien format
-      const migratedFrames = arr.map(f => {
-        if (f.members && f.transform) return f; // Déjà au bon format
-        return this._migrateOldFrame(f);
-      });
-
-      this.frames = migratedFrames;
+      const data = JSON.parse(json);
+      if (Array.isArray(data)) {
+        // Ancien format
+        const migratedFrames = data.map(f => {
+          if (f.members && f.transform) return f;
+          return this._migrateOldFrame(f);
+        });
+        this.frames = migratedFrames;
+        this.objects = {};
+      } else {
+        if (!data.frames || !Array.isArray(data.frames)) throw new Error('Invalid format');
+        this.frames = data.frames;
+        this.objects = data.objects || {};
+      }
       this.current = 0;
     } catch (e) {
       throw new Error('Échec import : ' + e);

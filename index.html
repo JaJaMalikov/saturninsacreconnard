@@ -34,6 +34,29 @@
           </div>
         </div>
       </div>
+
+      <div id="object-inspector">
+        <h3>Objets</h3>
+        <div class="control-group">
+          <label for="object-library">Bibliothèque</label>
+          <select id="object-library"></select>
+          <button type="button" id="add-object" aria-label="Ajouter l'objet">➕</button>
+        </div>
+        <div class="control-group">
+          <label for="object-layer">Plan</label>
+          <select id="object-layer">
+            <option value="front">Devant</option>
+            <option value="back">Derrière</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="object-attach">Attacher à</label>
+          <select id="object-attach">
+            <option value="">Aucun</option>
+          </select>
+        </div>
+        <button type="button" id="delete-object" aria-label="Supprimer l'objet">Supprimer</button>
+      </div>
       <div id="onion-skin-controls" role="region" aria-label="Contrôles Onion Skin">
         <h3>Onion Skin</h3>
         <div class="control-group">

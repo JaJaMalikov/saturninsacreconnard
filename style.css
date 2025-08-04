@@ -57,7 +57,7 @@ body, html {
   background-color: var(--panel-bg-color);
   border-left: 1px solid var(--border-color);
   padding: 16px;
-  overflow: hidden;
+  overflow-y: auto;
   white-space: nowrap;
 }
 

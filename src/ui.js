@@ -25,6 +25,15 @@ export function initUI(timeline, onFrameChange, onSave) {
   const onionSkinToggle = document.getElementById('onion-skin-toggle');
   const pastFramesInput = document.getElementById('past-frames');
   const futureFramesInput = document.getElementById('future-frames');
+  const scaleValueEl = document.getElementById('scale-value');
+  const rotateValueEl = document.getElementById('rotate-value');
+  const selectedNameEl = document.getElementById('selected-element-name');
+
+  window.updateInspectorSelection = (name, values) => {
+    selectedNameEl.textContent = name;
+    scaleValueEl.textContent = values.scale.toFixed(2);
+    rotateValueEl.textContent = Math.round(values.rotate);
+  };
 
   // --- Panneau Inspecteur Escamotable ---
   const appContainer = document.getElementById('app-container');
@@ -190,15 +199,20 @@ export function initUI(timeline, onFrameChange, onSave) {
 
   function updateTransform(key, delta) {
     debugLog(`updateTransform for ${key} by ${delta}.`);
+    const sel = window.appState?.getSelectedObject();
     const currentFrame = timeline.getCurrentFrame();
-    const currentValue = currentFrame.transform[key];
-    let newValue = currentValue + delta;
+    const target = sel ? currentFrame.objects[sel] : currentFrame.transform;
+    let newValue = target[key] + delta;
     if (key === 'scale') {
       newValue = Math.min(Math.max(newValue, 0.1), 10);
     } else if (key === 'rotate') {
       newValue = ((newValue % 360) + 360) % 360;
     }
-    timeline.updateTransform({ [key]: newValue });
+    if (sel) {
+      timeline.updateObjectTransform(sel, { [key]: newValue });
+    } else {
+      timeline.updateTransform({ [key]: newValue });
+    }
     updateUI();
     onSave();
   }
