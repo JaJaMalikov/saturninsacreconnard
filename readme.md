@@ -16,7 +16,8 @@ Le **MACRON‑O‑TRON 3000** est une application web interactive permettant de
 
 ## Structure du projet
 
-- **index.html** : Point d’entrée de l’application.
+- **index.html** : Point d’entrée de l’interface React (v2).
+- **index-legacy.html** : Ancienne interface HTML/JS.
 - **style.css** : Feuille de style principale.
 - **src/** :
   - `main.js` : Initialisation et orchestration des modules.
@@ -25,6 +26,7 @@ Le **MACRON‑O‑TRON 3000** est une application web interactive permettant de
   - `interactions.js` : Gestion des interactions utilisateur.
   - `ui.js` : Liaison des éléments HTML et JavaScript.
   - `onionSkin.js` : Logique de l’onion skinning.
+- **src-v2/** : Code source de la nouvelle interface (React + Vite).
 
 ## Installation et exécution
 
@@ -37,11 +39,18 @@ Le **MACRON‑O‑TRON 3000** est une application web interactive permettant de
    ```bash
    python -m http.server
    ```
-3. Ouvrez `http://localhost:8000` dans votre navigateur.
+3. Pour l'interface classique, ouvrez `http://localhost:8000/index-legacy.html` dans votre navigateur.
+4. Pour la version React, installez les dépendances et lancez Vite :
+   ```bash
+   cd src-v2
+   pnpm install
+   pnpm run dev
+   ```
 
 ## Lancement
 
-Après démarrage du serveur, accédez à `http://localhost:8000/index.html` pour utiliser l’application.
+- Interface classique : `http://localhost:8000/index-legacy.html`
+- Interface React (développement) : `cd src-v2 && pnpm run dev`
 
 ## 📄 Licence
 
