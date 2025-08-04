@@ -1,5 +1,6 @@
 import { updateOnionSkinSettings } from './onionSkin.js';
 import { debugLog } from './debug.js';
+import { getSelectedObject, updateSelectedTransform } from './objects.js';
 
 /**
  * Initialise l’UI et la connecte à la timeline.
@@ -190,15 +191,20 @@ export function initUI(timeline, onFrameChange, onSave) {
 
   function updateTransform(key, delta) {
     debugLog(`updateTransform for ${key} by ${delta}.`);
-    const currentFrame = timeline.getCurrentFrame();
-    const currentValue = currentFrame.transform[key];
-    let newValue = currentValue + delta;
-    if (key === 'scale') {
-      newValue = Math.min(Math.max(newValue, 0.1), 10);
-    } else if (key === 'rotate') {
-      newValue = ((newValue % 360) + 360) % 360;
+    const obj = getSelectedObject();
+    if (obj) {
+      updateSelectedTransform(key, delta);
+    } else {
+      const currentFrame = timeline.getCurrentFrame();
+      const currentValue = currentFrame.transform[key];
+      let newValue = currentValue + delta;
+      if (key === 'scale') {
+        newValue = Math.min(Math.max(newValue, 0.1), 10);
+      } else if (key === 'rotate') {
+        newValue = ((newValue % 360) + 360) % 360;
+      }
+      timeline.updateTransform({ [key]: newValue });
     }
-    timeline.updateTransform({ [key]: newValue });
     updateUI();
     onSave();
   }

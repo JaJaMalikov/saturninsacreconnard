@@ -5,6 +5,14 @@ import { setupInteractions, setupPantinGlobalInteractions } from './interactions
 import { initUI } from './ui.js';
 import { debugLog } from './debug.js';
 import CONFIG from './config.js';
+import {
+  initObjects,
+  getSelectedObject,
+  attachSelected,
+  updateZ,
+  exportObjects,
+  importObjects
+} from './objects.js';
 
 const { SVG_URL, THEATRE_ID, PANTIN_ROOT_ID, GRAB_ID } = CONFIG;
 
@@ -18,6 +26,11 @@ async function main() {
     // Cache frequently accessed DOM elements
     const scaleValueEl = document.getElementById('scale-value');
     const rotateValueEl = document.getElementById('rotate-value');
+    const selectedNameEl = document.getElementById('selected-element-name');
+    const objectControls = document.getElementById('object-controls');
+    const attachCheckbox = document.getElementById('attach-object');
+    const frontBtn = document.getElementById('object-front');
+    const backBtn = document.getElementById('object-back');
 
     // Cache elements for transformations
     const pantinRootGroup = svgElement.querySelector(`#${PANTIN_ROOT_ID}`);
@@ -33,6 +46,22 @@ async function main() {
       if (el) memberElements[id] = el;
     });
     pantinRootGroup._memberMap = memberElements;
+
+    const updateSelectionUI = obj => {
+      if (obj) {
+        selectedNameEl.textContent = obj.name;
+        scaleValueEl.textContent = obj.scale.toFixed(2);
+        rotateValueEl.textContent = Math.round(obj.rotate);
+        objectControls.hidden = false;
+        attachCheckbox.checked = obj.attached;
+      } else {
+        selectedNameEl.textContent = 'Pantin';
+        const frame = timeline.getCurrentFrame();
+        scaleValueEl.textContent = frame.transform.scale.toFixed(2);
+        rotateValueEl.textContent = Math.round(frame.transform.rotate);
+        objectControls.hidden = true;
+      }
+    };
 
     // Function to apply a frame to a given SVG element (main pantin or ghost)
     const applyFrameToPantinElement = (targetFrame, targetRootGroup, elementMap = targetRootGroup._memberMap || memberElements) => {
@@ -54,6 +83,7 @@ async function main() {
 
     const onSave = () => {
       localStorage.setItem('animation', timeline.exportJSON());
+      localStorage.setItem('objects', JSON.stringify(exportObjects()));
       debugLog("Animation sauvegardée.");
     };
 
@@ -75,9 +105,11 @@ async function main() {
       // Apply to main pantin
       applyFrameToPantinElement(frame, pantinRootGroup);
 
-      // Update inspector values
-      scaleValueEl.textContent = frame.transform.scale.toFixed(2);
-      rotateValueEl.textContent = Math.round(frame.transform.rotate);
+      // Update inspector values if pantin selected
+      if (!getSelectedObject()) {
+        scaleValueEl.textContent = frame.transform.scale.toFixed(2);
+        rotateValueEl.textContent = Math.round(frame.transform.rotate);
+      }
 
       // Render onion skins
       renderOnionSkins(timeline, applyFrameToPantinElement);
@@ -98,6 +130,29 @@ async function main() {
 
     debugLog("Initializing UI...");
     initUI(timeline, onFrameChange, onSave);
+    initObjects(svgElement, pantinRootGroup, { onSelect: updateSelectionUI });
+
+    const savedObjects = localStorage.getItem('objects');
+    if (savedObjects) {
+      try {
+        importObjects(JSON.parse(savedObjects));
+      } catch (e) {
+        console.warn('Impossible de charger les objets sauvegardés:', e);
+      }
+    }
+
+    attachCheckbox.addEventListener('change', e => {
+      attachSelected(e.target.checked);
+      onSave();
+    });
+    frontBtn.addEventListener('click', () => {
+      updateZ('front');
+      onSave();
+    });
+    backBtn.addEventListener('click', () => {
+      updateZ('back');
+      onSave();
+    });
 
     window.addEventListener('beforeunload', () => {
       teardownMembers();
