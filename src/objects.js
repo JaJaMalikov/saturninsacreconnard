@@ -105,32 +105,33 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
     const frame = timeline.getCurrentFrame();
     const obj = frame.objects[id];
     if (!obj) return;
-    const el = svgElement.getElementById(id);
     if (memberId) {
       const seg = pantinRoot.querySelector(`#${memberId}`);
       if (seg) {
-        const inv = seg.getCTM().inverse();
+        const rootMatrix = pantinRoot.getCTM();
+        const invSeg = seg.getCTM().inverse();
         const pt = svgElement.createSVGPoint();
         pt.x = obj.x;
         pt.y = obj.y;
-        const local = pt.matrixTransform(inv);
+        // convert object's coordinates from root space to segment local space
+        const screenPoint = pt.matrixTransform(rootMatrix);
+        const local = screenPoint.matrixTransform(invSeg);
         obj.x = local.x;
         obj.y = local.y;
-        seg.appendChild(el);
       }
     } else if (obj.attachedTo) {
       const seg = pantinRoot.querySelector(`#${obj.attachedTo}`);
       if (seg) {
-        const matrix = seg.getCTM();
+        const segMatrix = seg.getCTM();
+        const rootInv = pantinRoot.getCTM().inverse();
         const pt = svgElement.createSVGPoint();
         pt.x = obj.x;
         pt.y = obj.y;
-        const g = pt.matrixTransform(matrix);
-        obj.x = g.x;
-        obj.y = g.y;
+        const global = pt.matrixTransform(segMatrix);
+        const rootPoint = global.matrixTransform(rootInv);
+        obj.x = rootPoint.x;
+        obj.y = rootPoint.y;
       }
-      const current = timeline.getObject(id);
-      (current.layer === 'front' ? frontLayer : backLayer).appendChild(el);
     }
     timeline.updateObject(id, { attachedTo: memberId || null, x: obj.x, y: obj.y });
     onUpdate();
@@ -244,10 +245,19 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
       }
       if (obj.attachedTo) {
         const seg = pantinRoot.querySelector(`#${obj.attachedTo}`);
-        if (seg && el.parentNode !== seg) {
-          seg.appendChild(el);
+        if (seg) {
+          const segMatrix = seg.getCTM();
+          const parent = obj.layer === 'front' ? frontLayer : backLayer;
+          if (el.parentNode !== parent) parent.appendChild(el);
+          let m = svgElement.createSVGMatrix();
+          m = m.translate(obj.x, obj.y)
+               .translate(obj.width / 2, obj.height / 2)
+               .rotate(obj.rotate)
+               .scale(obj.scale)
+               .translate(-obj.width / 2, -obj.height / 2);
+          m = segMatrix.multiply(m);
+          el.setAttribute('transform', `matrix(${m.a},${m.b},${m.c},${m.d},${m.e},${m.f})`);
         }
-        el.setAttribute('transform', `translate(${obj.x},${obj.y}) rotate(${obj.rotate},${obj.width/2},${obj.height/2}) scale(${obj.scale})`);
       } else {
         const parent = obj.layer === 'front' ? frontLayer : backLayer;
         if (el.parentNode !== parent) parent.appendChild(el);
