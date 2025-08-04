@@ -93,46 +93,46 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
     timeline.updateObject(id, { layer });
     const el = svgElement.getElementById(id);
     if (!el) return;
-    const obj = timeline.getObject(id);
-    if (obj && !obj.attachedTo) {
-      (layer === 'front' ? frontLayer : backLayer).appendChild(el);
-    }
+    (layer === 'front' ? frontLayer : backLayer).appendChild(el);
     onUpdate();
     onSave();
+  }
+
+  function matrixToParams(m, obj) {
+    const scale = Math.hypot(m.a, m.b);
+    const rotate = Math.atan2(m.b, m.a) * 180 / Math.PI;
+    let rs = svgElement.createSVGMatrix();
+    rs = rs.translate(obj.width / 2, obj.height / 2);
+    rs = rs.rotate(rotate);
+    rs = rs.translate(-obj.width / 2, -obj.height / 2);
+    rs = rs.scale(scale);
+    const t = m.multiply(rs.inverse());
+    return { x: t.e, y: t.f, scale, rotate };
   }
 
   function attach(id, memberId) {
     const frame = timeline.getCurrentFrame();
     const obj = frame.objects[id];
-    if (!obj) return;
     const el = svgElement.getElementById(id);
+    if (!obj || !el) return;
     if (memberId) {
       const seg = pantinRoot.querySelector(`#${memberId}`);
       if (seg) {
-        const inv = seg.getCTM().inverse();
-        const pt = svgElement.createSVGPoint();
-        pt.x = obj.x;
-        pt.y = obj.y;
-        const local = pt.matrixTransform(inv);
-        obj.x = local.x;
-        obj.y = local.y;
-        seg.appendChild(el);
+        const world = el.getCTM();
+        const local = seg.getCTM().inverse().multiply(world);
+        const params = matrixToParams(local, obj);
+        timeline.updateObject(id, { attachedTo: memberId, ...params });
       }
     } else if (obj.attachedTo) {
-      const seg = pantinRoot.querySelector(`#${obj.attachedTo}`);
-      if (seg) {
-        const matrix = seg.getCTM();
-        const pt = svgElement.createSVGPoint();
-        pt.x = obj.x;
-        pt.y = obj.y;
-        const g = pt.matrixTransform(matrix);
-        obj.x = g.x;
-        obj.y = g.y;
-      }
-      const current = timeline.getObject(id);
-      (current.layer === 'front' ? frontLayer : backLayer).appendChild(el);
+      const world = el.getCTM();
+      let fm = svgElement.createSVGMatrix();
+      fm = fm.translate(frame.transform.tx, frame.transform.ty);
+      fm = fm.rotate(frame.transform.rotate);
+      fm = fm.scale(frame.transform.scale);
+      const local = fm.inverse().multiply(world);
+      const params = matrixToParams(local, obj);
+      timeline.updateObject(id, { attachedTo: null, ...params });
     }
-    timeline.updateObject(id, { attachedTo: memberId || null, x: obj.x, y: obj.y });
     onUpdate();
     onSave();
   }
@@ -244,10 +244,10 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
       }
       if (obj.attachedTo) {
         const seg = pantinRoot.querySelector(`#${obj.attachedTo}`);
-        if (seg && el.parentNode !== seg) {
-          seg.appendChild(el);
+        if (seg) {
+          if (el.parentNode !== seg) seg.appendChild(el);
+          el.setAttribute('transform', `translate(${obj.x},${obj.y}) rotate(${obj.rotate},${obj.width/2},${obj.height/2}) scale(${obj.scale})`);
         }
-        el.setAttribute('transform', `translate(${obj.x},${obj.y}) rotate(${obj.rotate},${obj.width/2},${obj.height/2}) scale(${obj.scale})`);
       } else {
         const parent = obj.layer === 'front' ? frontLayer : backLayer;
         if (el.parentNode !== parent) parent.appendChild(el);
@@ -260,10 +260,13 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
       if (selectedId === id) el.classList.add('selected');
       else el.classList.remove('selected');
     });
-    [frontLayer, backLayer, pantinRoot].forEach(layer => {
+    [frontLayer, backLayer].forEach(layer => {
       layer.querySelectorAll('.scene-object').forEach(el => {
         if (!existing.has(el.id)) el.remove();
       });
+    });
+    pantinRoot.querySelectorAll('.scene-object').forEach(el => {
+      if (!existing.has(el.id)) el.remove();
     });
   }
 
