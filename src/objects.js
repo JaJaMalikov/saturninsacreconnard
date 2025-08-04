@@ -241,15 +241,17 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
           pt.x = obj.x;
           pt.y = obj.y;
           const g = pt.matrixTransform(matrix);
-          const segAngle = currentFrame.members[obj.attachedTo]?.rotate || 0;
+          const segAngle = Math.atan2(matrix.b, matrix.a) * 180 / Math.PI - currentFrame.transform.rotate;
           const totalRotate = obj.rotate + currentFrame.transform.rotate + segAngle;
           const totalScale = obj.scale * currentFrame.transform.scale;
-          el.setAttribute('transform', `translate(${g.x},${g.y}) rotate(${totalRotate}) scale(${totalScale})`);
+          el.setAttribute('transform', `translate(${g.x},${g.y}) rotate(${totalRotate},${obj.width/2},${obj.height/2}) scale(${totalScale})`);
         }
       } else {
         const totalRotate = obj.rotate + currentFrame.transform.rotate;
         const totalScale = obj.scale * currentFrame.transform.scale;
-        el.setAttribute('transform', `translate(${obj.x + currentFrame.transform.tx},${obj.y + currentFrame.transform.ty}) rotate(${totalRotate}) scale(${totalScale})`);
+        const tx = obj.x + currentFrame.transform.tx;
+        const ty = obj.y + currentFrame.transform.ty;
+        el.setAttribute('transform', `translate(${tx},${ty}) rotate(${totalRotate},${obj.width/2},${obj.height/2}) scale(${totalScale})`);
       }
       if (selectedId === id) el.classList.add('selected');
       else el.classList.remove('selected');
