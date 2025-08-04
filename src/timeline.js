@@ -17,12 +17,13 @@ export class Timeline {
     this._rafId = null;
   }
 
-  createEmptyFrame() {
+ createEmptyFrame() {
     const members = {};
     this.memberList.forEach(id => (members[id] = { rotate: 0 }));
     return {
       transform: { tx: 0, ty: 0, scale: 1, rotate: 0 },
       members,
+      objects: [],
     };
   }
 
@@ -45,6 +46,31 @@ export class Timeline {
   updateTransform(values) {
     const frame = this.getCurrentFrame();
     frame.transform = { ...frame.transform, ...values };
+  }
+
+  /** Add an object definition to every frame */
+  addObject(obj) {
+    this.frames.forEach(f => {
+      const clone = typeof structuredClone === 'function'
+        ? structuredClone(obj)
+        : JSON.parse(JSON.stringify(obj));
+      f.objects.push(clone);
+    });
+  }
+
+  /** Update an object for current frame */
+  updateObject(id, values) {
+    const frame = this.getCurrentFrame();
+    const obj = frame.objects.find(o => o.id === id);
+    if (!obj) return;
+    Object.assign(obj, values);
+  }
+
+  /** Remove an object from all frames */
+  deleteObject(id) {
+    this.frames.forEach(f => {
+      f.objects = f.objects.filter(o => o.id !== id);
+    });
   }
 
   addFrame(duplicate = true) {
@@ -128,7 +154,10 @@ export class Timeline {
 
       // Rétro-compatibilité : convertir l'ancien format
       const migratedFrames = arr.map(f => {
-        if (f.members && f.transform) return f; // Déjà au bon format
+        if (f.members && f.transform) {
+          if (!f.objects) f.objects = [];
+          return f; // Déjà au bon format
+        }
         return this._migrateOldFrame(f);
       });
 
@@ -147,6 +176,7 @@ export class Timeline {
       }
     });
     // Les transformations globales seront celles par défaut
+    newFrame.objects = [];
     return newFrame;
   }
 }
