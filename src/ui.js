@@ -6,8 +6,10 @@ import { debugLog } from './debug.js';
  * @param {Timeline} timeline - L'instance de la timeline.
  * @param {Function} onFrameChange - Callback pour rafraîchir le SVG.
  * @param {Function} onSave - Callback pour sauvegarder l'état.
+ * @param {Object} objectsManager - Gestionnaire des objets.
+ * @param {Array<string>} memberList - Liste des membres du pantin.
  */
-export function initUI(timeline, onFrameChange, onSave) {
+export function initUI(timeline, onFrameChange, onSave, objectsManager, memberList) {
   debugLog("initUI called.");
   const frameInfo = document.getElementById('frameInfo');
   const timelineSlider = document.getElementById('timeline-slider');
@@ -25,6 +27,14 @@ export function initUI(timeline, onFrameChange, onSave) {
   const onionSkinToggle = document.getElementById('onion-skin-toggle');
   const pastFramesInput = document.getElementById('past-frames');
   const futureFramesInput = document.getElementById('future-frames');
+  const objectFileSelect = document.getElementById('object-file');
+  const addObjectFrontBtn = document.getElementById('add-object-front');
+  const addObjectBackBtn = document.getElementById('add-object-back');
+  const attachSelect = document.getElementById('attach-select');
+  const layerFrontBtn = document.getElementById('layer-front');
+  const layerBackBtn = document.getElementById('layer-back');
+  const deleteObjectBtn = document.getElementById('delete-object');
+  const selectedNameEl = document.getElementById('selected-element-name');
 
   // --- Panneau Inspecteur Escamotable ---
   const appContainer = document.getElementById('app-container');
@@ -52,6 +62,13 @@ export function initUI(timeline, onFrameChange, onSave) {
     timelineSlider.value = currentIndex;
 
     onFrameChange(); // Rafraîchit le SVG et les valeurs de l'inspecteur
+    const selId = objectsManager.getSelectedId();
+    if (selId) {
+      const obj = timeline.getCurrentFrame().objects[selId];
+      attachSelect.value = obj?.attachedTo || '';
+    } else {
+      attachSelect.value = '';
+    }
   }
 
   // --- Connexions des événements --- //
@@ -191,14 +208,26 @@ export function initUI(timeline, onFrameChange, onSave) {
   function updateTransform(key, delta) {
     debugLog(`updateTransform for ${key} by ${delta}.`);
     const currentFrame = timeline.getCurrentFrame();
-    const currentValue = currentFrame.transform[key];
-    let newValue = currentValue + delta;
-    if (key === 'scale') {
-      newValue = Math.min(Math.max(newValue, 0.1), 10);
-    } else if (key === 'rotate') {
-      newValue = ((newValue % 360) + 360) % 360;
+    const selId = objectsManager.getSelectedId();
+    if (selId) {
+      const obj = currentFrame.objects[selId];
+      let newValue = obj[key] + delta;
+      if (key === 'scale') {
+        newValue = Math.min(Math.max(newValue, 0.1), 10);
+      } else if (key === 'rotate') {
+        newValue = ((newValue % 360) + 360) % 360;
+      }
+      timeline.updateObject(selId, { [key]: newValue });
+    } else {
+      const currentValue = currentFrame.transform[key];
+      let newValue = currentValue + delta;
+      if (key === 'scale') {
+        newValue = Math.min(Math.max(newValue, 0.1), 10);
+      } else if (key === 'rotate') {
+        newValue = ((newValue % 360) + 360) % 360;
+      }
+      timeline.updateTransform({ [key]: newValue });
     }
-    timeline.updateTransform({ [key]: newValue });
     updateUI();
     onSave();
   }
@@ -219,6 +248,56 @@ export function initUI(timeline, onFrameChange, onSave) {
   onionSkinToggle.addEventListener('change', updateOnionSkin);
   pastFramesInput.addEventListener('change', updateOnionSkin);
   futureFramesInput.addEventListener('change', updateOnionSkin);
+
+  addObjectFrontBtn.addEventListener('click', () => {
+    debugLog('Add object front button');
+    objectsManager.addObject(objectFileSelect.value, 'front');
+    updateUI();
+  });
+  addObjectBackBtn.addEventListener('click', () => {
+    debugLog('Add object back button');
+    objectsManager.addObject(objectFileSelect.value, 'back');
+    updateUI();
+  });
+  attachSelect.addEventListener('change', () => {
+    objectsManager.attachSelected(attachSelect.value);
+  });
+  layerFrontBtn.addEventListener('click', () => {
+    objectsManager.setLayer('front');
+  });
+  layerBackBtn.addEventListener('click', () => {
+    objectsManager.setLayer('back');
+  });
+  deleteObjectBtn.addEventListener('click', () => {
+    objectsManager.deleteSelected();
+    selectedNameEl.textContent = 'Pantin';
+    updateUI();
+  });
+
+  memberList.forEach(id => {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = id;
+    attachSelect.appendChild(opt);
+  });
+
+  objectsManager.setSelectionCallback(id => {
+    const frame = timeline.getCurrentFrame();
+    if (id) {
+      selectedNameEl.textContent = id;
+      const obj = frame.objects[id];
+      if (obj) {
+        document.getElementById('scale-value').textContent = obj.scale.toFixed(2);
+        document.getElementById('rotate-value').textContent = Math.round(obj.rotate);
+        attachSelect.value = obj.attachedTo || '';
+      }
+    } else {
+      selectedNameEl.textContent = 'Pantin';
+      document.getElementById('scale-value').textContent = frame.transform.scale.toFixed(2);
+      document.getElementById('rotate-value').textContent = Math.round(frame.transform.rotate);
+      attachSelect.value = '';
+    }
+  });
 
   // Premier affichage
   updateUI();

@@ -34,6 +34,32 @@
           </div>
         </div>
       </div>
+      <div id="object-controls" role="region" aria-label="Contrôles des objets">
+        <h3>Objets</h3>
+        <div class="control-group">
+          <label for="object-file">Ajouter un objet</label>
+          <select id="object-file">
+            <option value="assets/objets/carre.svg">Carré</option>
+            <option value="assets/objets/faucille.svg">Faucille</option>
+            <option value="assets/objets/marteau.svg">Marteau</option>
+          </select>
+          <div class="value-stepper">
+            <button type="button" id="add-object-back" title="Ajouter derrière" aria-label="Ajouter derrière">⬇️</button>
+            <button type="button" id="add-object-front" title="Ajouter devant" aria-label="Ajouter devant">⬆️</button>
+          </div>
+        </div>
+        <div class="control-group">
+          <label for="attach-select">Coller à</label>
+          <select id="attach-select">
+            <option value="">Aucun</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <button type="button" id="layer-front" aria-label="Placer devant">Avant-plan</button>
+          <button type="button" id="layer-back" aria-label="Placer derrière">Arrière-plan</button>
+          <button type="button" id="delete-object" aria-label="Supprimer l'objet">Supprimer</button>
+        </div>
+      </div>
       <div id="onion-skin-controls" role="region" aria-label="Contrôles Onion Skin">
         <h3>Onion Skin</h3>
         <div class="control-group">

@@ -3,6 +3,7 @@ import { loadSVG } from './svgLoader.js';
 import { Timeline } from './timeline.js';
 import { setupInteractions, setupPantinGlobalInteractions } from './interactions.js';
 import { initUI } from './ui.js';
+import { initObjects } from './objects.js';
 import { debugLog } from './debug.js';
 import CONFIG from './config.js';
 
@@ -67,6 +68,8 @@ async function main() {
       }
     }
 
+    let objectsManager;
+
     const onFrameChange = () => {
       debugLog("onFrameChange triggered. Current frame:", timeline.current);
       const frame = timeline.getCurrentFrame();
@@ -74,10 +77,19 @@ async function main() {
 
       // Apply to main pantin
       applyFrameToPantinElement(frame, pantinRootGroup);
+      if (objectsManager) objectsManager.applyFrame(frame);
 
       // Update inspector values
-      scaleValueEl.textContent = frame.transform.scale.toFixed(2);
-      rotateValueEl.textContent = Math.round(frame.transform.rotate);
+      if (objectsManager && objectsManager.getSelectedId()) {
+        const obj = frame.objects[objectsManager.getSelectedId()];
+        if (obj) {
+          scaleValueEl.textContent = obj.scale.toFixed(2);
+          rotateValueEl.textContent = Math.round(obj.rotate);
+        }
+      } else {
+        scaleValueEl.textContent = frame.transform.scale.toFixed(2);
+        rotateValueEl.textContent = Math.round(frame.transform.rotate);
+      }
 
       // Render onion skins
       renderOnionSkins(timeline, applyFrameToPantinElement);
@@ -96,8 +108,11 @@ async function main() {
     debugLog("Setting up global pantin interactions...");
     const teardownGlobal = setupPantinGlobalInteractions(svgElement, interactionOptions, timeline, onFrameChange, onSave);
 
+    debugLog('Initializing objects manager...');
+    objectsManager = initObjects(svgElement, pantinRootGroup, memberList, timeline, onFrameChange, onSave);
+
     debugLog("Initializing UI...");
-    initUI(timeline, onFrameChange, onSave);
+    initUI(timeline, onFrameChange, onSave, objectsManager, memberList);
 
     window.addEventListener('beforeunload', () => {
       teardownMembers();
