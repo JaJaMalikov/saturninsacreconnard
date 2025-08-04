@@ -93,10 +93,7 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
     timeline.updateObject(id, { layer });
     const el = svgElement.getElementById(id);
     if (!el) return;
-    const obj = timeline.getObject(id);
-    if (obj && !obj.attachedTo) {
-      (layer === 'front' ? frontLayer : backLayer).appendChild(el);
-    }
+    (layer === 'front' ? frontLayer : backLayer).appendChild(el);
     onUpdate();
     onSave();
   }
@@ -106,33 +103,44 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
     const obj = frame.objects[id];
     if (!obj) return;
     const el = svgElement.getElementById(id);
+    if (!el) return;
+
     if (memberId) {
       const seg = pantinRoot.querySelector(`#${memberId}`);
       if (seg) {
-        const inv = seg.getCTM().inverse();
         const pt = svgElement.createSVGPoint();
-        pt.x = obj.x;
-        pt.y = obj.y;
-        const local = pt.matrixTransform(inv);
-        obj.x = local.x;
-        obj.y = local.y;
-        seg.appendChild(el);
+        pt.x = 0;
+        pt.y = 0;
+        const global = pt.matrixTransform(el.getCTM());
+        const local = global.matrixTransform(seg.getCTM().inverse());
+        const segAngle = frame.members[memberId]?.rotate || 0;
+        timeline.updateObject(id, {
+          attachedTo: memberId,
+          x: local.x,
+          y: local.y,
+          rotate: obj.rotate - segAngle,
+        });
       }
     } else if (obj.attachedTo) {
       const seg = pantinRoot.querySelector(`#${obj.attachedTo}`);
       if (seg) {
-        const matrix = seg.getCTM();
         const pt = svgElement.createSVGPoint();
         pt.x = obj.x;
         pt.y = obj.y;
-        const g = pt.matrixTransform(matrix);
-        obj.x = g.x;
-        obj.y = g.y;
+        const global = pt.matrixTransform(seg.getCTM());
+        const rootInv = pantinRoot.getCTM().inverse();
+        const rootPt = global.matrixTransform(rootInv);
+        const segAngle = frame.members[obj.attachedTo]?.rotate || 0;
+        timeline.updateObject(id, {
+          attachedTo: null,
+          x: rootPt.x,
+          y: rootPt.y,
+          rotate: obj.rotate + segAngle,
+        });
+      } else {
+        timeline.updateObject(id, { attachedTo: null });
       }
-      const current = timeline.getObject(id);
-      (current.layer === 'front' ? frontLayer : backLayer).appendChild(el);
     }
-    timeline.updateObject(id, { attachedTo: memberId || null, x: obj.x, y: obj.y });
     onUpdate();
     onSave();
   }
@@ -242,15 +250,22 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
         (obj.layer === 'front' ? frontLayer : backLayer).appendChild(el);
         setupInteract(el, id);
       }
+      const parent = obj.layer === 'front' ? frontLayer : backLayer;
+      if (el.parentNode !== parent) parent.appendChild(el);
       if (obj.attachedTo) {
         const seg = pantinRoot.querySelector(`#${obj.attachedTo}`);
-        if (seg && el.parentNode !== seg) {
-          seg.appendChild(el);
+        if (seg) {
+          let m = svgElement.createSVGMatrix();
+          m = m.translate(obj.x, obj.y);
+          m = m.translate(obj.width / 2, obj.height / 2);
+          m = m.rotate(obj.rotate);
+          m = m.scale(obj.scale);
+          m = m.translate(-obj.width / 2, -obj.height / 2);
+          const segMatrix = seg.getCTM();
+          const res = segMatrix.multiply(m);
+          el.setAttribute('transform', `matrix(${res.a},${res.b},${res.c},${res.d},${res.e},${res.f})`);
         }
-        el.setAttribute('transform', `translate(${obj.x},${obj.y}) rotate(${obj.rotate},${obj.width/2},${obj.height/2}) scale(${obj.scale})`);
       } else {
-        const parent = obj.layer === 'front' ? frontLayer : backLayer;
-        if (el.parentNode !== parent) parent.appendChild(el);
         const totalRotate = obj.rotate + currentFrame.transform.rotate;
         const totalScale = obj.scale * currentFrame.transform.scale;
         const tx = obj.x + currentFrame.transform.tx;
@@ -260,7 +275,7 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
       if (selectedId === id) el.classList.add('selected');
       else el.classList.remove('selected');
     });
-    [frontLayer, backLayer, pantinRoot].forEach(layer => {
+    [frontLayer, backLayer].forEach(layer => {
       layer.querySelectorAll('.scene-object').forEach(el => {
         if (!existing.has(el.id)) el.remove();
       });
