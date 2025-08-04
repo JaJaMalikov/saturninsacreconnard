@@ -8,6 +8,7 @@ let memberList = [];
 let pantinTemplate = null;
 const pastGhosts = [];
 const futureGhosts = [];
+const ns = 'http://www.w3.org/2000/svg';
 
 const settings = {
   enabled: false,
@@ -78,6 +79,7 @@ export function renderOnionSkins(timeline, applyFrameToPantin) {
     if (frameIndex >= 0) {
       debugLog("Updating past ghost for frame:", frameIndex);
       applyFrameToPantin(frames[frameIndex], ghost, memberMapStore.get(ghost));
+      renderGhostObjects(frameIndex, ghost, 'past', timeline);
       ghost.style.display = '';
       onionLayer.appendChild(ghost);
     } else {
@@ -92,12 +94,43 @@ export function renderOnionSkins(timeline, applyFrameToPantin) {
     if (frameIndex < frames.length) {
       debugLog("Updating future ghost for frame:", frameIndex);
       applyFrameToPantin(frames[frameIndex], ghost, memberMapStore.get(ghost));
+      renderGhostObjects(frameIndex, ghost, 'future', timeline);
       ghost.style.display = '';
       onionLayer.appendChild(ghost);
     } else {
       ghost.style.display = 'none';
     }
   }
+}
+
+function renderGhostObjects(frameIndex, ghost, type, timeline) {
+  ghost.querySelectorAll('.onion-skin-object').forEach(el => el.remove());
+  const frame = timeline.frames[frameIndex];
+  Object.entries(frame.objects).forEach(([id, obj]) => {
+    const base = timeline.objectStore[id];
+    if (!base) return;
+    const { src, width, height } = base;
+    const img = document.createElementNS(ns, 'image');
+    img.setAttribute('href', src);
+    img.setAttribute('width', width);
+    img.setAttribute('height', height);
+    img.classList.add('onion-skin-object', 'onion-skin-ghost', `onion-skin-${type}`);
+    if (obj.attachedTo) {
+      const seg = ghost.querySelector(`#${obj.attachedTo}`);
+      if (!seg) return;
+      img.setAttribute('transform', `translate(${obj.x},${obj.y}) rotate(${obj.rotate},${width/2},${height/2}) scale(${obj.scale})`);
+      if (obj.layer === 'back') seg.insertBefore(img, seg.firstChild);
+      else seg.appendChild(img);
+    } else {
+      const tx = obj.x + frame.transform.tx;
+      const ty = obj.y + frame.transform.ty;
+      const totalRotate = obj.rotate + frame.transform.rotate;
+      const totalScale = obj.scale * frame.transform.scale;
+      img.setAttribute('transform', `translate(${tx},${ty}) rotate(${totalRotate},${width/2},${height/2}) scale(${totalScale})`);
+      if (obj.layer === 'back') ghost.insertBefore(img, ghost.firstChild);
+      else ghost.appendChild(img);
+    }
+  });
 }
 
 function adjustGhosts(arr, count, type) {
