@@ -7,7 +7,7 @@ import { debugLog } from './debug.js';
  * @param {Function} onFrameChange - Callback pour rafraîchir le SVG.
  * @param {Function} onSave - Callback pour sauvegarder l'état.
  */
-export function initUI(timeline, onFrameChange, onSave) {
+export function initUI(timeline, onFrameChange, onSave, selection) {
   debugLog("initUI called.");
   const frameInfo = document.getElementById('frameInfo');
   const timelineSlider = document.getElementById('timeline-slider');
@@ -25,6 +25,9 @@ export function initUI(timeline, onFrameChange, onSave) {
   const onionSkinToggle = document.getElementById('onion-skin-toggle');
   const pastFramesInput = document.getElementById('past-frames');
   const futureFramesInput = document.getElementById('future-frames');
+  const scaleValueEl = document.getElementById('scale-value');
+  const rotateValueEl = document.getElementById('rotate-value');
+  const selectedNameEl = document.getElementById('selected-element-name');
 
   // --- Panneau Inspecteur Escamotable ---
   const appContainer = document.getElementById('app-container');
@@ -51,7 +54,12 @@ export function initUI(timeline, onFrameChange, onSave) {
     timelineSlider.max = frameCount > 1 ? frameCount - 1 : 0;
     timelineSlider.value = currentIndex;
 
-    onFrameChange(); // Rafraîchit le SVG et les valeurs de l'inspecteur
+    const t = selection.getTransform();
+    scaleValueEl.textContent = t.scale.toFixed(2);
+    rotateValueEl.textContent = Math.round(t.rotate);
+    selectedNameEl.textContent = selection.getName();
+
+    onFrameChange(); // Rafraîchit le SVG
   }
 
   // --- Connexions des événements --- //
@@ -190,15 +198,14 @@ export function initUI(timeline, onFrameChange, onSave) {
 
   function updateTransform(key, delta) {
     debugLog(`updateTransform for ${key} by ${delta}.`);
-    const currentFrame = timeline.getCurrentFrame();
-    const currentValue = currentFrame.transform[key];
+    const currentValue = selection.getTransform()[key];
     let newValue = currentValue + delta;
     if (key === 'scale') {
       newValue = Math.min(Math.max(newValue, 0.1), 10);
     } else if (key === 'rotate') {
       newValue = ((newValue % 360) + 360) % 360;
     }
-    timeline.updateTransform({ [key]: newValue });
+    selection.updateTransform({ [key]: newValue });
     updateUI();
     onSave();
   }
@@ -222,4 +229,5 @@ export function initUI(timeline, onFrameChange, onSave) {
 
   // Premier affichage
   updateUI();
+  return { updateUI };
 }

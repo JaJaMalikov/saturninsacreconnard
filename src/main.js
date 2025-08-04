@@ -3,6 +3,7 @@ import { loadSVG } from './svgLoader.js';
 import { Timeline } from './timeline.js';
 import { setupInteractions, setupPantinGlobalInteractions } from './interactions.js';
 import { initUI } from './ui.js';
+import { initObjects } from './objects.js';
 import { debugLog } from './debug.js';
 import CONFIG from './config.js';
 
@@ -16,9 +17,6 @@ async function main() {
     const timeline = new Timeline(memberList);
 
     // Cache frequently accessed DOM elements
-    const scaleValueEl = document.getElementById('scale-value');
-    const rotateValueEl = document.getElementById('rotate-value');
-
     // Cache elements for transformations
     const pantinRootGroup = svgElement.querySelector(`#${PANTIN_ROOT_ID}`);
     const grabEl = pantinRootGroup?.querySelector(`#${GRAB_ID}`);
@@ -67,24 +65,47 @@ async function main() {
       }
     }
 
-    const onFrameChange = () => {
-      debugLog("onFrameChange triggered. Current frame:", timeline.current);
+    const onFrameApply = () => {
+      debugLog("onFrameApply triggered. Current frame:", timeline.current);
       const frame = timeline.getCurrentFrame();
       if (!frame) return;
 
       // Apply to main pantin
       applyFrameToPantinElement(frame, pantinRootGroup);
 
-      // Update inspector values
-      scaleValueEl.textContent = frame.transform.scale.toFixed(2);
-      rotateValueEl.textContent = Math.round(frame.transform.rotate);
-
       // Render onion skins
       renderOnionSkins(timeline, applyFrameToPantinElement);
     };
 
+    // Gestion de la sélection entre le pantin et les objets
+    const selection = {
+      type: 'pantin',
+      element: pantinRootGroup,
+      selectPantin() { this.type = 'pantin'; this.element = pantinRootGroup; },
+      selectObject(el) { this.type = 'objet'; this.element = el; },
+      getName() {
+        return this.type === 'pantin' ? 'Pantin' : (this.element.dataset.name || 'Objet');
+      },
+      getTransform() {
+        if (this.type === 'pantin') return timeline.getCurrentFrame().transform;
+        return this.element._transform;
+      },
+      updateTransform(values) {
+        if (this.type === 'pantin') {
+          timeline.updateTransform(values);
+        } else {
+          Object.assign(this.element._transform, values);
+          const t = this.element._transform;
+          this.element.setAttribute('transform', `translate(${t.tx},${t.ty}) rotate(${t.rotate}) scale(${t.scale})`);
+        }
+      }
+    };
+
     debugLog("Initializing Onion Skin...");
     initOnionSkin(svgElement, PANTIN_ROOT_ID, memberList);
+
+    debugLog("Initializing UI...");
+    const ui = initUI(timeline, onFrameApply, onSave, selection);
 
     const interactionOptions = {
       rootGroupId: PANTIN_ROOT_ID,
@@ -92,12 +113,18 @@ async function main() {
     };
 
     debugLog("Setting up member interactions...");
-    const teardownMembers = setupInteractions(svgElement, memberList, pivots, timeline, onFrameChange, onSave);
+    const teardownMembers = setupInteractions(svgElement, memberList, pivots, timeline, ui.updateUI, onSave);
     debugLog("Setting up global pantin interactions...");
-    const teardownGlobal = setupPantinGlobalInteractions(svgElement, interactionOptions, timeline, onFrameChange, onSave);
+    const teardownGlobal = setupPantinGlobalInteractions(svgElement, interactionOptions, timeline, ui.updateUI, onSave);
 
-    debugLog("Initializing UI...");
-    initUI(timeline, onFrameChange, onSave);
+    // Cliquer sur l'arrière-plan sélectionne le pantin
+    svgElement.addEventListener('click', () => {
+      selection.selectPantin();
+      ui.updateUI();
+    });
+
+    // Initialisation de la gestion des objets
+    initObjects(svgElement, pantinRootGroup, selection, ui.updateUI);
 
     window.addEventListener('beforeunload', () => {
       teardownMembers();
