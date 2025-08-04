@@ -3,8 +3,10 @@ import { loadSVG } from './svgLoader.js';
 import { Timeline } from './timeline.js';
 import { setupInteractions, setupPantinGlobalInteractions } from './interactions.js';
 import { initUI } from './ui.js';
+import { initObjects } from './objects.js';
 import { debugLog } from './debug.js';
 import CONFIG from './config.js';
+import { memberMapStore } from './memberMapStore.js';
 
 const { SVG_URL, THEATRE_ID, PANTIN_ROOT_ID, GRAB_ID } = CONFIG;
 
@@ -14,6 +16,7 @@ async function main() {
     const { svgElement, memberList, pivots } = await loadSVG(SVG_URL, THEATRE_ID);
     debugLog("SVG loaded, Timeline instantiated.");
     const timeline = new Timeline(memberList);
+    const attachableMembers = Array.from(new Set([...memberList, 'main_droite', 'main_gauche', 'pied_droite', 'pied_gauche', 'bouche']));
 
     // Cache frequently accessed DOM elements
     const scaleValueEl = document.getElementById('scale-value');
@@ -32,10 +35,10 @@ async function main() {
       const el = pantinRootGroup?.querySelector(`#${id}`);
       if (el) memberElements[id] = el;
     });
-    pantinRootGroup._memberMap = memberElements;
+    memberMapStore.set(pantinRootGroup, memberElements);
 
     // Function to apply a frame to a given SVG element (main pantin or ghost)
-    const applyFrameToPantinElement = (targetFrame, targetRootGroup, elementMap = targetRootGroup._memberMap || memberElements) => {
+    const applyFrameToPantinElement = (targetFrame, targetRootGroup, elementMap = memberMapStore.get(targetRootGroup) || memberElements) => {
       debugLog("Applying frame to element:", targetRootGroup, "Frame data:", targetFrame);
       const { tx, ty, scale, rotate } = targetFrame.transform;
       targetRootGroup.setAttribute(
@@ -67,6 +70,8 @@ async function main() {
       }
     }
 
+    let objects;
+
     const onFrameChange = () => {
       debugLog("onFrameChange triggered. Current frame:", timeline.current);
       const frame = timeline.getCurrentFrame();
@@ -76,11 +81,14 @@ async function main() {
       applyFrameToPantinElement(frame, pantinRootGroup);
 
       // Update inspector values
-      scaleValueEl.textContent = frame.transform.scale.toFixed(2);
-      rotateValueEl.textContent = Math.round(frame.transform.rotate);
+      scaleValueEl.value = frame.transform.scale.toFixed(2);
+      rotateValueEl.value = Math.round(frame.transform.rotate);
 
       // Render onion skins
       renderOnionSkins(timeline, applyFrameToPantinElement);
+
+      // Render scene objects
+      objects && objects.renderObjects();
     };
 
     debugLog("Initializing Onion Skin...");
@@ -91,13 +99,15 @@ async function main() {
       grabId: GRAB_ID,
     };
 
+    objects = initObjects(svgElement, PANTIN_ROOT_ID, timeline, attachableMembers, onFrameChange, onSave);
+
     debugLog("Setting up member interactions...");
     const teardownMembers = setupInteractions(svgElement, memberList, pivots, timeline, onFrameChange, onSave);
     debugLog("Setting up global pantin interactions...");
     const teardownGlobal = setupPantinGlobalInteractions(svgElement, interactionOptions, timeline, onFrameChange, onSave);
 
     debugLog("Initializing UI...");
-    initUI(timeline, onFrameChange, onSave);
+    initUI(timeline, onFrameChange, onSave, objects);
 
     window.addEventListener('beforeunload', () => {
       teardownMembers();

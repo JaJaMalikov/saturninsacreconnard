@@ -7,7 +7,7 @@ import { debugLog } from './debug.js';
  * @param {Function} onFrameChange - Callback pour rafraîchir le SVG.
  * @param {Function} onSave - Callback pour sauvegarder l'état.
  */
-export function initUI(timeline, onFrameChange, onSave) {
+export function initUI(timeline, onFrameChange, onSave, objects) {
   debugLog("initUI called.");
   const frameInfo = document.getElementById('frameInfo');
   const timelineSlider = document.getElementById('timeline-slider');
@@ -16,6 +16,7 @@ export function initUI(timeline, onFrameChange, onSave) {
   const nextFrameBtn = document.getElementById('nextFrame');
   const playBtn = document.getElementById('playAnim');
   const stopBtn = document.getElementById('stopAnim');
+  const loopToggleBtn = document.getElementById('loopToggle');
   const addFrameBtn = document.getElementById('addFrame');
   const delFrameBtn = document.getElementById('delFrame');
   const exportAnimBtn = document.getElementById('exportAnim');
@@ -25,6 +26,15 @@ export function initUI(timeline, onFrameChange, onSave) {
   const onionSkinToggle = document.getElementById('onion-skin-toggle');
   const pastFramesInput = document.getElementById('past-frames');
   const futureFramesInput = document.getElementById('future-frames');
+  const selectedElementName = document.getElementById('selected-element-name');
+  const objectAssetSelect = document.getElementById('object-asset');
+  const addObjectBtn = document.getElementById('add-object');
+  const objectList = document.getElementById('object-list');
+  const removeObjectBtn = document.getElementById('remove-object');
+  const objectLayerSelect = document.getElementById('object-layer');
+  const objectAttachSelect = document.getElementById('object-attach');
+  const scaleValueEl = document.getElementById('scale-value');
+  const rotateValueEl = document.getElementById('rotate-value');
 
   // --- Panneau Inspecteur Escamotable ---
   const appContainer = document.getElementById('app-container');
@@ -41,8 +51,32 @@ export function initUI(timeline, onFrameChange, onSave) {
     localStorage.setItem(inspectorStateKey, appContainer.classList.contains('inspector-collapsed'));
   });
 
+  objects.memberList.forEach(id => {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = id;
+    objectAttachSelect.appendChild(opt);
+  });
+
+  let selection = 'pantin';
+
+  function refreshObjectList() {
+    const frame = timeline.getCurrentFrame();
+    objectList.innerHTML = '';
+    const pantinOpt = document.createElement('option');
+    pantinOpt.value = '';
+    pantinOpt.textContent = 'Pantin';
+    objectList.appendChild(pantinOpt);
+    Object.keys(frame.objects).forEach(id => {
+      const opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = id;
+      objectList.appendChild(opt);
+    });
+  }
+
   // --- Mise à jour de l'UI --- //
-  function updateUI() {
+  function updateUI(skipFrameRefresh = false) {
     debugLog("updateUI called.");
     const frameCount = timeline.frames.length;
     const currentIndex = timeline.current;
@@ -50,8 +84,24 @@ export function initUI(timeline, onFrameChange, onSave) {
     frameInfo.textContent = `${currentIndex + 1} / ${frameCount}`;
     timelineSlider.max = frameCount > 1 ? frameCount - 1 : 0;
     timelineSlider.value = currentIndex;
+    refreshObjectList();
+    objectList.value = selection !== 'pantin' ? selection : '';
 
-    onFrameChange(); // Rafraîchit le SVG et les valeurs de l'inspecteur
+    if (!skipFrameRefresh) onFrameChange();
+
+    if (selection === 'pantin') {
+      const frame = timeline.getCurrentFrame();
+      scaleValueEl.value = frame.transform.scale.toFixed(2);
+      rotateValueEl.value = Math.round(frame.transform.rotate);
+    } else {
+      const obj = timeline.getObject(selection);
+      if (obj) {
+        scaleValueEl.value = obj.scale.toFixed(2);
+        rotateValueEl.value = Math.round(obj.rotate);
+        objectLayerSelect.value = obj.layer;
+        objectAttachSelect.value = obj.attachedTo || '';
+      }
+    }
   }
 
   // --- Connexions des événements --- //
@@ -77,6 +127,15 @@ export function initUI(timeline, onFrameChange, onSave) {
     onSave();
   });
 
+  let savedOnionSkinState = true;
+  let loopEnabled = true;
+
+  loopToggleBtn.addEventListener('click', () => {
+    loopEnabled = !loopEnabled;
+    loopToggleBtn.textContent = loopEnabled ? '🔁' : '➡️';
+    loopToggleBtn.title = loopEnabled ? 'Boucle activée' : 'Boucle désactivée';
+  });
+
   playBtn.addEventListener('click', () => {
     debugLog('Play button clicked.');
     if (timeline.playing) return;
@@ -84,20 +143,18 @@ export function initUI(timeline, onFrameChange, onSave) {
     playBtn.textContent = '⏸️';
     const fps = parseInt(fpsInput.value, 10) || 10;
 
-    let originalOnionSkinState = onionSkinToggle.checked;
-    updateOnionSkinSettings({ enabled: false }); // Disable onion skin during playback
-    onFrameChange(); // Refresh to hide onion skins immediately
+    savedOnionSkinState = onionSkinToggle.checked;
+    updateOnionSkinSettings({ enabled: false });
+    onFrameChange();
 
-    timeline.play(
-      (frame, index) => { timeline.setCurrentFrame(index); updateUI(); },
-      () => {
-        playBtn.textContent = '▶️';
-        updateOnionSkinSettings({ enabled: originalOnionSkinState }); // Restore original state
-        onFrameChange(); // Refresh to show onion skins if they were enabled
-        onSave();
-      },
-      fps
-    );
+    timeline.play((frame, index) => {
+      timeline.setCurrentFrame(index);
+      updateUI();
+    }, () => {
+      playBtn.textContent = '▶️';
+      updateOnionSkinSettings({ enabled: savedOnionSkinState });
+      updateUI();
+    }, fps, { loop: loopEnabled });
   });
 
   stopBtn.addEventListener('click', () => {
@@ -105,6 +162,8 @@ export function initUI(timeline, onFrameChange, onSave) {
     timeline.stop();
     timeline.setCurrentFrame(0);
     playBtn.textContent = '▶️';
+    updateOnionSkinSettings({ enabled: savedOnionSkinState });
+    onFrameChange();
     updateUI();
     onSave();
   });
@@ -171,36 +230,102 @@ export function initUI(timeline, onFrameChange, onSave) {
     }
   });
 
+  // --- Contrôles Objets ---
+  addObjectBtn.addEventListener('click', async () => {
+    debugLog('Add object button clicked.');
+    const src = objectAssetSelect.value;
+    if (!src) return;
+    await objects.addObject(src, objectLayerSelect.value);
+  });
+
+  objectList.addEventListener('change', () => {
+    const id = objectList.value;
+    if (id) {
+      selection = id;
+      objects.selectObject(id);
+      selectedElementName.textContent = id;
+    } else {
+      selection = 'pantin';
+      objects.selectObject(null);
+      selectedElementName.textContent = 'Pantin';
+    }
+    updateUI(true);
+  });
+
+  removeObjectBtn.addEventListener('click', () => {
+    const id = objectList.value;
+    if (!id) return;
+    objects.removeObject(id);
+    selection = 'pantin';
+    selectedElementName.textContent = 'Pantin';
+    updateUI(true);
+  });
+
+  objectLayerSelect.addEventListener('change', () => {
+    const id = objectList.value;
+    if (!id) return;
+    objects.setLayer(id, objectLayerSelect.value);
+    updateUI(true);
+  });
+
+  objectAttachSelect.addEventListener('change', () => {
+    const id = objectList.value;
+    if (!id) return;
+    objects.attach(id, objectAttachSelect.value || null);
+    updateUI(true);
+  });
+
+  objects.onSelect(id => {
+    if (!id) return;
+    selection = id;
+    selectedElementName.textContent = id;
+    updateUI(true);
+  });
+
   // --- Contrôles de l'inspecteur --- //
   const controls = {
     scale: { plus: 'scale-plus', minus: 'scale-minus', value: 'scale-value', step: 0.1 },
     rotate: { plus: 'rotate-plus', minus: 'rotate-minus', value: 'rotate-value', step: 1 },
   };
 
-  for (const [key, ids] of Object.entries(controls)) {
-    document.getElementById(ids.plus).addEventListener('click', () => {
-      debugLog(`${key} plus button clicked.`);
-      updateTransform(key, ids.step);
-    });
-    document.getElementById(ids.minus).addEventListener('click', () => {
-      debugLog(`${key} minus button clicked.`);
-      updateTransform(key, -ids.step);
-    });
+  function setTransform(key, value) {
+    if (selection === 'pantin') {
+      timeline.updateTransform({ [key]: value });
+    } else {
+      const obj = timeline.getObject(selection);
+      if (!obj) return;
+      timeline.updateObject(selection, { [key]: value });
+    }
+    updateUI();
+    onSave();
   }
 
   function updateTransform(key, delta) {
     debugLog(`updateTransform for ${key} by ${delta}.`);
-    const currentFrame = timeline.getCurrentFrame();
-    const currentValue = currentFrame.transform[key];
-    let newValue = currentValue + delta;
-    if (key === 'scale') {
-      newValue = Math.min(Math.max(newValue, 0.1), 10);
-    } else if (key === 'rotate') {
-      newValue = ((newValue % 360) + 360) % 360;
-    }
-    timeline.updateTransform({ [key]: newValue });
-    updateUI();
-    onSave();
+    const current = selection === 'pantin'
+      ? timeline.getCurrentFrame().transform[key]
+      : timeline.getObject(selection)?.[key];
+    if (typeof current !== 'number') return;
+    setTransform(key, current + delta);
+  }
+
+  for (const [key, ids] of Object.entries(controls)) {
+    const plusEl = document.getElementById(ids.plus);
+    const minusEl = document.getElementById(ids.minus);
+    const valueEl = document.getElementById(ids.value);
+    plusEl.addEventListener('click', () => {
+      debugLog(`${key} plus button clicked.`);
+      updateTransform(key, ids.step);
+    });
+    minusEl.addEventListener('click', () => {
+      debugLog(`${key} minus button clicked.`);
+      updateTransform(key, -ids.step);
+    });
+    valueEl.addEventListener('change', () => {
+      const val = parseFloat(valueEl.value);
+      if (isNaN(val)) return;
+      setTransform(key, val);
+    });
   }
 
   // --- Contrôles Onion Skin ---
@@ -219,6 +344,11 @@ export function initUI(timeline, onFrameChange, onSave) {
   onionSkinToggle.addEventListener('change', updateOnionSkin);
   pastFramesInput.addEventListener('change', updateOnionSkin);
   futureFramesInput.addEventListener('change', updateOnionSkin);
+
+  pastFramesInput.parentElement.style.display = 'none';
+  futureFramesInput.parentElement.style.display = 'none';
+  onionSkinToggle.checked = true;
+  updateOnionSkin();
 
   // Premier affichage
   updateUI();

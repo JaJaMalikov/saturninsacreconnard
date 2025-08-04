@@ -1,4 +1,5 @@
 // src/svgLoader.js
+import { debugLog } from './debug.js';
 
 /**
  * Charge le fichier SVG, l'injecte dans le DOM et prépare les éléments.
@@ -37,13 +38,25 @@ export async function loadSVG(url, targetId) {
   ].forEach(([childId, parentId]) => {
     const ch = svgElement.getElementById(childId);
     const pr = svgElement.getElementById(parentId);
-    if (ch && pr && ch.parentNode !== pr) pr.appendChild(ch);
+    if (ch && pr) {
+      if (ch.parentNode !== pr) {
+        pr.appendChild(ch);
+        debugLog(`Reparented ${childId} under ${parentId}`);
+      }
+    } else {
+      console.warn(`Missing element for reparenting: child=${childId}, parent=${parentId}`);
+    }
   });
 
   const torso = svgElement.getElementById('torse');
   ['tete', 'bras_gauche', 'bras_droite', 'jambe_gauche', 'jambe_droite'].forEach(id => {
     const el = svgElement.getElementById(id);
-    if (el && torso && torso.parentNode) torso.parentNode.insertBefore(el, torso);
+    if (el && torso && torso.parentNode) {
+      torso.parentNode.insertBefore(el, torso);
+      debugLog(`Moved ${id} before torse`);
+    } else {
+      console.warn(`Unable to reinsert ${id} before torse`);
+    }
   });
 
   const joints = [

@@ -2,29 +2,29 @@
 
 import { debugLog } from './debug.js';
 
-// --- Global State Management ---
-const pantinState = {
-  rootGroup: null,
-  svgElement: null,
-};
-
 /** Setup global interactions: drag on torse, scale & rotate sliders. */
 export function setupPantinGlobalInteractions(svgElement, options, timeline, onUpdate, onEnd) {
   debugLog("setupPantinGlobalInteractions called.");
   const { rootGroupId, grabId } = options;
-  pantinState.svgElement = svgElement;
-  pantinState.rootGroup = svgElement.querySelector(`#${rootGroupId}`);
+  const rootGroup = svgElement.querySelector(`#${rootGroupId}`);
   const grabEl = svgElement.querySelector(`#${grabId}`);
   debugLog('Grab element:', grabEl); // Ligne de débogage
 
-  if (!pantinState.rootGroup || !grabEl) {
-    console.warn("Missing elements for global pantin interactions.", {pantinRoot: pantinState.rootGroup, grabEl});
+  if (!rootGroup || !grabEl) {
+    console.warn("Missing elements for global pantin interactions.", {pantinRoot: rootGroup, grabEl});
     return () => {};
   }
 
   let dragging = false;
   let startPt;
   grabEl.style.cursor = 'move';
+
+  const getSVGCoords = evt => {
+    const pt = svgElement.createSVGPoint();
+    pt.x = evt.clientX;
+    pt.y = evt.clientY;
+    return pt.matrixTransform(svgElement.getScreenCTM().inverse());
+  };
 
   const onMove = e => {
     if (!dragging) return;
@@ -69,14 +69,6 @@ export function setupPantinGlobalInteractions(svgElement, options, timeline, onU
     svgElement.removeEventListener('pointerup', endDrag);
     svgElement.removeEventListener('pointerleave', endDrag);
   };
-}
-
-// --- Utilities ---
-function getSVGCoords(evt) {
-  const pt = pantinState.svgElement.createSVGPoint();
-  pt.x = evt.clientX;
-  pt.y = evt.clientY;
-  return pt.matrixTransform(pantinState.svgElement.getScreenCTM().inverse());
 }
 
 /**
