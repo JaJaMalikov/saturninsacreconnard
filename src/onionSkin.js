@@ -9,6 +9,8 @@ let pantinTemplate = null;
 const pastGhosts = [];
 const futureGhosts = [];
 
+const ns = 'http://www.w3.org/2000/svg';
+
 const settings = {
   enabled: false,
   pastFrames: 1,
@@ -79,7 +81,11 @@ export function renderOnionSkins(timeline, applyFrameToPantin) {
       debugLog("Updating past ghost for frame:", frameIndex);
       applyFrameToPantin(frames[frameIndex], ghost, memberMapStore.get(ghost));
       ghost.style.display = '';
-      onionLayer.appendChild(ghost);
+      const wrapper = document.createElementNS(ns, 'g');
+      wrapper.classList.add('onion-skin-wrapper');
+      wrapper.appendChild(ghost);
+      renderGhostObjects(frames[frameIndex], ghost, timeline, wrapper);
+      onionLayer.appendChild(wrapper);
     } else {
       ghost.style.display = 'none';
     }
@@ -93,11 +99,56 @@ export function renderOnionSkins(timeline, applyFrameToPantin) {
       debugLog("Updating future ghost for frame:", frameIndex);
       applyFrameToPantin(frames[frameIndex], ghost, memberMapStore.get(ghost));
       ghost.style.display = '';
-      onionLayer.appendChild(ghost);
+      const wrapper = document.createElementNS(ns, 'g');
+      wrapper.classList.add('onion-skin-wrapper');
+      wrapper.appendChild(ghost);
+      renderGhostObjects(frames[frameIndex], ghost, timeline, wrapper);
+      onionLayer.appendChild(wrapper);
     } else {
       ghost.style.display = 'none';
     }
   }
+}
+
+function renderGhostObjects(frame, ghostRoot, timeline, wrapper) {
+  const objects = frame.objects || {};
+  Object.keys(objects).forEach(id => {
+    const base = timeline.objectStore[id];
+    if (!base) return;
+    const obj = { ...base, ...objects[id] };
+    const img = document.createElementNS(ns, 'image');
+    img.setAttribute('href', obj.src);
+    img.setAttribute('width', obj.width);
+    img.setAttribute('height', obj.height);
+    img.classList.add('onion-skin-ghost', 'onion-object');
+
+    let transformStr = '';
+    if (obj.attachedTo) {
+      const seg = ghostRoot.querySelector(`#${obj.attachedTo}`);
+      if (seg) {
+        const matrix = seg.getCTM();
+        const pt = svgElement.createSVGPoint();
+        pt.x = obj.x;
+        pt.y = obj.y;
+        const g = pt.matrixTransform(matrix);
+        const segAngle = Math.atan2(matrix.b, matrix.a) * 180 / Math.PI - frame.transform.rotate;
+        const totalRotate = obj.rotate + frame.transform.rotate + segAngle;
+        const totalScale = obj.scale * frame.transform.scale;
+        transformStr = `translate(${g.x},${g.y}) rotate(${totalRotate},${obj.width/2},${obj.height/2}) scale(${totalScale})`;
+      }
+    } else {
+      const totalRotate = obj.rotate + frame.transform.rotate;
+      const totalScale = obj.scale * frame.transform.scale;
+      const tx = obj.x + frame.transform.tx;
+      const ty = obj.y + frame.transform.ty;
+      transformStr = `translate(${tx},${ty}) rotate(${totalRotate},${obj.width/2},${obj.height/2}) scale(${totalScale})`;
+    }
+
+    if (transformStr) {
+      img.setAttribute('transform', transformStr);
+      wrapper.appendChild(img);
+    }
+  });
 }
 
 function adjustGhosts(arr, count, type) {

@@ -16,6 +16,7 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
   const nextFrameBtn = document.getElementById('nextFrame');
   const playBtn = document.getElementById('playAnim');
   const stopBtn = document.getElementById('stopAnim');
+  const loopToggleBtn = document.getElementById('loopToggle');
   const addFrameBtn = document.getElementById('addFrame');
   const delFrameBtn = document.getElementById('delFrame');
   const exportAnimBtn = document.getElementById('exportAnim');
@@ -128,6 +129,13 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
 
   let savedOnionSkinState = true;
 
+  let loopEnabled = true;
+
+  loopToggleBtn.addEventListener('click', () => {
+    loopEnabled = !loopEnabled;
+    loopToggleBtn.classList.toggle('active', loopEnabled);
+  });
+
   playBtn.addEventListener('click', () => {
     debugLog('Play button clicked.');
     if (timeline.playing) return;
@@ -139,10 +147,18 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     updateOnionSkinSettings({ enabled: false });
     onFrameChange();
 
-    timeline.loop((frame, index) => {
+    const onEnd = () => {
+      playBtn.textContent = '▶️';
+      updateOnionSkinSettings({ enabled: savedOnionSkinState });
+      onFrameChange();
+      updateUI();
+      onSave();
+    };
+
+    timeline.play((frame, index) => {
       timeline.setCurrentFrame(index);
       updateUI();
-    }, fps);
+    }, loopEnabled ? null : onEnd, fps, { loop: loopEnabled });
   });
 
   stopBtn.addEventListener('click', () => {
@@ -235,6 +251,7 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     } else {
       selection = 'pantin';
       selectedElementName.textContent = 'Pantin';
+      objects.selectObject(null);
     }
     updateUI(true);
   });
@@ -263,7 +280,12 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
   });
 
   objects.onSelect(id => {
-    if (!id) return;
+    if (!id) {
+      selection = 'pantin';
+      selectedElementName.textContent = 'Pantin';
+      updateUI(true);
+      return;
+    }
     selection = id;
     selectedElementName.textContent = id;
     updateUI(true);

@@ -22,27 +22,31 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
     if (selectCallback) selectCallback(id);
   }
 
-  function generateId() {
+  function generateId(prefix = 'obj') {
+    let uuid;
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-      return crypto.randomUUID();
-    }
-    const bytes = new Uint8Array(16);
-    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
-      crypto.getRandomValues(bytes);
+      uuid = crypto.randomUUID();
     } else {
-      for (let i = 0; i < bytes.length; i++) {
-        bytes[i] = Math.random() * 256;
+      const bytes = new Uint8Array(16);
+      if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+        crypto.getRandomValues(bytes);
+      } else {
+        for (let i = 0; i < bytes.length; i++) {
+          bytes[i] = Math.random() * 256;
+        }
       }
+      bytes[6] = (bytes[6] & 0x0f) | 0x40;
+      bytes[8] = (bytes[8] & 0x3f) | 0x80;
+      const hex = Array.from(bytes, b => b.toString(16).padStart(2, '0'));
+      uuid = `${hex.slice(0,4).join('')}-${hex.slice(4,6).join('')}-${hex.slice(6,8).join('')}-${hex.slice(8,10).join('')}-${hex.slice(10,16).join('')}`;
     }
-    bytes[6] = (bytes[6] & 0x0f) | 0x40;
-    bytes[8] = (bytes[8] & 0x3f) | 0x80;
-    const hex = Array.from(bytes, b => b.toString(16).padStart(2, '0'));
-    return `${hex.slice(0,4).join('')}-${hex.slice(4,6).join('')}-${hex.slice(6,8).join('')}-${hex.slice(8,10).join('')}-${hex.slice(10,16).join('')}`;
+    return `${prefix}-${uuid}`;
   }
 
   function addObject(src, layer = 'front') {
     return new Promise(resolve => {
-      const id = generateId();
+      const name = src.replace(/\.[^.]+$/, '');
+      const id = generateId(name);
       const path = `assets/objets/${src}`;
       const img = document.createElementNS(ns, 'image');
       img.setAttribute('href', path);
@@ -143,7 +147,19 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
       if (pointers.size === 1) {
         const frame = timeline.getCurrentFrame();
         const obj = frame.objects[id];
-        dragStart = { x: e.clientX, y: e.clientY, objX: obj.x, objY: obj.y };
+        if (obj.attachedTo) {
+          const seg = pantinRoot.querySelector(`#${obj.attachedTo}`);
+          if (seg) {
+            const inv = seg.getCTM().inverse();
+            const pt = svgElement.createSVGPoint();
+            pt.x = e.clientX;
+            pt.y = e.clientY;
+            const local = pt.matrixTransform(inv);
+            dragStart = { local, objX: obj.x, objY: obj.y, attached: true };
+          }
+        } else {
+          dragStart = { x: e.clientX, y: e.clientY, objX: obj.x, objY: obj.y, attached: false };
+        }
       } else if (pointers.size === 2) {
         const [p1, p2] = Array.from(pointers.values());
         const frame = timeline.getCurrentFrame();
@@ -165,18 +181,20 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
       const obj = frame.objects[id];
       if (pointers.size === 1 && dragStart) {
         const p = pointers.get(e.pointerId);
-        const dx = p.clientX - dragStart.x;
-        const dy = p.clientY - dragStart.y;
-        if (obj.attachedTo) {
+        if (dragStart.attached && obj.attachedTo) {
           const seg = pantinRoot.querySelector(`#${obj.attachedTo}`);
           if (!seg) return;
           const inv = seg.getCTM().inverse();
           const pt = svgElement.createSVGPoint();
-          pt.x = dx;
-          pt.y = dy;
+          pt.x = p.clientX;
+          pt.y = p.clientY;
           const local = pt.matrixTransform(inv);
-          timeline.updateObject(id, { x: dragStart.objX + local.x, y: dragStart.objY + local.y });
+          const dx = local.x - dragStart.local.x;
+          const dy = local.y - dragStart.local.y;
+          timeline.updateObject(id, { x: dragStart.objX + dx, y: dragStart.objY + dy });
         } else {
+          const dx = p.clientX - dragStart.x;
+          const dy = p.clientY - dragStart.y;
           timeline.updateObject(id, { x: dragStart.objX + dx, y: dragStart.objY + dy });
         }
         onUpdate();
@@ -203,7 +221,19 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
         const p = Array.from(pointers.values())[0];
         const frame = timeline.getCurrentFrame();
         const obj = frame.objects[id];
-        dragStart = { x: p.clientX, y: p.clientY, objX: obj.x, objY: obj.y };
+        if (obj.attachedTo) {
+          const seg = pantinRoot.querySelector(`#${obj.attachedTo}`);
+          if (seg) {
+            const inv = seg.getCTM().inverse();
+            const pt = svgElement.createSVGPoint();
+            pt.x = p.clientX;
+            pt.y = p.clientY;
+            const local = pt.matrixTransform(inv);
+            dragStart = { local, objX: obj.x, objY: obj.y, attached: true };
+          }
+        } else {
+          dragStart = { x: p.clientX, y: p.clientY, objX: obj.x, objY: obj.y, attached: false };
+        }
         gestureStart = null;
       }
     };
