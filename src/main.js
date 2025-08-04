@@ -6,6 +6,7 @@ import { initUI } from './ui.js';
 import { initObjects } from './objects.js';
 import { debugLog } from './debug.js';
 import CONFIG from './config.js';
+import { setMemberMap, getMemberMap } from './memberMapStore.js';
 
 const { SVG_URL, THEATRE_ID, PANTIN_ROOT_ID, GRAB_ID } = CONFIG;
 
@@ -33,10 +34,10 @@ async function main() {
       const el = pantinRootGroup?.querySelector(`#${id}`);
       if (el) memberElements[id] = el;
     });
-    pantinRootGroup._memberMap = memberElements;
+    setMemberMap(pantinRootGroup, memberElements);
 
     // Function to apply a frame to a given SVG element (main pantin or ghost)
-    const applyFrameToPantinElement = (targetFrame, targetRootGroup, elementMap = targetRootGroup._memberMap || memberElements) => {
+    const applyFrameToPantinElement = (targetFrame, targetRootGroup, elementMap = getMemberMap(targetRootGroup) || memberElements) => {
       debugLog("Applying frame to element:", targetRootGroup, "Frame data:", targetFrame);
       const { tx, ty, scale, rotate } = targetFrame.transform;
       targetRootGroup.setAttribute(

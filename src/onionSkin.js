@@ -1,4 +1,5 @@
 import { debugLog } from './debug.js';
+import { setMemberMap, getMemberMap } from './memberMapStore.js';
 
 let svgElement = null;
 let pantinRoot = null;
@@ -72,7 +73,7 @@ export function renderOnionSkins(timeline, applyFrameToPantin) {
     const ghost = pastGhosts[i];
     if (frameIndex >= 0) {
       debugLog("Updating past ghost for frame:", frameIndex);
-      applyFrameToPantin(frames[frameIndex], ghost, ghost._memberMap);
+      applyFrameToPantin(frames[frameIndex], ghost, getMemberMap(ghost));
       ghost.style.display = '';
       onionLayer.appendChild(ghost);
     } else {
@@ -86,7 +87,7 @@ export function renderOnionSkins(timeline, applyFrameToPantin) {
     const ghost = futureGhosts[i];
     if (frameIndex < frames.length) {
       debugLog("Updating future ghost for frame:", frameIndex);
-      applyFrameToPantin(frames[frameIndex], ghost, ghost._memberMap);
+      applyFrameToPantin(frames[frameIndex], ghost, getMemberMap(ghost));
       ghost.style.display = '';
       onionLayer.appendChild(ghost);
     } else {
@@ -103,7 +104,7 @@ function adjustGhosts(arr, count, type) {
       const el = ghost.querySelector(`#${id}`);
       if (el) memberMap[id] = el;
     });
-    ghost._memberMap = memberMap;
+    setMemberMap(ghost, memberMap);
     stripIds(ghost);
     ghost.classList.add('onion-skin-ghost', `onion-skin-${type}`);
     arr.push(ghost);

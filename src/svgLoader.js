@@ -37,13 +37,24 @@ export async function loadSVG(url, targetId) {
   ].forEach(([childId, parentId]) => {
     const ch = svgElement.getElementById(childId);
     const pr = svgElement.getElementById(parentId);
-    if (ch && pr && ch.parentNode !== pr) pr.appendChild(ch);
+    if (ch && pr) {
+      if (ch.parentNode !== pr) {
+        console.info(`Reparenting ${childId} under ${parentId}`);
+        pr.appendChild(ch);
+      }
+    } else {
+      console.warn(`Missing ${childId} or ${parentId} during SVG normalization`);
+    }
   });
 
   const torso = svgElement.getElementById('torse');
   ['tete', 'bras_gauche', 'bras_droite', 'jambe_gauche', 'jambe_droite'].forEach(id => {
     const el = svgElement.getElementById(id);
-    if (el && torso && torso.parentNode) torso.parentNode.insertBefore(el, torso);
+    if (el && torso && torso.parentNode) {
+      torso.parentNode.insertBefore(el, torso);
+    } else if (!el) {
+      console.warn(`Element ${id} missing during SVG normalization`);
+    }
   });
 
   const joints = [

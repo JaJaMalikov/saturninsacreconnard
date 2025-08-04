@@ -23,15 +23,24 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
   }
 
   function addObject(src, layer = 'front') {
-    const id = `obj-${Date.now()}`;
-    timeline.addObject(id, { x: 0, y: 0, scale: 1, rotate: 0, layer, attachedTo: null, src: `assets/objets/${src}` });
+    const id = crypto.randomUUID();
+    const href = `assets/objets/${src}`;
+    timeline.addObject(id, { x: 0, y: 0, scale: 1, rotate: 0, layer, attachedTo: null, src: href });
     const img = document.createElementNS(ns, 'image');
-    img.setAttribute('href', `assets/objets/${src}`);
-    img.setAttribute('width', 100);
-    img.setAttribute('height', 100);
+    img.setAttribute('href', href);
     img.id = id;
     img.classList.add('scene-object');
     (layer === 'front' ? frontLayer : backLayer).appendChild(img);
+
+    const metaImg = new Image();
+    metaImg.src = href;
+    metaImg.onload = () => {
+      const w = metaImg.naturalWidth || 100;
+      const h = metaImg.naturalHeight || 100;
+      img.setAttribute('width', w);
+      img.setAttribute('height', h);
+    };
+
     setupInteract(img, id);
     selectObject(id);
     onUpdate();
@@ -137,11 +146,17 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
       if (!el) {
         el = document.createElementNS(ns, 'image');
         el.setAttribute('href', obj.src);
-        el.setAttribute('width', 100);
-        el.setAttribute('height', 100);
         el.id = id;
         el.classList.add('scene-object');
         (obj.layer === 'front' ? frontLayer : backLayer).appendChild(el);
+        const metaImg = new Image();
+        metaImg.src = obj.src;
+        metaImg.onload = () => {
+          const w = metaImg.naturalWidth || 100;
+          const h = metaImg.naturalHeight || 100;
+          el.setAttribute('width', w);
+          el.setAttribute('height', h);
+        };
         setupInteract(el, id);
       }
       if (obj.attachedTo) {

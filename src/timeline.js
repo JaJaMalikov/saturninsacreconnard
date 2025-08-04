@@ -46,7 +46,14 @@ export class Timeline {
 
   updateTransform(values) {
     const frame = this.getCurrentFrame();
-    frame.transform = { ...frame.transform, ...values };
+    const t = { ...frame.transform, ...values };
+    if (typeof t.scale === 'number') {
+      t.scale = Math.min(Math.max(t.scale, 0.1), 10);
+    }
+    if (typeof t.rotate === 'number') {
+      t.rotate = ((t.rotate % 360) + 360) % 360;
+    }
+    frame.transform = t;
   }
 
   addObject(id, data) {
@@ -60,7 +67,14 @@ export class Timeline {
   updateObject(id, values) {
     const frame = this.getCurrentFrame();
     if (!frame.objects[id]) return;
-    frame.objects[id] = { ...frame.objects[id], ...values };
+    const obj = { ...frame.objects[id], ...values };
+    if (typeof obj.scale === 'number') {
+      obj.scale = Math.min(Math.max(obj.scale, 0.1), 10);
+    }
+    if (typeof obj.rotate === 'number') {
+      obj.rotate = ((obj.rotate % 360) + 360) % 360;
+    }
+    frame.objects[id] = obj;
   }
 
   removeObject(id) {
