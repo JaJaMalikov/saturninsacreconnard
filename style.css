@@ -57,7 +57,7 @@ body, html {
   background-color: var(--panel-bg-color);
   border-left: 1px solid var(--border-color);
   padding: 16px;
-  overflow: hidden;
+  overflow-y: auto;
   white-space: nowrap;
 }
 
@@ -78,6 +78,15 @@ body, html {
 
 #selected-element-name {
   color: var(--accent-color);
+}
+
+#object-controls select,
+#object-controls button {
+  width: 100%;
+}
+
+.scene-object.selected {
+  outline: 2px dashed var(--accent-color);
 }
 
 .control-group {
