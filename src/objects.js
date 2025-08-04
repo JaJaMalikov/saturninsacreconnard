@@ -22,9 +22,27 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
     if (selectCallback) selectCallback(id);
   }
 
+  function generateId() {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+    const bytes = new Uint8Array(16);
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+      crypto.getRandomValues(bytes);
+    } else {
+      for (let i = 0; i < bytes.length; i++) {
+        bytes[i] = Math.random() * 256;
+      }
+    }
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = Array.from(bytes, b => b.toString(16).padStart(2, '0'));
+    return `${hex.slice(0,4).join('')}-${hex.slice(4,6).join('')}-${hex.slice(6,8).join('')}-${hex.slice(8,10).join('')}-${hex.slice(10,16).join('')}`;
+  }
+
   function addObject(src, layer = 'front') {
     return new Promise(resolve => {
-      const id = crypto.randomUUID();
+      const id = generateId();
       const path = `assets/objets/${src}`;
       const img = document.createElementNS(ns, 'image');
       img.setAttribute('href', path);
@@ -111,42 +129,90 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
   }
 
   function setupInteract(el, id) {
-    if (!window.interact) return;
-    window.interact(el).draggable({
-      listeners: {
-        move(event) {
-          const frame = timeline.getCurrentFrame();
-          const obj = frame.objects[id];
-          if (obj.attachedTo) {
-            const seg = pantinRoot.querySelector(`#${obj.attachedTo}`);
-            if (!seg) return;
-            const inv = seg.getCTM().inverse();
-            const pt = svgElement.createSVGPoint();
-            pt.x = event.dx;
-            pt.y = event.dy;
-            const local = pt.matrixTransform(inv);
-            timeline.updateObject(id, { x: obj.x + local.x, y: obj.y + local.y });
-          } else {
-            timeline.updateObject(id, { x: obj.x + event.dx, y: obj.y + event.dy });
-          }
-          onUpdate();
-        },
-        end: onSave,
-      },
-    }).gesturable({
-      listeners: {
-        move(event) {
-          const frame = timeline.getCurrentFrame();
-          const obj = frame.objects[id];
-          const scale = obj.scale * (1 + event.ds);
-          const rotate = obj.rotate + event.da;
-          timeline.updateObject(id, { scale, rotate });
-          onUpdate();
-        },
-        end: onSave,
-      },
-    });
-    el.addEventListener('click', () => selectObject(id));
+    const pointers = new Map();
+    let dragStart = null;
+    let gestureStart = null;
+
+    const distance = (p1, p2) => Math.hypot(p2.clientX - p1.clientX, p2.clientY - p1.clientY);
+    const angle = (p1, p2) => Math.atan2(p2.clientY - p1.clientY, p2.clientX - p1.clientX) * 180 / Math.PI;
+
+    const onPointerDown = e => {
+      selectObject(id);
+      el.setPointerCapture(e.pointerId);
+      pointers.set(e.pointerId, e);
+      if (pointers.size === 1) {
+        const frame = timeline.getCurrentFrame();
+        const obj = frame.objects[id];
+        dragStart = { x: e.clientX, y: e.clientY, objX: obj.x, objY: obj.y };
+      } else if (pointers.size === 2) {
+        const [p1, p2] = Array.from(pointers.values());
+        const frame = timeline.getCurrentFrame();
+        const obj = frame.objects[id];
+        gestureStart = {
+          dist: distance(p1, p2),
+          ang: angle(p1, p2),
+          scale: obj.scale,
+          rotate: obj.rotate,
+        };
+        dragStart = null;
+      }
+    };
+
+    const onPointerMove = e => {
+      if (!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId, e);
+      const frame = timeline.getCurrentFrame();
+      const obj = frame.objects[id];
+      if (pointers.size === 1 && dragStart) {
+        const p = pointers.get(e.pointerId);
+        const dx = p.clientX - dragStart.x;
+        const dy = p.clientY - dragStart.y;
+        if (obj.attachedTo) {
+          const seg = pantinRoot.querySelector(`#${obj.attachedTo}`);
+          if (!seg) return;
+          const inv = seg.getCTM().inverse();
+          const pt = svgElement.createSVGPoint();
+          pt.x = dx;
+          pt.y = dy;
+          const local = pt.matrixTransform(inv);
+          timeline.updateObject(id, { x: dragStart.objX + local.x, y: dragStart.objY + local.y });
+        } else {
+          timeline.updateObject(id, { x: dragStart.objX + dx, y: dragStart.objY + dy });
+        }
+        onUpdate();
+      } else if (pointers.size >= 2 && gestureStart) {
+        const [p1, p2] = Array.from(pointers.values());
+        const dist = distance(p1, p2);
+        const ang = angle(p1, p2);
+        const scale = gestureStart.scale * (dist / gestureStart.dist);
+        const rotate = gestureStart.rotate + (ang - gestureStart.ang);
+        timeline.updateObject(id, { scale, rotate });
+        onUpdate();
+      }
+    };
+
+    const onPointerUp = e => {
+      if (!pointers.has(e.pointerId)) return;
+      pointers.delete(e.pointerId);
+      el.releasePointerCapture(e.pointerId);
+      if (pointers.size === 0) {
+        dragStart = null;
+        gestureStart = null;
+        onSave();
+      } else if (pointers.size === 1) {
+        const p = Array.from(pointers.values())[0];
+        const frame = timeline.getCurrentFrame();
+        const obj = frame.objects[id];
+        dragStart = { x: p.clientX, y: p.clientY, objX: obj.x, objY: obj.y };
+        gestureStart = null;
+      }
+    };
+
+    el.addEventListener('pointerdown', onPointerDown);
+    el.addEventListener('pointermove', onPointerMove);
+    el.addEventListener('pointerup', onPointerUp);
+    el.addEventListener('pointercancel', onPointerUp);
+    el.addEventListener('pointerleave', onPointerUp);
   }
 
   function renderObjects() {
