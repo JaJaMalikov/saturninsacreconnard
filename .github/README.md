@@ -5,9 +5,9 @@
 
 ## 😎 Présentation
 
-Tu en as assez de la communication aseptisée ? Passe à la vitesse supérieure avec le **MACRON‑O‑TRON 3000**, l’outil ultime pour créer ta marionnette présidentielle et la faire bouger comme bon te semble, le tout sans sortir de ton navigateur.
+Tu en as assez de la communication aseptisée ? Passe à la vitesse supérieure avec le **MACRON‑O‑TRON 3000**, l’outil ultime pour créer ta marionnette présidentielle et la faire bouger comme bon te semble, le tout sans même devoir utiliser ton ~~exilé fiscal~~ grand patron préféré.
 
-Pour seulement **49,3 €** (prix d’appel), transforme n’importe quel ripou ou repris de justice en ministre fatigué et forme ton gouvernement de rêve. Deviens le chef de l’État le plus disruptif que la République n’ait jamais connu !
+Pour seulement **49,3 €** (prix d’appel), transforme n’importe quel random ou repris de justice en ministre satisfait et forme, toi aussi, ton gouvernement de rêve. C'est ça la République En Merde. Deviens le chef de l’État le plus disruptif que la République n’ait jamais connu et que la Terre entière nous envie déjà !
 
 Et n'oublie pas : derrière chaque grand homme, il y a toujours un petit Bernard A qui t'aime de tout son **CO€UR**.
 
@@ -22,8 +22,8 @@ C'est d'une simplicité déconcertante, même pour un énarque !
 
 ## 🚀 Tips de ninja
 
-*   **Le "49.3" express** : Pour un effet de surprise maximal, crée une animation où ton pantin passe de la position "écoute attentive" à "passage en force" en une seule frame. Effet garanti !
-*   **Le "en même temps"** : Anime un bras qui monte pour saluer et l'autre qui descend pour signer un décret impopulaire. L'art de la contradiction à son paroxysme.
+*   **Le "49.3" express** : Pour un effet de surprise maximal, crée une animation où ton pantin passe de la position "écoute attentive" à "passage en force façon sexe anal non consenti" en une seule frame. Effet garanti !
+*   **Le "en même temps"** : Anime un bras qui monte pour saluer la populace et l'autre qui descend pour gratter discrètement les couilles du futur patron d'un service public revendu à un "actionnaire investisseur". L'art de la contradiction à son paroxysme, mais tout en souplesse et avec le sourire.
 *   **La "start-up nation"** : Fais-le courir sur place avec des mouvements saccadés. Le dynamisme, c'est avant tout une question de perception.
 *   **Le "grand débat"** : Crée une série de hochements de tête désapprobateurs, suivis d'un sourire forcé. L'essence même de la démocratie participative.
 *   **Le 'patrimoine'** : Fais-le contempler un monument historique avec une ferveur calculée, puis détourne son regard des ruelles adjacentes. L'art de la rénovation sélective.
