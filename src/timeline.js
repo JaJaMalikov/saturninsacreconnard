@@ -4,13 +4,15 @@
  * Gestion de la timeline d'animation (frames)
  * Une frame = {
  *   transform: { tx, ty, scale, rotate },
- *   members: { segmentId: { rotate: angleDeg }, ... }
+ *   members: { segmentId: { rotate: angleDeg }, ... },
+ *   objects: { objectId: { tx, ty, scale, rotate } }
  * }
  */
 
 export class Timeline {
   constructor(memberList, initialFrame = null) {
     this.memberList = memberList;
+    this.objects = {}; // id -> { src, attach, front }
     this.frames = [initialFrame || this.createEmptyFrame()];
     this.current = 0;
     this.playing = false;
@@ -20,9 +22,12 @@ export class Timeline {
   createEmptyFrame() {
     const members = {};
     this.memberList.forEach(id => (members[id] = { rotate: 0 }));
+    const objects = {};
+    Object.keys(this.objects).forEach(id => (objects[id] = { tx: 0, ty: 0, scale: 1, rotate: 0 }));
     return {
       transform: { tx: 0, ty: 0, scale: 1, rotate: 0 },
       members,
+      objects,
     };
   }
 
@@ -45,6 +50,21 @@ export class Timeline {
   updateTransform(values) {
     const frame = this.getCurrentFrame();
     frame.transform = { ...frame.transform, ...values };
+  }
+
+  addObject(id, def) {
+    if (this.objects[id]) return;
+    this.objects[id] = def;
+    this.frames.forEach(f => {
+      f.objects[id] = { tx: 0, ty: 0, scale: 1, rotate: 0 };
+    });
+  }
+
+  updateObject(id, values) {
+    if (!this.objects[id]) return;
+    const frame = this.getCurrentFrame();
+    const cur = frame.objects[id] || { tx: 0, ty: 0, scale: 1, rotate: 0 };
+    frame.objects[id] = { ...cur, ...values };
   }
 
   addFrame(duplicate = true) {
@@ -118,21 +138,33 @@ export class Timeline {
   }
 
   exportJSON() {
-    return JSON.stringify(this.frames, null, 2);
+    return JSON.stringify({
+      frames: this.frames,
+      objects: this.objects,
+    }, null, 2);
   }
 
   importJSON(json) {
     try {
-      const arr = JSON.parse(json);
-      if (!Array.isArray(arr)) throw new Error('Invalid format');
-
-      // Rétro-compatibilité : convertir l'ancien format
-      const migratedFrames = arr.map(f => {
-        if (f.members && f.transform) return f; // Déjà au bon format
-        return this._migrateOldFrame(f);
+      const data = JSON.parse(json);
+      if (Array.isArray(data)) {
+        // Ancien format sans objets
+        const migratedFrames = data.map(f => {
+          if (f.members && f.transform) return { ...f, objects: {} };
+          return this._migrateOldFrame(f);
+        });
+        this.frames = migratedFrames;
+        this.objects = {};
+      } else {
+        this.frames = data.frames || [];
+        this.objects = data.objects || {};
+      }
+      Object.keys(this.objects).forEach(id => {
+        this.frames.forEach(f => {
+          if (!f.objects) f.objects = {};
+          if (!f.objects[id]) f.objects[id] = { tx: 0, ty: 0, scale: 1, rotate: 0 };
+        });
       });
-
-      this.frames = migratedFrames;
       this.current = 0;
     } catch (e) {
       throw new Error('Échec import : ' + e);
