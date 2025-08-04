@@ -14,6 +14,19 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
   let selectedId = null;
   let selectCallback = null;
 
+  function generateUUID() {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+    const bytes = (typeof crypto !== 'undefined' && crypto.getRandomValues)
+      ? crypto.getRandomValues(new Uint8Array(16))
+      : Array.from({ length: 16 }, () => Math.floor(Math.random() * 256));
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+    const hex = Array.from(bytes, b => b.toString(16).padStart(2, '0'));
+    return `${hex.slice(0, 4).join('')}-${hex.slice(4, 6).join('')}-${hex.slice(6, 8).join('')}-${hex.slice(8, 10).join('')}-${hex.slice(10).join('')}`;
+  }
+
   function selectObject(id) {
     selectedId = id;
     document.querySelectorAll('.scene-object').forEach(el => el.classList.remove('selected'));
@@ -24,7 +37,7 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
 
   function addObject(src, layer = 'front') {
     return new Promise(resolve => {
-      const id = crypto.randomUUID();
+      const id = generateUUID();
       const path = `assets/objets/${src}`;
       const img = document.createElementNS(ns, 'image');
       img.setAttribute('href', path);
@@ -112,40 +125,48 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
 
   function setupInteract(el, id) {
     if (!window.interact) return;
-    window.interact(el).draggable({
-      listeners: {
-        move(event) {
-          const frame = timeline.getCurrentFrame();
-          const obj = frame.objects[id];
-          if (obj.attachedTo) {
-            const seg = pantinRoot.querySelector(`#${obj.attachedTo}`);
-            if (!seg) return;
-            const inv = seg.getCTM().inverse();
-            const pt = svgElement.createSVGPoint();
-            pt.x = event.dx;
-            pt.y = event.dy;
-            const local = pt.matrixTransform(inv);
-            timeline.updateObject(id, { x: obj.x + local.x, y: obj.y + local.y });
-          } else {
-            timeline.updateObject(id, { x: obj.x + event.dx, y: obj.y + event.dy });
-          }
-          onUpdate();
+    const interactable = window.interact(el);
+    try {
+      interactable.draggable({
+        listeners: {
+          move(event) {
+            const frame = timeline.getCurrentFrame();
+            const obj = frame.objects[id];
+            if (obj.attachedTo) {
+              const seg = pantinRoot.querySelector(`#${obj.attachedTo}`);
+              if (!seg) return;
+              const inv = seg.getCTM().inverse();
+              const pt = svgElement.createSVGPoint();
+              pt.x = event.dx;
+              pt.y = event.dy;
+              const local = pt.matrixTransform(inv);
+              timeline.updateObject(id, { x: obj.x + local.x, y: obj.y + local.y });
+            } else {
+              timeline.updateObject(id, { x: obj.x + event.dx, y: obj.y + event.dy });
+            }
+            onUpdate();
+          },
+          end: onSave,
         },
-        end: onSave,
-      },
-    }).gesturable({
-      listeners: {
-        move(event) {
-          const frame = timeline.getCurrentFrame();
-          const obj = frame.objects[id];
-          const scale = obj.scale * (1 + event.ds);
-          const rotate = obj.rotate + event.da;
-          timeline.updateObject(id, { scale, rotate });
-          onUpdate();
+        modifiers: [],
+      });
+      interactable.gesturable({
+        listeners: {
+          move(event) {
+            const frame = timeline.getCurrentFrame();
+            const obj = frame.objects[id];
+            const scale = obj.scale * (1 + event.ds);
+            const rotate = obj.rotate + event.da;
+            timeline.updateObject(id, { scale, rotate });
+            onUpdate();
+          },
+          end: onSave,
         },
-        end: onSave,
-      },
-    });
+        modifiers: [],
+      });
+    } catch (err) {
+      console.warn('interact.js setup failed', err);
+    }
     el.addEventListener('click', () => selectObject(id));
   }
 
