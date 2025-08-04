@@ -32,7 +32,13 @@ fi
 # Là, on est bien dans un terminal interactif
 # ----------------------------
 # Lance le server Python en arrière-plan
-python3 -m http.server &
+PORT=8000
+while lsof -i TCP:$PORT >/dev/null 2>&1; do
+    ((PORT++))
+done
+
+
+python3 -m http.server $PORT &
 SERVER_PID=$!
 
 # Quand on ferme la fenêtre ou qu'on fait Ctrl+C, on tue proprement le serveur
@@ -42,7 +48,7 @@ trap 'kill $SERVER_PID 2>/dev/null' EXIT
 sleep 1
 
 # Ouvre l'URL dans le navigateur
-URL="http://0.0.0.0:8000/"
+URL="http://0.0.0.0:$PORT/"
 if command -v xdg-open >/dev/null; then
     xdg-open "$URL"
 elif command -v open >/dev/null; then
@@ -54,4 +60,3 @@ fi
 
 # On reste bloqué jusqu'à Ctrl+C ou fermeture de la fenêtre
 wait $SERVER_PID
-
