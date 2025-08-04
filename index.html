@@ -16,6 +16,11 @@
         <label for="selected-element-name">Sélection</label>
         <output id="selected-element-name">Pantin</output>
       </div>
+      <div id="object-add" class="control-group">
+        <label for="object-select">Ajouter objet</label>
+        <select id="object-select"></select>
+        <button type="button" id="object-add-btn" aria-label="Ajouter un objet">+</button>
+      </div>
       <div id="pantin-controls">
         <div class="control-group">
           <label for="scale-value">Échelle</label>
@@ -32,6 +37,19 @@
             <output id="rotate-value" for="rotate-minus rotate-plus">0</output>
             <button type="button" id="rotate-plus" aria-label="Augmenter la rotation">+</button>
           </div>
+        </div>
+      </div>
+      <div id="object-controls" style="display:none;">
+        <div class="control-group">
+          <label for="object-parent">Attacher à</label>
+          <select id="object-parent">
+            <option value="">Scène</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <button type="button" id="send-back" aria-label="Derrière">⬇️</button>
+          <button type="button" id="bring-front" aria-label="Devant">⬆️</button>
+          <button type="button" id="delete-object" aria-label="Supprimer">🗑️</button>
         </div>
       </div>
       <div id="onion-skin-controls" role="region" aria-label="Contrôles Onion Skin">

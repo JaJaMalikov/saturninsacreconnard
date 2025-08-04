@@ -11,6 +11,7 @@
 export class Timeline {
   constructor(memberList, initialFrame = null) {
     this.memberList = memberList;
+    this.objects = [];
     this.frames = [initialFrame || this.createEmptyFrame()];
     this.current = 0;
     this.playing = false;
@@ -23,6 +24,7 @@ export class Timeline {
     return {
       transform: { tx: 0, ty: 0, scale: 1, rotate: 0 },
       members,
+      objects: {},
     };
   }
 
@@ -45,6 +47,23 @@ export class Timeline {
   updateTransform(values) {
     const frame = this.getCurrentFrame();
     frame.transform = { ...frame.transform, ...values };
+  }
+
+  addObject(obj) {
+    this.objects.push(obj);
+    this.frames.forEach(f => {
+      f.objects[obj.id] = { tx: 0, ty: 0, scale: 1, rotate: 0 };
+    });
+  }
+
+  removeObject(id) {
+    this.objects = this.objects.filter(o => o.id !== id);
+    this.frames.forEach(f => delete f.objects[id]);
+  }
+
+  updateObject(id, values) {
+    const frame = this.getCurrentFrame();
+    frame.objects[id] = { ...frame.objects[id], ...values };
   }
 
   addFrame(duplicate = true) {
@@ -118,21 +137,37 @@ export class Timeline {
   }
 
   exportJSON() {
-    return JSON.stringify(this.frames, null, 2);
+    return JSON.stringify({
+      objects: this.objects,
+      frames: this.frames,
+    }, null, 2);
   }
 
   importJSON(json) {
     try {
-      const arr = JSON.parse(json);
-      if (!Array.isArray(arr)) throw new Error('Invalid format');
-
-      // Rétro-compatibilité : convertir l'ancien format
-      const migratedFrames = arr.map(f => {
-        if (f.members && f.transform) return f; // Déjà au bon format
-        return this._migrateOldFrame(f);
+      const data = JSON.parse(json);
+      if (Array.isArray(data)) {
+        // Ancien format : tableau de frames
+        const migratedFrames = data.map(f => {
+          if (f.members && f.transform) return { ...f, objects: {} };
+          return this._migrateOldFrame(f);
+        });
+        this.frames = migratedFrames;
+        this.objects = [];
+      } else {
+        this.objects = data.objects || [];
+        this.frames = (data.frames || []).map(f => ({
+          transform: f.transform || { tx: 0, ty: 0, scale: 1, rotate: 0 },
+          members: f.members || {},
+          objects: f.objects || {},
+        }));
+      }
+      // S'assurer que chaque frame a les objets existants
+      this.frames.forEach(f => {
+        this.objects.forEach(o => {
+          if (!f.objects[o.id]) f.objects[o.id] = { tx: 0, ty: 0, scale: 1, rotate: 0 };
+        });
       });
-
-      this.frames = migratedFrames;
       this.current = 0;
     } catch (e) {
       throw new Error('Échec import : ' + e);
@@ -146,7 +181,6 @@ export class Timeline {
         newFrame.members[id] = { rotate: oldFrame[id].rotate };
       }
     });
-    // Les transformations globales seront celles par défaut
     return newFrame;
   }
 }

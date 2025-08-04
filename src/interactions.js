@@ -173,3 +173,51 @@ export function setupInteractions(svgElement, memberList, pivots, timeline, onUp
   return () => cleanupFns.forEach(fn => fn());
 }
 
+// --- Object interactions (dragging) ---
+export function setupObjectInteractions(objectEl, objectId, timeline, onUpdate, onEnd, selectCallback) {
+  if (!pantinState.svgElement) return () => {};
+
+  let dragging = false;
+  let startPt;
+
+  const onMove = e => {
+    if (!dragging) return;
+    const pt = getSVGCoords(e);
+    const frame = timeline.getCurrentFrame();
+    const obj = frame.objects[objectId];
+    timeline.updateObject(objectId, {
+      tx: obj.tx + (pt.x - startPt.x),
+      ty: obj.ty + (pt.y - startPt.y),
+    });
+    startPt = pt;
+    onUpdate();
+  };
+
+  const endDrag = e => {
+    if (!dragging) return;
+    dragging = false;
+    objectEl.releasePointerCapture && objectEl.releasePointerCapture(e.pointerId);
+    pantinState.svgElement.removeEventListener('pointermove', onMove);
+    onEnd();
+  };
+
+  const onPointerDown = e => {
+    selectCallback && selectCallback(objectId);
+    dragging = true;
+    startPt = getSVGCoords(e);
+    objectEl.setPointerCapture(e.pointerId);
+    pantinState.svgElement.addEventListener('pointermove', onMove);
+    e.preventDefault();
+  };
+
+  objectEl.addEventListener('pointerdown', onPointerDown);
+  objectEl.addEventListener('pointerup', endDrag);
+  objectEl.addEventListener('pointerleave', endDrag);
+
+  return () => {
+    objectEl.removeEventListener('pointerdown', onPointerDown);
+    objectEl.removeEventListener('pointerup', endDrag);
+    objectEl.removeEventListener('pointerleave', endDrag);
+  };
+}
+

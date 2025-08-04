@@ -194,3 +194,11 @@ button:hover, .button:hover {
   /* Example color for future frames */
   filter: hue-rotate(90deg) saturate(1.5); /* Greenish tint */
 }
+
+.scene-object {
+  cursor: move;
+}
+
+.scene-object.selected-object {
+  outline: 2px dashed var(--accent-color);
+}
