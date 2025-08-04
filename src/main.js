@@ -16,6 +16,7 @@ async function main() {
     const { svgElement, memberList, pivots } = await loadSVG(SVG_URL, THEATRE_ID);
     debugLog("SVG loaded, Timeline instantiated.");
     const timeline = new Timeline(memberList);
+    const attachableMembers = Array.from(new Set([...memberList, 'main_droite', 'main_gauche', 'pied_droite', 'pied_gauche', 'bouche']));
 
     // Cache frequently accessed DOM elements
     const scaleValueEl = document.getElementById('scale-value');
@@ -80,8 +81,8 @@ async function main() {
       applyFrameToPantinElement(frame, pantinRootGroup);
 
       // Update inspector values
-      scaleValueEl.textContent = frame.transform.scale.toFixed(2);
-      rotateValueEl.textContent = Math.round(frame.transform.rotate);
+      scaleValueEl.value = frame.transform.scale.toFixed(2);
+      rotateValueEl.value = Math.round(frame.transform.rotate);
 
       // Render onion skins
       renderOnionSkins(timeline, applyFrameToPantinElement);
@@ -98,7 +99,7 @@ async function main() {
       grabId: GRAB_ID,
     };
 
-    objects = initObjects(svgElement, PANTIN_ROOT_ID, timeline, memberList, onFrameChange, onSave);
+    objects = initObjects(svgElement, PANTIN_ROOT_ID, timeline, attachableMembers, onFrameChange, onSave);
 
     debugLog("Setting up member interactions...");
     const teardownMembers = setupInteractions(svgElement, memberList, pivots, timeline, onFrameChange, onSave);

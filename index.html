@@ -21,7 +21,7 @@
           <label for="scale-value">Échelle</label>
           <div class="value-stepper">
             <button type="button" id="scale-minus" aria-label="Diminuer l'échelle">-</button>
-            <output id="scale-value" for="scale-minus scale-plus">1.00</output>
+            <input type="number" id="scale-value" step="0.1" value="1.00">
             <button type="button" id="scale-plus" aria-label="Augmenter l'échelle">+</button>
           </div>
         </div>
@@ -29,7 +29,7 @@
           <label for="rotate-value">Rotation</label>
           <div class="value-stepper">
             <button type="button" id="rotate-minus" aria-label="Diminuer la rotation">-</button>
-            <output id="rotate-value" for="rotate-minus rotate-plus">0</output>
+            <input type="number" id="rotate-value" step="1" value="0">
             <button type="button" id="rotate-plus" aria-label="Augmenter la rotation">+</button>
           </div>
         </div>
@@ -91,6 +91,7 @@
       <div id="timeline-slider-container">
         <label for="timeline-slider" class="sr-only">Timeline</label>
         <input type="range" id="timeline-slider" min="0" max="0" step="1" value="0">
+        <output id="frameInfo" for="timeline-slider" aria-live="polite">1 / 1</output>
       </div>
       <div id="timeline-actions">
         <div class="control-group fps-control">
@@ -99,7 +100,6 @@
         </div>
         <button type="button" id="addFrame" title="Ajouter une image" aria-label="Ajouter une image">➕</button>
         <button type="button" id="delFrame" title="Supprimer l'image" aria-label="Supprimer l'image">🗑️</button>
-        <span id="frameInfo" aria-live="polite">1 / 1</span>
       </div>
       <div id="app-actions">
         <button type="button" id="inspector-toggle-btn" title="Afficher/Masquer l'inspecteur" aria-label="Afficher/Masquer l'inspecteur">↔️</button>

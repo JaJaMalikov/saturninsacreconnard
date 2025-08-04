@@ -164,6 +164,10 @@ export class Timeline {
     this._rafId = requestAnimationFrame(step);
   }
 
+  loop(callback, fps = 8, options = {}) {
+    return this.play(callback, null, fps, { ...options, loop: true });
+  }
+
   stop() {
     this.playing = false;
     cancelAnimationFrame(this._rafId);

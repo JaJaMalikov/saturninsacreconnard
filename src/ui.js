@@ -62,6 +62,10 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
   function refreshObjectList() {
     const frame = timeline.getCurrentFrame();
     objectList.innerHTML = '';
+    const pantinOpt = document.createElement('option');
+    pantinOpt.value = '';
+    pantinOpt.textContent = 'Pantin';
+    objectList.appendChild(pantinOpt);
     Object.keys(frame.objects).forEach(id => {
       const opt = document.createElement('option');
       opt.value = id;
@@ -86,13 +90,13 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
 
     if (selection === 'pantin') {
       const frame = timeline.getCurrentFrame();
-      scaleValueEl.textContent = frame.transform.scale.toFixed(2);
-      rotateValueEl.textContent = Math.round(frame.transform.rotate);
+      scaleValueEl.value = frame.transform.scale.toFixed(2);
+      rotateValueEl.value = Math.round(frame.transform.rotate);
     } else {
       const obj = timeline.getObject(selection);
       if (obj) {
-        scaleValueEl.textContent = obj.scale.toFixed(2);
-        rotateValueEl.textContent = Math.round(obj.rotate);
+        scaleValueEl.value = obj.scale.toFixed(2);
+        rotateValueEl.value = Math.round(obj.rotate);
         objectLayerSelect.value = obj.layer;
         objectAttachSelect.value = obj.attachedTo || '';
       }
@@ -122,6 +126,8 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     onSave();
   });
 
+  let savedOnionSkinState = true;
+
   playBtn.addEventListener('click', () => {
     debugLog('Play button clicked.');
     if (timeline.playing) return;
@@ -129,20 +135,14 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     playBtn.textContent = '⏸️';
     const fps = parseInt(fpsInput.value, 10) || 10;
 
-    let originalOnionSkinState = onionSkinToggle.checked;
-    updateOnionSkinSettings({ enabled: false }); // Disable onion skin during playback
-    onFrameChange(); // Refresh to hide onion skins immediately
+    savedOnionSkinState = onionSkinToggle.checked;
+    updateOnionSkinSettings({ enabled: false });
+    onFrameChange();
 
-    timeline.play(
-      (frame, index) => { timeline.setCurrentFrame(index); updateUI(); },
-      () => {
-        playBtn.textContent = '▶️';
-        updateOnionSkinSettings({ enabled: originalOnionSkinState }); // Restore original state
-        onFrameChange(); // Refresh to show onion skins if they were enabled
-        onSave();
-      },
-      fps
-    );
+    timeline.loop((frame, index) => {
+      timeline.setCurrentFrame(index);
+      updateUI();
+    }, fps);
   });
 
   stopBtn.addEventListener('click', () => {
@@ -150,6 +150,8 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     timeline.stop();
     timeline.setCurrentFrame(0);
     playBtn.textContent = '▶️';
+    updateOnionSkinSettings({ enabled: savedOnionSkinState });
+    onFrameChange();
     updateUI();
     onSave();
   });
@@ -273,29 +275,44 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     rotate: { plus: 'rotate-plus', minus: 'rotate-minus', value: 'rotate-value', step: 1 },
   };
 
-  for (const [key, ids] of Object.entries(controls)) {
-    document.getElementById(ids.plus).addEventListener('click', () => {
-      debugLog(`${key} plus button clicked.`);
-      updateTransform(key, ids.step);
-    });
-    document.getElementById(ids.minus).addEventListener('click', () => {
-      debugLog(`${key} minus button clicked.`);
-      updateTransform(key, -ids.step);
-    });
+  function setTransform(key, value) {
+    if (selection === 'pantin') {
+      timeline.updateTransform({ [key]: value });
+    } else {
+      const obj = timeline.getObject(selection);
+      if (!obj) return;
+      timeline.updateObject(selection, { [key]: value });
+    }
+    updateUI();
+    onSave();
   }
 
   function updateTransform(key, delta) {
     debugLog(`updateTransform for ${key} by ${delta}.`);
-    if (selection === 'pantin') {
-      const current = timeline.getCurrentFrame().transform[key];
-      timeline.updateTransform({ [key]: current + delta });
-    } else {
-      const obj = timeline.getObject(selection);
-      if (!obj) return;
-      timeline.updateObject(selection, { [key]: obj[key] + delta });
-    }
-    updateUI();
-    onSave();
+    const current = selection === 'pantin'
+      ? timeline.getCurrentFrame().transform[key]
+      : timeline.getObject(selection)?.[key];
+    if (typeof current !== 'number') return;
+    setTransform(key, current + delta);
+  }
+
+  for (const [key, ids] of Object.entries(controls)) {
+    const plusEl = document.getElementById(ids.plus);
+    const minusEl = document.getElementById(ids.minus);
+    const valueEl = document.getElementById(ids.value);
+    plusEl.addEventListener('click', () => {
+      debugLog(`${key} plus button clicked.`);
+      updateTransform(key, ids.step);
+    });
+    minusEl.addEventListener('click', () => {
+      debugLog(`${key} minus button clicked.`);
+      updateTransform(key, -ids.step);
+    });
+    valueEl.addEventListener('change', () => {
+      const val = parseFloat(valueEl.value);
+      if (isNaN(val)) return;
+      setTransform(key, val);
+    });
   }
 
   // --- Contrôles Onion Skin ---
@@ -314,6 +331,11 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
   onionSkinToggle.addEventListener('change', updateOnionSkin);
   pastFramesInput.addEventListener('change', updateOnionSkin);
   futureFramesInput.addEventListener('change', updateOnionSkin);
+
+  pastFramesInput.parentElement.style.display = 'none';
+  futureFramesInput.parentElement.style.display = 'none';
+  onionSkinToggle.checked = true;
+  updateOnionSkin();
 
   // Premier affichage
   updateUI();
