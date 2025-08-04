@@ -41,7 +41,7 @@ Puis ouvre `http://localhost:8000` et que le spectacle commence ! 🎭
 
 ## 📄 Licence
 
-[The Unlicense](https://unlicense.org/) — libre de droit, libre d’usage, LIBRE
+[The Unlicense](https://unlicense.org/) — libre de droit, libre d’usage, libre de ce que tu veux.
 
 ---
 
