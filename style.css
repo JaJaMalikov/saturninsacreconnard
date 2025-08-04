@@ -194,3 +194,27 @@ button:hover, .button:hover {
   /* Example color for future frames */
   filter: hue-rotate(90deg) saturate(1.5); /* Greenish tint */
 }
+
+#object-panel .control-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#object-panel .control-group label {
+  flex: 0 0 80px;
+  margin-bottom: 0;
+}
+
+#object-panel .control-group select {
+  flex: 1;
+}
+
+#object-panel #add-object-btn {
+  flex: 0 0 auto;
+}
+
+#object-panel #delete-object-btn {
+  width: 100%;
+  margin-top: 8px;
+}

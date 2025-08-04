@@ -3,6 +3,7 @@ import { loadSVG } from './svgLoader.js';
 import { Timeline } from './timeline.js';
 import { setupInteractions, setupPantinGlobalInteractions } from './interactions.js';
 import { initUI } from './ui.js';
+import { initObjectManager } from './objects.js';
 import { debugLog } from './debug.js';
 import CONFIG from './config.js';
 
@@ -15,9 +16,17 @@ async function main() {
     debugLog("SVG loaded, Timeline instantiated.");
     const timeline = new Timeline(memberList);
 
-    // Cache frequently accessed DOM elements
-    const scaleValueEl = document.getElementById('scale-value');
-    const rotateValueEl = document.getElementById('rotate-value');
+    // Chargement de la librairie d'objets disponibles
+    let objectLibrary = [];
+    try {
+      const res = await fetch('assets/objets/index.json');
+      objectLibrary = await res.json();
+    } catch (e) {
+      console.warn('Impossible de charger la liste des objets', e);
+    }
+
+    let objectManager;
+    let ui;
 
     // Cache elements for transformations
     const pantinRootGroup = svgElement.querySelector(`#${PANTIN_ROOT_ID}`);
@@ -75,12 +84,14 @@ async function main() {
       // Apply to main pantin
       applyFrameToPantinElement(frame, pantinRootGroup);
 
-      // Update inspector values
-      scaleValueEl.textContent = frame.transform.scale.toFixed(2);
-      rotateValueEl.textContent = Math.round(frame.transform.rotate);
+      // Mettre à jour les valeurs de l'inspecteur selon la sélection
+      ui && ui.updateSelectionValues();
 
       // Render onion skins
       renderOnionSkins(timeline, applyFrameToPantinElement);
+
+      // Rafraîchir les objets
+      objectManager && objectManager.refreshAll();
     };
 
     debugLog("Initializing Onion Skin...");
@@ -94,10 +105,15 @@ async function main() {
     debugLog("Setting up member interactions...");
     const teardownMembers = setupInteractions(svgElement, memberList, pivots, timeline, onFrameChange, onSave);
     debugLog("Setting up global pantin interactions...");
-    const teardownGlobal = setupPantinGlobalInteractions(svgElement, interactionOptions, timeline, onFrameChange, onSave);
+    const teardownGlobal = setupPantinGlobalInteractions(svgElement, interactionOptions, timeline, onFrameChange, onSave, () => ui.setSelection('pantin', null, 'Pantin'));
 
     debugLog("Initializing UI...");
-    initUI(timeline, onFrameChange, onSave);
+    ui = initUI(timeline, onFrameChange, onSave, memberList, objectLibrary);
+
+    debugLog("Initializing Object Manager...");
+    objectManager = initObjectManager(svgElement, pantinRootGroup, timeline, ui, memberList, onFrameChange, onSave);
+    ui.registerObjectManager(objectManager);
+    ui.setSelection('pantin', null, 'Pantin');
 
     window.addEventListener('beforeunload', () => {
       teardownMembers();

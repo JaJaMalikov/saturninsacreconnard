@@ -4,13 +4,15 @@
  * Gestion de la timeline d'animation (frames)
  * Une frame = {
  *   transform: { tx, ty, scale, rotate },
- *   members: { segmentId: { rotate: angleDeg }, ... }
+ *   members: { segmentId: { rotate: angleDeg }, ... },
+ *   objects: { objectId: { tx, ty, scale, rotate } }
  * }
  */
 
 export class Timeline {
-  constructor(memberList, initialFrame = null) {
+  constructor(memberList, initialFrame = null, objectDefs = {}) {
     this.memberList = memberList;
+    this.objectDefs = objectDefs; // { id: { src, attachedTo, layer } }
     this.frames = [initialFrame || this.createEmptyFrame()];
     this.current = 0;
     this.playing = false;
@@ -20,9 +22,14 @@ export class Timeline {
   createEmptyFrame() {
     const members = {};
     this.memberList.forEach(id => (members[id] = { rotate: 0 }));
+    const objects = {};
+    Object.keys(this.objectDefs).forEach(id => {
+      objects[id] = { tx: 0, ty: 0, scale: 1, rotate: 0 };
+    });
     return {
       transform: { tx: 0, ty: 0, scale: 1, rotate: 0 },
       members,
+      objects,
     };
   }
 
@@ -45,6 +52,30 @@ export class Timeline {
   updateTransform(values) {
     const frame = this.getCurrentFrame();
     frame.transform = { ...frame.transform, ...values };
+  }
+
+  updateObjectTransform(id, values) {
+    const frame = this.getCurrentFrame();
+    if (!frame.objects[id]) return;
+    frame.objects[id] = { ...frame.objects[id], ...values };
+  }
+
+  getObjectTransform(id) {
+    const frame = this.getCurrentFrame();
+    return frame.objects[id];
+  }
+
+  addObject(id, def) {
+    if (this.objectDefs[id]) return;
+    this.objectDefs[id] = def;
+    this.frames.forEach(f => {
+      f.objects[id] = { tx: 0, ty: 0, scale: 1, rotate: 0 };
+    });
+  }
+
+  removeObject(id) {
+    delete this.objectDefs[id];
+    this.frames.forEach(f => delete f.objects[id]);
   }
 
   addFrame(duplicate = true) {
@@ -118,21 +149,31 @@ export class Timeline {
   }
 
   exportJSON() {
-    return JSON.stringify(this.frames, null, 2);
+    return JSON.stringify({ objectDefs: this.objectDefs, frames: this.frames }, null, 2);
   }
 
   importJSON(json) {
     try {
-      const arr = JSON.parse(json);
-      if (!Array.isArray(arr)) throw new Error('Invalid format');
-
-      // Rétro-compatibilité : convertir l'ancien format
-      const migratedFrames = arr.map(f => {
-        if (f.members && f.transform) return f; // Déjà au bon format
-        return this._migrateOldFrame(f);
-      });
-
-      this.frames = migratedFrames;
+      const data = JSON.parse(json);
+      if (Array.isArray(data)) {
+        // Ancien format: juste un tableau de frames
+        const migratedFrames = data.map(f => {
+          if (f.members && f.transform) return f;
+          return this._migrateOldFrame(f);
+        });
+        this.objectDefs = {};
+        this.frames = migratedFrames.map(f => ({ ...f, objects: {} }));
+      } else {
+        this.objectDefs = data.objectDefs || {};
+        this.frames = (data.frames || []).map(f => {
+          if (!f.objects) f.objects = {};
+          // Ensure all defined objects exist in frame
+          Object.keys(this.objectDefs).forEach(id => {
+            if (!f.objects[id]) f.objects[id] = { tx: 0, ty: 0, scale: 1, rotate: 0 };
+          });
+          return f;
+        });
+      }
       this.current = 0;
     } catch (e) {
       throw new Error('Échec import : ' + e);

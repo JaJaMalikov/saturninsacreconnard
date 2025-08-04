@@ -9,7 +9,7 @@ const pantinState = {
 };
 
 /** Setup global interactions: drag on torse, scale & rotate sliders. */
-export function setupPantinGlobalInteractions(svgElement, options, timeline, onUpdate, onEnd) {
+export function setupPantinGlobalInteractions(svgElement, options, timeline, onUpdate, onEnd, onSelect = () => {}) {
   debugLog("setupPantinGlobalInteractions called.");
   const { rootGroupId, grabId } = options;
   pantinState.svgElement = svgElement;
@@ -57,6 +57,7 @@ export function setupPantinGlobalInteractions(svgElement, options, timeline, onU
     grabEl.setPointerCapture(e.pointerId);
     svgElement.addEventListener('pointermove', onMove);
     e.preventDefault();
+    onSelect();
   };
 
   grabEl.addEventListener('pointerdown', onPointerDown);

@@ -1,0 +1,5 @@
+[
+  { "id": "carre", "src": "assets/objets/carre.svg" },
+  { "id": "faucille", "src": "assets/objets/faucille.svg" },
+  { "id": "marteau", "src": "assets/objets/marteau.svg" }
+]

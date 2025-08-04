@@ -49,6 +49,28 @@
           <input type="number" id="future-frames" value="1" min="0" max="10">
         </div>
       </div>
+      <div id="object-panel" role="region" aria-label="Objets">
+        <h3>Objets</h3>
+        <div class="control-group">
+          <label for="new-object-select">Ajouter</label>
+          <select id="new-object-select"></select>
+          <button type="button" id="add-object-btn" aria-label="Ajouter un objet">➕</button>
+        </div>
+        <div class="control-group">
+          <label for="object-layer">Calque</label>
+          <select id="object-layer">
+            <option value="front">Devant</option>
+            <option value="back">Derrière</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="object-attach">Coller au membre</label>
+          <select id="object-attach">
+            <option value="">Aucun</option>
+          </select>
+        </div>
+        <button type="button" id="delete-object-btn">Supprimer l'objet</button>
+      </div>
     </aside>
     <main id="theatre" role="main"></main>
     <footer id="timeline-panel" role="contentinfo">
