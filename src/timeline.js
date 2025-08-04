@@ -23,6 +23,7 @@ export class Timeline {
     return {
       transform: { tx: 0, ty: 0, scale: 1, rotate: 0 },
       members,
+      objects: {}
     };
   }
 
@@ -45,6 +46,27 @@ export class Timeline {
   updateTransform(values) {
     const frame = this.getCurrentFrame();
     frame.transform = { ...frame.transform, ...values };
+  }
+
+  // --- Gestion des objets ---
+  addObject(id, data) {
+    this.frames.forEach(f => {
+      if (!f.objects) f.objects = {};
+      f.objects[id] = { ...data };
+    });
+  }
+
+  updateObject(id, values) {
+    const frame = this.getCurrentFrame();
+    if (!frame.objects) frame.objects = {};
+    if (!frame.objects[id]) return;
+    frame.objects[id] = { ...frame.objects[id], ...values };
+  }
+
+  deleteObject(id) {
+    this.frames.forEach(f => {
+      if (f.objects && f.objects[id]) delete f.objects[id];
+    });
   }
 
   addFrame(duplicate = true) {
@@ -147,6 +169,7 @@ export class Timeline {
       }
     });
     // Les transformations globales seront celles par défaut
+    newFrame.objects = oldFrame.objects || {};
     return newFrame;
   }
 }

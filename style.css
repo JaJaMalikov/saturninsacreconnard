@@ -110,6 +110,11 @@ body, html {
   padding: 0 10px;
 }
 
+#object-controls .value-stepper select {
+  flex: 1;
+  margin-right: 8px;
+}
+
 #timeline-panel {
   grid-area: timeline;
   display: flex;

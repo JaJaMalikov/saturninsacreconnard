@@ -7,7 +7,7 @@ import { debugLog } from './debug.js';
  * @param {Function} onFrameChange - Callback pour rafraîchir le SVG.
  * @param {Function} onSave - Callback pour sauvegarder l'état.
  */
-export function initUI(timeline, onFrameChange, onSave) {
+export function initUI(timeline, onFrameChange, onSave, onUpdateTransform) {
   debugLog("initUI called.");
   const frameInfo = document.getElementById('frameInfo');
   const timelineSlider = document.getElementById('timeline-slider');
@@ -190,15 +190,9 @@ export function initUI(timeline, onFrameChange, onSave) {
 
   function updateTransform(key, delta) {
     debugLog(`updateTransform for ${key} by ${delta}.`);
-    const currentFrame = timeline.getCurrentFrame();
-    const currentValue = currentFrame.transform[key];
-    let newValue = currentValue + delta;
-    if (key === 'scale') {
-      newValue = Math.min(Math.max(newValue, 0.1), 10);
-    } else if (key === 'rotate') {
-      newValue = ((newValue % 360) + 360) % 360;
+    if (typeof onUpdateTransform === 'function') {
+      onUpdateTransform(key, delta);
     }
-    timeline.updateTransform({ [key]: newValue });
     updateUI();
     onSave();
   }
