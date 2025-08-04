@@ -1,0 +1,3703 @@
+[
+  {
+    "transform": {
+      "tx": 0.0,
+      "ty": 10.0,
+      "scale": 0.9,
+      "rotate": 0.0
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 0.0
+      },
+      "avant_bras_gauche": {
+        "rotate": -0.0
+      },
+      "tibia_droite": {
+        "rotate": 0.0
+      },
+      "tibia_gauche": {
+        "rotate": -0.0
+      },
+      "bras_droite": {
+        "rotate": 0.0
+      },
+      "bras_gauche": {
+        "rotate": -0.0
+      },
+      "jambe_droite": {
+        "rotate": 0.0
+      },
+      "jambe_gauche": {
+        "rotate": -0.0
+      },
+      "tete": {
+        "rotate": 0.0
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 4.991671,
+      "ty": 9.987503,
+      "scale": 0.9,
+      "rotate": 0.449933
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 53.193637
+      },
+      "avant_bras_gauche": {
+        "rotate": -53.193637
+      },
+      "tibia_droite": {
+        "rotate": 5.96008
+      },
+      "tibia_gauche": {
+        "rotate": -5.96008
+      },
+      "bras_droite": {
+        "rotate": 5.977525
+      },
+      "bras_gauche": {
+        "rotate": -5.977525
+      },
+      "jambe_droite": {
+        "rotate": 2.394244
+      },
+      "jambe_gauche": {
+        "rotate": -2.394244
+      },
+      "tete": {
+        "rotate": 2.47404
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 9.933467,
+      "ty": 9.950042,
+      "scale": 0.9,
+      "rotate": 0.89946
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 101.635645
+      },
+      "avant_bras_gauche": {
+        "rotate": -101.635645
+      },
+      "tibia_droite": {
+        "rotate": 11.68255
+      },
+      "tibia_gauche": {
+        "rotate": -11.68255
+      },
+      "bras_droite": {
+        "rotate": 11.820808
+      },
+      "bras_gauche": {
+        "rotate": -11.820808
+      },
+      "jambe_droite": {
+        "rotate": 4.754053
+      },
+      "jambe_gauche": {
+        "rotate": -4.754053
+      },
+      "tete": {
+        "rotate": 4.794255
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 14.77601,
+      "ty": 9.887711,
+      "scale": 0.9,
+      "rotate": 1.348178
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 140.998844
+      },
+      "avant_bras_gauche": {
+        "rotate": -140.998844
+      },
+      "tibia_droite": {
+        "rotate": 16.939274
+      },
+      "tibia_gauche": {
+        "rotate": -16.939274
+      },
+      "bras_droite": {
+        "rotate": 17.398621
+      },
+      "bras_gauche": {
+        "rotate": -17.398621
+      },
+      "jambe_droite": {
+        "rotate": 7.045485
+      },
+      "jambe_gauche": {
+        "rotate": -7.045485
+      },
+      "tete": {
+        "rotate": 6.816388
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 19.470917,
+      "ty": 9.800666,
+      "scale": 0.9,
+      "rotate": 1.795683
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 167.767035
+      },
+      "avant_bras_gauche": {
+        "rotate": -167.767035
+      },
+      "tibia_droite": {
+        "rotate": 21.520683
+      },
+      "tibia_gauche": {
+        "rotate": -21.520683
+      },
+      "bras_droite": {
+        "rotate": 22.585699
+      },
+      "bras_gauche": {
+        "rotate": -22.585699
+      },
+      "jambe_droite": {
+        "rotate": 9.235584
+      },
+      "jambe_gauche": {
+        "rotate": -9.235584
+      },
+      "tete": {
+        "rotate": 8.41471
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 23.971277,
+      "ty": 9.689124,
+      "scale": 0.9,
+      "rotate": 2.241572
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 179.549098
+      },
+      "avant_bras_gauche": {
+        "rotate": -179.549098
+      },
+      "tibia_droite": {
+        "rotate": 25.24413
+      },
+      "tibia_gauche": {
+        "rotate": -25.24413
+      },
+      "bras_droite": {
+        "rotate": 27.26555
+      },
+      "bras_gauche": {
+        "rotate": -27.26555
+      },
+      "jambe_droite": {
+        "rotate": 11.292849
+      },
+      "jambe_gauche": {
+        "rotate": -11.292849
+      },
+      "tete": {
+        "rotate": 9.489846
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 28.232124,
+      "ty": 9.553365,
+      "scale": 0.9,
+      "rotate": 2.685444
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 175.292574
+      },
+      "avant_bras_gauche": {
+        "rotate": -175.292574
+      },
+      "tibia_droite": {
+        "rotate": 27.961173
+      },
+      "tibia_gauche": {
+        "rotate": -27.961173
+      },
+      "bras_droite": {
+        "rotate": 31.333076
+      },
+      "bras_gauche": {
+        "rotate": -31.333076
+      },
+      "jambe_droite": {
+        "rotate": 13.187693
+      },
+      "jambe_gauche": {
+        "rotate": -13.187693
+      },
+      "tete": {
+        "rotate": 9.97495
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 32.210884,
+      "ty": 9.393727,
+      "scale": 0.9,
+      "rotate": 3.126898
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 155.377686
+      },
+      "avant_bras_gauche": {
+        "rotate": -155.377686
+      },
+      "tibia_droite": {
+        "rotate": 29.563492
+      },
+      "tibia_gauche": {
+        "rotate": -29.563492
+      },
+      "bras_droite": {
+        "rotate": 34.696929
+      },
+      "bras_gauche": {
+        "rotate": -34.696929
+      },
+      "jambe_droite": {
+        "rotate": 14.892862
+      },
+      "jambe_gauche": {
+        "rotate": -14.892862
+      },
+      "tete": {
+        "rotate": 9.839859
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 35.867805,
+      "ty": 9.21061,
+      "scale": 0.9,
+      "rotate": 3.565539
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 121.583372
+      },
+      "avant_bras_gauche": {
+        "rotate": -121.583372
+      },
+      "tibia_droite": {
+        "rotate": 29.987208
+      },
+      "tibia_gauche": {
+        "rotate": -29.987208
+      },
+      "bras_droite": {
+        "rotate": 37.281563
+      },
+      "bras_gauche": {
+        "rotate": -37.281563
+      },
+      "jambe_droite": {
+        "rotate": 16.383831
+      },
+      "jambe_gauche": {
+        "rotate": -16.383831
+      },
+      "tete": {
+        "rotate": 9.092974
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 39.166345,
+      "ty": 9.004471,
+      "scale": 0.9,
+      "rotate": 4.000972
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 76.928378
+      },
+      "avant_bras_gauche": {
+        "rotate": -76.928378
+      },
+      "tibia_droite": {
+        "rotate": 29.215429
+      },
+      "tibia_gauche": {
+        "rotate": -29.215429
+      },
+      "bras_droite": {
+        "rotate": 39.028934
+      },
+      "bras_gauche": {
+        "rotate": -39.028934
+      },
+      "jambe_droite": {
+        "rotate": 17.639156
+      },
+      "jambe_gauche": {
+        "rotate": -17.639156
+      },
+      "tete": {
+        "rotate": 7.780732
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 42.073549,
+      "ty": 8.775826,
+      "scale": 0.9,
+      "rotate": 4.432803
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 25.401601
+      },
+      "avant_bras_gauche": {
+        "rotate": -25.401601
+      },
+      "tibia_droite": {
+        "rotate": 27.278923
+      },
+      "tibia_gauche": {
+        "rotate": -27.278923
+      },
+      "bras_droite": {
+        "rotate": 39.899799
+      },
+      "bras_gauche": {
+        "rotate": -39.899799
+      },
+      "jambe_droite": {
+        "rotate": 18.640782
+      },
+      "jambe_gauche": {
+        "rotate": -18.640782
+      },
+      "tete": {
+        "rotate": 5.984721
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 44.560368,
+      "ty": 8.525245,
+      "scale": 0.9,
+      "rotate": 4.860645
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -28.394225
+      },
+      "avant_bras_gauche": {
+        "rotate": 28.394225
+      },
+      "tibia_droite": {
+        "rotate": 24.254892
+      },
+      "tibia_gauche": {
+        "rotate": -24.254892
+      },
+      "bras_droite": {
+        "rotate": 39.874601
+      },
+      "bras_gauche": {
+        "rotate": -39.874601
+      },
+      "jambe_droite": {
+        "rotate": 19.374302
+      },
+      "jambe_gauche": {
+        "rotate": -19.374302
+      },
+      "tete": {
+        "rotate": 3.81661
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 46.601954,
+      "ty": 8.253356,
+      "scale": 0.9,
+      "rotate": 5.284113
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -79.65368
+      },
+      "avant_bras_gauche": {
+        "rotate": 79.65368
+      },
+      "tibia_droite": {
+        "rotate": 20.263895
+      },
+      "tibia_gauche": {
+        "rotate": -20.263895
+      },
+      "bras_droite": {
+        "rotate": 38.953905
+      },
+      "bras_gauche": {
+        "rotate": -38.953905
+      },
+      "jambe_droite": {
+        "rotate": 19.829167
+      },
+      "jambe_gauche": {
+        "rotate": -19.829167
+      },
+      "tete": {
+        "rotate": 1.4112
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 48.177909,
+      "ty": 7.960838,
+      "scale": 0.9,
+      "rotate": 5.702826
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -123.797909
+      },
+      "avant_bras_gauche": {
+        "rotate": 123.797909
+      },
+      "tibia_droite": {
+        "rotate": 15.465041
+      },
+      "tibia_gauche": {
+        "rotate": -15.465041
+      },
+      "bras_droite": {
+        "rotate": 37.158389
+      },
+      "bras_gauche": {
+        "rotate": -37.158389
+      },
+      "jambe_droite": {
+        "rotate": 19.998834
+      },
+      "jambe_gauche": {
+        "rotate": -19.998834
+      },
+      "tete": {
+        "rotate": -1.081951
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 49.272486,
+      "ty": 7.648422,
+      "scale": 0.9,
+      "rotate": 6.116407
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -156.883639
+      },
+      "avant_bras_gauche": {
+        "rotate": 156.883639
+      },
+      "tibia_droite": {
+        "rotate": 10.049645
+      },
+      "tibia_gauche": {
+        "rotate": -10.049645
+      },
+      "bras_droite": {
+        "rotate": 34.528375
+      },
+      "bras_gauche": {
+        "rotate": -34.528375
+      },
+      "jambe_droite": {
+        "rotate": 19.880864
+      },
+      "jambe_gauche": {
+        "rotate": -19.880864
+      },
+      "tete": {
+        "rotate": -3.507832
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 49.874749,
+      "ty": 7.316889,
+      "scale": 0.9,
+      "rotate": 6.524483
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -175.955421
+      },
+      "avant_bras_gauche": {
+        "rotate": 175.955421
+      },
+      "tibia_droite": {
+        "rotate": 4.2336
+      },
+      "tibia_gauche": {
+        "rotate": -4.2336
+      },
+      "bras_droite": {
+        "rotate": 31.122928
+      },
+      "bras_gauche": {
+        "rotate": -31.122928
+      },
+      "jambe_droite": {
+        "rotate": 19.476953
+      },
+      "jambe_gauche": {
+        "rotate": -19.476953
+      },
+      "tete": {
+        "rotate": -5.715613
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 49.97868,
+      "ty": 6.967067,
+      "scale": 0.9,
+      "rotate": 6.926688
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -179.30963
+      },
+      "avant_bras_gauche": {
+        "rotate": 179.30963
+      },
+      "tibia_droite": {
+        "rotate": -1.751224
+      },
+      "tibia_gauche": {
+        "rotate": 1.751224
+      },
+      "bras_droite": {
+        "rotate": 27.018527
+      },
+      "bras_gauche": {
+        "rotate": -27.018527
+      },
+      "jambe_droite": {
+        "rotate": 18.792909
+      },
+      "jambe_gauche": {
+        "rotate": -18.792909
+      },
+      "tete": {
+        "rotate": -7.568025
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 49.583241,
+      "ty": 6.599831,
+      "scale": 0.9,
+      "rotate": 7.322659
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -166.646643
+      },
+      "avant_bras_gauche": {
+        "rotate": 166.646643
+      },
+      "tibia_droite": {
+        "rotate": -7.666233
+      },
+      "tibia_gauche": {
+        "rotate": 7.666233
+      },
+      "bras_droite": {
+        "rotate": 22.307349
+      },
+      "bras_gauche": {
+        "rotate": -22.307349
+      },
+      "jambe_droite": {
+        "rotate": 17.838573
+      },
+      "jambe_gauche": {
+        "rotate": -17.838573
+      },
+      "tete": {
+        "rotate": -8.949894
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 48.692382,
+      "ty": 6.2161,
+      "scale": 0.9,
+      "rotate": 7.71204
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -139.097608
+      },
+      "avant_bras_gauche": {
+        "rotate": 139.097608
+      },
+      "tibia_droite": {
+        "rotate": -13.275613
+      },
+      "tibia_gauche": {
+        "rotate": 13.275613
+      },
+      "bras_droite": {
+        "rotate": 17.095195
+      },
+      "bras_gauche": {
+        "rotate": -17.095195
+      },
+      "jambe_droite": {
+        "rotate": 16.627669
+      },
+      "jambe_gauche": {
+        "rotate": -16.627669
+      },
+      "tete": {
+        "rotate": -9.775301
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 47.315004,
+      "ty": 5.816831,
+      "scale": 0.9,
+      "rotate": 8.094481
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -99.123398
+      },
+      "avant_bras_gauche": {
+        "rotate": 99.123398
+      },
+      "tibia_droite": {
+        "rotate": -18.355737
+      },
+      "tibia_gauche": {
+        "rotate": 18.355737
+      },
+      "bras_droite": {
+        "rotate": 11.49912
+      },
+      "bras_gauche": {
+        "rotate": -11.49912
+      },
+      "jambe_droite": {
+        "rotate": 15.177614
+      },
+      "jambe_gauche": {
+        "rotate": -15.177614
+      },
+      "tete": {
+        "rotate": -9.992928
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 45.464871,
+      "ty": 5.403023,
+      "scale": 0.9,
+      "rotate": 8.469637
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -50.29479
+      },
+      "avant_bras_gauche": {
+        "rotate": 50.29479
+      },
+      "tibia_droite": {
+        "rotate": -22.704075
+      },
+      "tibia_gauche": {
+        "rotate": 22.704075
+      },
+      "bras_droite": {
+        "rotate": 5.6448
+      },
+      "bras_gauche": {
+        "rotate": -5.6448
+      },
+      "jambe_droite": {
+        "rotate": 13.509264
+      },
+      "jambe_gauche": {
+        "rotate": -13.509264
+      },
+      "tete": {
+        "rotate": -9.589243
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 43.160468,
+      "ty": 4.97571,
+      "scale": 0.9,
+      "rotate": 8.837171
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 3.026502
+      },
+      "avant_bras_gauche": {
+        "rotate": -3.026502
+      },
+      "tibia_droite": {
+        "rotate": -26.147273
+      },
+      "tibia_gauche": {
+        "rotate": 26.147273
+      },
+      "bras_droite": {
+        "rotate": -0.33629
+      },
+      "bras_gauche": {
+        "rotate": 0.33629
+      },
+      "jambe_droite": {
+        "rotate": 11.646613
+      },
+      "jambe_gauche": {
+        "rotate": -11.646613
+      },
+      "tete": {
+        "rotate": -8.589345
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 40.42482,
+      "ty": 4.535961,
+      "scale": 0.9,
+      "rotate": 9.196753
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 56.077445
+      },
+      "avant_bras_gauche": {
+        "rotate": -56.077445
+      },
+      "tibia_droite": {
+        "rotate": -28.548062
+      },
+      "tibia_gauche": {
+        "rotate": 28.548062
+      },
+      "bras_droite": {
+        "rotate": -6.309828
+      },
+      "bras_gauche": {
+        "rotate": 6.309828
+      },
+      "jambe_droite": {
+        "rotate": 9.616452
+      },
+      "jambe_gauche": {
+        "rotate": -9.616452
+      },
+      "tete": {
+        "rotate": -7.055403
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 37.285261,
+      "ty": 4.084874,
+      "scale": 0.9,
+      "rotate": 9.548058
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 104.119158
+      },
+      "avant_bras_gauche": {
+        "rotate": -104.119158
+      },
+      "tibia_droite": {
+        "rotate": -29.81073
+      },
+      "tibia_gauche": {
+        "rotate": 29.81073
+      },
+      "bras_droite": {
+        "rotate": -12.141661
+      },
+      "bras_gauche": {
+        "rotate": 12.141661
+      },
+      "jambe_droite": {
+        "rotate": 7.447981
+      },
+      "jambe_gauche": {
+        "rotate": -7.447981
+      },
+      "tete": {
+        "rotate": -5.082791
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 33.773159,
+      "ty": 3.623578,
+      "scale": 0.9,
+      "rotate": 9.89077
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 142.860215
+      },
+      "avant_bras_gauche": {
+        "rotate": -142.860215
+      },
+      "tibia_droite": {
+        "rotate": -29.884938
+      },
+      "tibia_gauche": {
+        "rotate": 29.884938
+      },
+      "bras_droite": {
+        "rotate": -17.700818
+      },
+      "bras_gauche": {
+        "rotate": 17.700818
+      },
+      "jambe_droite": {
+        "rotate": 5.172387
+      },
+      "jambe_gauche": {
+        "rotate": -5.172387
+      },
+      "tete": {
+        "rotate": -2.794155
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 29.923607,
+      "ty": 3.153224,
+      "scale": 0.9,
+      "rotate": 10.224581
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 168.839996
+      },
+      "avant_bras_gauche": {
+        "rotate": -168.839996
+      },
+      "tibia_droite": {
+        "rotate": -28.767728
+      },
+      "tibia_gauche": {
+        "rotate": 28.767728
+      },
+      "bras_droite": {
+        "rotate": -22.862453
+      },
+      "bras_gauche": {
+        "rotate": 22.862453
+      },
+      "jambe_droite": {
+        "rotate": 2.8224
+      },
+      "jambe_gauche": {
+        "rotate": -2.8224
+      },
+      "tete": {
+        "rotate": -0.331792
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 25.775069,
+      "ty": 2.674988,
+      "scale": 0.9,
+      "rotate": 10.549191
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 179.737802
+      },
+      "avant_bras_gauche": {
+        "rotate": -179.737802
+      },
+      "tibia_droite": {
+        "rotate": -26.50364
+      },
+      "tibia_gauche": {
+        "rotate": 26.50364
+      },
+      "bras_droite": {
+        "rotate": -27.510646
+      },
+      "bras_gauche": {
+        "rotate": 27.510646
+      },
+      "jambe_droite": {
+        "rotate": 0.43182
+      },
+      "jambe_gauche": {
+        "rotate": -0.43182
+      },
+      "tete": {
+        "rotate": 2.1512
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 21.368994,
+      "ty": 2.190067,
+      "scale": 0.9,
+      "rotate": 10.864308
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 174.580166
+      },
+      "avant_bras_gauche": {
+        "rotate": -174.580166
+      },
+      "tibia_droite": {
+        "rotate": -23.182935
+      },
+      "tibia_gauche": {
+        "rotate": 23.182935
+      },
+      "bras_droite": {
+        "rotate": -31.54101
+      },
+      "bras_gauche": {
+        "rotate": 31.54101
+      },
+      "jambe_droite": {
+        "rotate": -1.964972
+      },
+      "jambe_gauche": {
+        "rotate": 1.964972
+      },
+      "tete": {
+        "rotate": 4.500441
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 16.749408,
+      "ty": 1.699671,
+      "scale": 0.9,
+      "rotate": 11.169647
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 153.827803
+      },
+      "avant_bras_gauche": {
+        "rotate": -153.827803
+      },
+      "tibia_droite": {
+        "rotate": -18.937999
+      },
+      "tibia_gauche": {
+        "rotate": 18.937999
+      },
+      "bras_droite": {
+        "rotate": -34.863031
+      },
+      "bras_gauche": {
+        "rotate": 34.863031
+      },
+      "jambe_droite": {
+        "rotate": -4.333502
+      },
+      "jambe_gauche": {
+        "rotate": 4.333502
+      },
+      "tete": {
+        "rotate": 6.569866
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 11.962466,
+      "ty": 1.205028,
+      "scale": 0.9,
+      "rotate": 11.464934
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 119.334461
+      },
+      "avant_bras_gauche": {
+        "rotate": -119.334461
+      },
+      "tibia_droite": {
+        "rotate": -13.938065
+      },
+      "tibia_gauche": {
+        "rotate": 13.938065
+      },
+      "bras_droite": {
+        "rotate": -37.402103
+      },
+      "bras_gauche": {
+        "rotate": 37.402103
+      },
+      "jambe_droite": {
+        "rotate": -6.639704
+      },
+      "jambe_gauche": {
+        "rotate": 6.639704
+      },
+      "tete": {
+        "rotate": 8.230809
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 7.056,
+      "ty": 0.707372,
+      "scale": 0.9,
+      "rotate": 11.749904
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 74.181327
+      },
+      "avant_bras_gauche": {
+        "rotate": -74.181327
+      },
+      "tibia_droite": {
+        "rotate": -8.382465
+      },
+      "tibia_gauche": {
+        "rotate": 8.382465
+      },
+      "bras_droite": {
+        "rotate": -39.101205
+      },
+      "bras_gauche": {
+        "rotate": 39.101205
+      },
+      "jambe_droite": {
+        "rotate": -8.850409
+      },
+      "jambe_gauche": {
+        "rotate": 8.850409
+      },
+      "tete": {
+        "rotate": 9.38
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 2.079033,
+      "ty": 0.207948,
+      "scale": 0.9,
+      "rotate": 12.024299
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 22.401796
+      },
+      "avant_bras_gauche": {
+        "rotate": -22.401796
+      },
+      "tibia_droite": {
+        "rotate": -2.492682
+      },
+      "tibia_gauche": {
+        "rotate": 2.492682
+      },
+      "bras_droite": {
+        "rotate": -39.922178
+      },
+      "bras_gauche": {
+        "rotate": 39.922178
+      },
+      "jambe_droite": {
+        "rotate": -10.933821
+      },
+      "jambe_gauche": {
+        "rotate": 10.933821
+      },
+      "tete": {
+        "rotate": 9.945988
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -2.918707,
+      "ty": -0.291995,
+      "scale": 0.9,
+      "rotate": 12.287874
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -31.378821
+      },
+      "avant_bras_gauche": {
+        "rotate": 31.378821
+      },
+      "tibia_droite": {
+        "rotate": 3.496476
+      },
+      "tibia_gauche": {
+        "rotate": -3.496476
+      },
+      "bras_droite": {
+        "rotate": -39.846584
+      },
+      "bras_gauche": {
+        "rotate": 39.846584
+      },
+      "jambe_droite": {
+        "rotate": -12.859975
+      },
+      "jambe_gauche": {
+        "rotate": 12.859975
+      },
+      "tete": {
+        "rotate": 9.893582
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -7.887285,
+      "ty": -0.791209,
+      "scale": 0.9,
+      "rotate": 12.54039
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -82.356461
+      },
+      "avant_bras_gauche": {
+        "rotate": 82.356461
+      },
+      "tibia_droite": {
+        "rotate": 9.346241
+      },
+      "tibia_gauche": {
+        "rotate": -9.346241
+      },
+      "bras_droite": {
+        "rotate": -38.876123
+      },
+      "bras_gauche": {
+        "rotate": 38.876123
+      },
+      "jambe_droite": {
+        "rotate": -14.601167
+      },
+      "jambe_gauche": {
+        "rotate": 14.601167
+      },
+      "tete": {
+        "rotate": 9.226042
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -12.777055,
+      "ty": -1.288445,
+      "scale": 0.9,
+      "rotate": 12.78162
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -125.977444
+      },
+      "avant_bras_gauche": {
+        "rotate": 125.977444
+      },
+      "tibia_droite": {
+        "rotate": 14.823401
+      },
+      "tibia_gauche": {
+        "rotate": -14.823401
+      },
+      "bras_droite": {
+        "rotate": -37.032587
+      },
+      "bras_gauche": {
+        "rotate": 37.032587
+      },
+      "jambe_droite": {
+        "rotate": -16.132355
+      },
+      "jambe_gauche": {
+        "rotate": 16.132355
+      },
+      "tete": {
+        "rotate": 7.984871
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -17.539161,
+      "ty": -1.782461,
+      "scale": 0.9,
+      "rotate": 13.011348
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -158.345237
+      },
+      "avant_bras_gauche": {
+        "rotate": 158.345237
+      },
+      "tibia_droite": {
+        "rotate": 19.709598
+      },
+      "tibia_gauche": {
+        "rotate": -19.709598
+      },
+      "bras_droite": {
+        "rotate": -34.35738
+      },
+      "bras_gauche": {
+        "rotate": 34.35738
+      },
+      "jambe_droite": {
+        "rotate": -17.431515
+      },
+      "jambe_gauche": {
+        "rotate": 17.431515
+      },
+      "tete": {
+        "rotate": 6.24724
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -22.126022,
+      "ty": -2.272021,
+      "scale": 0.9,
+      "rotate": 13.229367
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -176.568521
+      },
+      "avant_bras_gauche": {
+        "rotate": 176.568521
+      },
+      "tibia_droite": {
+        "rotate": 23.810036
+      },
+      "tibia_gauche": {
+        "rotate": -23.810036
+      },
+      "bras_droite": {
+        "rotate": -30.91058
+      },
+      "bras_gauche": {
+        "rotate": 30.91058
+      },
+      "jambe_droite": {
+        "rotate": -18.479963
+      },
+      "jambe_gauche": {
+        "rotate": 18.479963
+      },
+      "tete": {
+        "rotate": 4.121185
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -26.491807,
+      "ty": -2.755902,
+      "scale": 0.9,
+      "rotate": 13.43548
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -179.019466
+      },
+      "avant_bras_gauche": {
+        "rotate": 179.019466
+      },
+      "tibia_droite": {
+        "rotate": 26.961243
+      },
+      "tibia_gauche": {
+        "rotate": -26.961243
+      },
+      "bras_droite": {
+        "rotate": -26.769594
+      },
+      "bras_gauche": {
+        "rotate": 26.769594
+      },
+      "jambe_droite": {
+        "rotate": -19.262619
+      },
+      "jambe_gauche": {
+        "rotate": 19.262619
+      },
+      "tete": {
+        "rotate": 1.738895
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -30.592895,
+      "ty": -3.232896,
+      "scale": 0.9,
+      "rotate": 13.629502
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -165.479135
+      },
+      "avant_bras_gauche": {
+        "rotate": 165.479135
+      },
+      "tibia_droite": {
+        "rotate": 29.03759
+      },
+      "tibia_gauche": {
+        "rotate": -29.03759
+      },
+      "bras_droite": {
+        "rotate": -22.027422
+      },
+      "bras_gauche": {
+        "rotate": 22.027422
+      },
+      "jambe_droite": {
+        "rotate": -19.768225
+      },
+      "jambe_gauche": {
+        "rotate": 19.768225
+      },
+      "tete": {
+        "rotate": -0.751511
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -34.388308,
+      "ty": -3.701808,
+      "scale": 0.9,
+      "rotate": 13.811259
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -137.157045
+      },
+      "avant_bras_gauche": {
+        "rotate": 137.157045
+      },
+      "tibia_droite": {
+        "rotate": 29.9563
+      },
+      "tibia_gauche": {
+        "rotate": -29.9563
+      },
+      "bras_droite": {
+        "rotate": -16.790561
+      },
+      "bras_gauche": {
+        "rotate": 16.790561
+      },
+      "jambe_droite": {
+        "rotate": -19.98951
+      },
+      "jambe_gauche": {
+        "rotate": 19.98951
+      },
+      "tete": {
+        "rotate": -3.195192
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -37.840125,
+      "ty": -4.161468,
+      "scale": 0.9,
+      "rotate": 13.980586
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -96.583125
+      },
+      "avant_bras_gauche": {
+        "rotate": 96.583125
+      },
+      "tibia_droite": {
+        "rotate": 29.680747
+      },
+      "tibia_gauche": {
+        "rotate": -29.680747
+      },
+      "bras_droite": {
+        "rotate": -11.17662
+      },
+      "bras_gauche": {
+        "rotate": 11.17662
+      },
+      "jambe_droite": {
+        "rotate": -19.923292
+      },
+      "jambe_gauche": {
+        "rotate": 19.923292
+      },
+      "tete": {
+        "rotate": -5.440211
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -40.913856,
+      "ty": -4.610727,
+      "scale": 0.9,
+      "rotate": 14.137332
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -47.381722
+      },
+      "avant_bras_gauche": {
+        "rotate": 47.381722
+      },
+      "tibia_droite": {
+        "rotate": 28.221917
+      },
+      "tibia_gauche": {
+        "rotate": -28.221917
+      },
+      "bras_droite": {
+        "rotate": -5.311676
+      },
+      "bras_gauche": {
+        "rotate": 5.311676
+      },
+      "jambe_droite": {
+        "rotate": -19.570523
+      },
+      "jambe_gauche": {
+        "rotate": 19.570523
+      },
+      "tete": {
+        "rotate": -7.346984
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -43.578789,
+      "ty": -5.048461,
+      "scale": 0.9,
+      "rotate": 14.281355
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 6.052148
+      },
+      "avant_bras_gauche": {
+        "rotate": -6.052148
+      },
+      "tibia_droite": {
+        "rotate": 25.637967
+      },
+      "tibia_gauche": {
+        "rotate": -25.637967
+      },
+      "bras_droite": {
+        "rotate": 0.672556
+      },
+      "bras_gauche": {
+        "rotate": -0.672556
+      },
+      "jambe_droite": {
+        "rotate": -18.936276
+      },
+      "jambe_gauche": {
+        "rotate": 18.936276
+      },
+      "tete": {
+        "rotate": -8.796958
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -45.808297,
+      "ty": -5.473577,
+      "scale": 0.9,
+      "rotate": 14.412526
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 58.945399
+      },
+      "avant_bras_gauche": {
+        "rotate": -58.945399
+      },
+      "tibia_droite": {
+        "rotate": 22.031913
+      },
+      "tibia_gauche": {
+        "rotate": -22.031913
+      },
+      "bras_droite": {
+        "rotate": 6.641684
+      },
+      "bras_gauche": {
+        "rotate": -6.641684
+      },
+      "jambe_droite": {
+        "rotate": -18.029673
+      },
+      "jambe_gauche": {
+        "rotate": 18.029673
+      },
+      "tete": {
+        "rotate": -9.699979
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -47.580104,
+      "ty": -5.885011,
+      "scale": 0.9,
+      "rotate": 14.530727
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 106.573233
+      },
+      "avant_bras_gauche": {
+        "rotate": -106.573233
+      },
+      "tibia_droite": {
+        "rotate": 17.547516
+      },
+      "tibia_gauche": {
+        "rotate": -17.547516
+      },
+      "bras_droite": {
+        "rotate": 12.461655
+      },
+      "bras_gauche": {
+        "rotate": -12.461655
+      },
+      "jambe_droite": {
+        "rotate": -16.863755
+      },
+      "jambe_gauche": {
+        "rotate": 16.863755
+      },
+      "tete": {
+        "rotate": -9.999902
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -48.876506,
+      "ty": -6.281736,
+      "scale": 0.9,
+      "rotate": 14.63585
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 144.681197
+      },
+      "avant_bras_gauche": {
+        "rotate": -144.681197
+      },
+      "tibia_droite": {
+        "rotate": 12.363555
+      },
+      "tibia_gauche": {
+        "rotate": -12.363555
+      },
+      "bras_droite": {
+        "rotate": 18.001763
+      },
+      "bras_gauche": {
+        "rotate": -18.001763
+      },
+      "jambe_droite": {
+        "rotate": -15.45529
+      },
+      "jambe_gauche": {
+        "rotate": 15.45529
+      },
+      "tete": {
+        "rotate": -9.67808
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -49.68455,
+      "ty": -6.66276,
+      "scale": 0.9,
+      "rotate": 14.727803
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 169.86522
+      },
+      "avant_bras_gauche": {
+        "rotate": -169.86522
+      },
+      "tibia_droite": {
+        "rotate": 6.686697
+      },
+      "tibia_gauche": {
+        "rotate": -6.686697
+      },
+      "bras_droite": {
+        "rotate": 23.137591
+      },
+      "bras_gauche": {
+        "rotate": -23.137591
+      },
+      "jambe_droite": {
+        "rotate": -13.824535
+      },
+      "jambe_gauche": {
+        "rotate": 13.824535
+      },
+      "tete": {
+        "rotate": -8.754522
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -49.996163,
+      "ty": -7.027131,
+      "scale": 0.9,
+      "rotate": 14.806502
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 179.87569
+      },
+      "avant_bras_gauche": {
+        "rotate": -179.87569
+      },
+      "tibia_droite": {
+        "rotate": 0.743263
+      },
+      "tibia_gauche": {
+        "rotate": -0.743263
+      },
+      "bras_droite": {
+        "rotate": 27.753798
+      },
+      "bras_gauche": {
+        "rotate": -27.753798
+      },
+      "jambe_droite": {
+        "rotate": -11.994947
+      },
+      "jambe_gauche": {
+        "rotate": 11.994947
+      },
+      "tete": {
+        "rotate": -7.28665
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -49.80823,
+      "ty": -7.373937,
+      "scale": 0.9,
+      "rotate": 14.871875
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 173.8184
+      },
+      "avant_bras_gauche": {
+        "rotate": -173.8184
+      },
+      "tibia_droite": {
+        "rotate": -5.229803
+      },
+      "tibia_gauche": {
+        "rotate": 5.229803
+      },
+      "bras_droite": {
+        "rotate": 31.746715
+      },
+      "bras_gauche": {
+        "rotate": -31.746715
+      },
+      "jambe_droite": {
+        "rotate": -9.992838
+      },
+      "jambe_gauche": {
+        "rotate": 9.992838
+      },
+      "tete": {
+        "rotate": -5.365729
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -49.122631,
+      "ty": -7.702313,
+      "scale": 0.9,
+      "rotate": 14.923865
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 152.23443
+      },
+      "avant_bras_gauche": {
+        "rotate": -152.23443
+      },
+      "tibia_droite": {
+        "rotate": -10.994374
+      },
+      "tibia_gauche": {
+        "rotate": 10.994374
+      },
+      "bras_droite": {
+        "rotate": 35.026669
+      },
+      "bras_gauche": {
+        "rotate": -35.026669
+      },
+      "jambe_droite": {
+        "rotate": -7.847004
+      },
+      "jambe_gauche": {
+        "rotate": 7.847004
+      },
+      "tete": {
+        "rotate": -3.111194
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -47.946214,
+      "ty": -8.011436,
+      "scale": 0.9,
+      "rotate": 14.962425
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 117.051811
+      },
+      "avant_bras_gauche": {
+        "rotate": -117.051811
+      },
+      "tibia_droite": {
+        "rotate": -16.320633
+      },
+      "tibia_gauche": {
+        "rotate": 16.320633
+      },
+      "bras_droite": {
+        "rotate": 37.519999
+      },
+      "bras_gauche": {
+        "rotate": -37.519999
+      },
+      "jambe_droite": {
+        "rotate": -5.58831
+      },
+      "jambe_gauche": {
+        "rotate": 5.58831
+      },
+      "tete": {
+        "rotate": -0.663219
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -46.290734,
+      "ty": -8.300535,
+      "scale": 0.9,
+      "rotate": 14.987519
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 71.413303
+      },
+      "avant_bras_gauche": {
+        "rotate": -71.413303
+      },
+      "tibia_droite": {
+        "rotate": -20.996241
+      },
+      "tibia_gauche": {
+        "rotate": 20.996241
+      },
+      "bras_droite": {
+        "rotate": 39.170711
+      },
+      "bras_gauche": {
+        "rotate": -39.170711
+      },
+      "jambe_droite": {
+        "rotate": -3.24924
+      },
+      "jambe_gauche": {
+        "rotate": 3.24924
+      },
+      "tete": {
+        "rotate": 1.825991
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -44.172733,
+      "ty": -8.568888,
+      "scale": 0.9,
+      "rotate": 14.999126
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 19.395657
+      },
+      "avant_bras_gauche": {
+        "rotate": -19.395657
+      },
+      "tibia_droite": {
+        "rotate": -24.834794
+      },
+      "tibia_gauche": {
+        "rotate": 24.834794
+      },
+      "bras_droite": {
+        "rotate": 39.941734
+      },
+      "bras_gauche": {
+        "rotate": -39.941734
+      },
+      "jambe_droite": {
+        "rotate": -0.863438
+      },
+      "jambe_gauche": {
+        "rotate": 0.863438
+      },
+      "tete": {
+        "rotate": 4.20167
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -41.613372,
+      "ty": -8.815822,
+      "scale": 0.9,
+      "rotate": 14.997234
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -34.354545
+      },
+      "avant_bras_gauche": {
+        "rotate": 34.354545
+      },
+      "tibia_droite": {
+        "rotate": -27.683263
+      },
+      "tibia_gauche": {
+        "rotate": 27.683263
+      },
+      "bras_droite": {
+        "rotate": 39.815751
+      },
+      "bras_gauche": {
+        "rotate": -39.815751
+      },
+      "jambe_droite": {
+        "rotate": 1.534783
+      },
+      "jambe_gauche": {
+        "rotate": -1.534783
+      },
+      "tete": {
+        "rotate": 6.31611
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -38.638224,
+      "ty": -9.040721,
+      "scale": 0.9,
+      "rotate": 14.981846
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -85.035958
+      },
+      "avant_bras_gauche": {
+        "rotate": 85.035958
+      },
+      "tibia_droite": {
+        "rotate": -29.428087
+      },
+      "tibia_gauche": {
+        "rotate": 29.428087
+      },
+      "bras_droite": {
+        "rotate": 38.795592
+      },
+      "bras_gauche": {
+        "rotate": -38.795592
+      },
+      "jambe_droite": {
+        "rotate": 3.91093
+      },
+      "jambe_gauche": {
+        "rotate": -3.91093
+      },
+      "tete": {
+        "rotate": 8.037844
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -35.277016,
+      "ty": -9.243024,
+      "scale": 0.9,
+      "rotate": 14.952975
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -128.121362
+      },
+      "avant_bras_gauche": {
+        "rotate": 128.121362
+      },
+      "tibia_droite": {
+        "rotate": -29.999706
+      },
+      "tibia_gauche": {
+        "rotate": 29.999706
+      },
+      "bras_droite": {
+        "rotate": 36.904168
+      },
+      "bras_gauche": {
+        "rotate": -36.904168
+      },
+      "jambe_droite": {
+        "rotate": 6.230827
+      },
+      "jambe_gauche": {
+        "rotate": -6.230827
+      },
+      "tete": {
+        "rotate": 9.259824
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -31.563332,
+      "ty": -9.422223,
+      "scale": 0.9,
+      "rotate": 14.910648
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -159.762066
+      },
+      "avant_bras_gauche": {
+        "rotate": 159.762066
+      },
+      "tibia_droite": {
+        "rotate": -29.375332
+      },
+      "tibia_gauche": {
+        "rotate": 29.375332
+      },
+      "bras_droite": {
+        "rotate": 34.183956
+      },
+      "bras_gauche": {
+        "rotate": -34.183956
+      },
+      "jambe_droite": {
+        "rotate": 8.461108
+      },
+      "jambe_gauche": {
+        "rotate": -8.461108
+      },
+      "tete": {
+        "rotate": 9.906074
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -27.534277,
+      "ty": -9.577872,
+      "scale": 0.9,
+      "rotate": 14.854902
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -177.131701
+      },
+      "avant_bras_gauche": {
+        "rotate": 177.131701
+      },
+      "tibia_droite": {
+        "rotate": -27.579856
+      },
+      "tibia_gauche": {
+        "rotate": 27.579856
+      },
+      "bras_droite": {
+        "rotate": 30.696046
+      },
+      "bras_gauche": {
+        "rotate": -30.696046
+      },
+      "jambe_droite": {
+        "rotate": 10.569695
+      },
+      "jambe_gauche": {
+        "rotate": -10.569695
+      },
+      "tete": {
+        "rotate": 9.936411
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -23.230109,
+      "ty": -9.709582,
+      "scale": 0.9,
+      "rotate": 14.785788
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -178.678688
+      },
+      "avant_bras_gauche": {
+        "rotate": 178.678688
+      },
+      "tibia_droite": {
+        "rotate": -24.684858
+      },
+      "tibia_gauche": {
+        "rotate": 24.684858
+      },
+      "bras_droite": {
+        "rotate": 26.518769
+      },
+      "bras_gauche": {
+        "rotate": -26.518769
+      },
+      "jambe_droite": {
+        "rotate": 12.526261
+      },
+      "jambe_gauche": {
+        "rotate": -12.526261
+      },
+      "tete": {
+        "rotate": 9.348951
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -18.693833,
+      "ty": -9.817022,
+      "scale": 0.9,
+      "rotate": 14.703367
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -164.264841
+      },
+      "avant_bras_gauche": {
+        "rotate": 164.264841
+      },
+      "tibia_droite": {
+        "rotate": -20.805753
+      },
+      "tibia_gauche": {
+        "rotate": 20.805753
+      },
+      "bras_droite": {
+        "rotate": 21.745938
+      },
+      "bras_gauche": {
+        "rotate": -21.745938
+      },
+      "jambe_droite": {
+        "rotate": 14.302665
+      },
+      "jambe_gauche": {
+        "rotate": -14.302665
+      },
+      "tete": {
+        "rotate": 8.180218
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -13.970775,
+      "ty": -9.899925,
+      "scale": 0.9,
+      "rotate": 14.607714
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -135.177704
+      },
+      "avant_bras_gauche": {
+        "rotate": 135.177704
+      },
+      "tibia_droite": {
+        "rotate": -16.097188
+      },
+      "tibia_gauche": {
+        "rotate": 16.097188
+      },
+      "bras_droite": {
+        "rotate": 16.484739
+      },
+      "bras_gauche": {
+        "rotate": -16.484739
+      },
+      "jambe_droite": {
+        "rotate": 15.873357
+      },
+      "jambe_gauche": {
+        "rotate": -15.873357
+      },
+      "tete": {
+        "rotate": 6.502878
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -9.108125,
+      "ty": -9.958083,
+      "scale": 0.9,
+      "rotate": 14.498916
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -94.015546
+      },
+      "avant_bras_gauche": {
+        "rotate": 94.015546
+      },
+      "tibia_droite": {
+        "rotate": -10.746878
+      },
+      "tibia_gauche": {
+        "rotate": 10.746878
+      },
+      "bras_droite": {
+        "rotate": 10.853329
+      },
+      "bras_gauche": {
+        "rotate": -10.853329
+      },
+      "jambe_droite": {
+        "rotate": 17.215748
+      },
+      "jambe_gauche": {
+        "rotate": -17.215748
+      },
+      "tete": {
+        "rotate": 4.421222
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -4.15447,
+      "ty": -9.991352,
+      "scale": 0.9,
+      "rotate": 14.377069
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -44.455259
+      },
+      "avant_bras_gauche": {
+        "rotate": 44.455259
+      },
+      "tibia_droite": {
+        "rotate": -4.968125
+      },
+      "tibia_gauche": {
+        "rotate": 4.968125
+      },
+      "bras_droite": {
+        "rotate": 4.978177
+      },
+      "bras_gauche": {
+        "rotate": -4.978177
+      },
+      "jambe_droite": {
+        "rotate": 18.310529
+      },
+      "jambe_gauche": {
+        "rotate": -18.310529
+      },
+      "tete": {
+        "rotate": 2.064675
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 0.840695,
+      "ty": -9.999647,
+      "scale": 0.9,
+      "rotate": 14.242284
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 9.076084
+      },
+      "avant_bras_gauche": {
+        "rotate": -9.076084
+      },
+      "tibia_droite": {
+        "rotate": 1.008691
+      },
+      "tibia_gauche": {
+        "rotate": -1.008691
+      },
+      "bras_droite": {
+        "rotate": -1.008775
+      },
+      "bras_gauche": {
+        "rotate": 1.008775
+      },
+      "jambe_droite": {
+        "rotate": 19.141955
+      },
+      "jambe_gauche": {
+        "rotate": -19.141955
+      },
+      "tete": {
+        "rotate": -0.420244
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 5.82746,
+      "ty": -9.982948,
+      "scale": 0.9,
+      "rotate": 14.094682
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 61.796687
+      },
+      "avant_bras_gauche": {
+        "rotate": -61.796687
+      },
+      "tibia_droite": {
+        "rotate": 6.945295
+      },
+      "tibia_gauche": {
+        "rotate": -6.945295
+      },
+      "bras_droite": {
+        "rotate": -6.973071
+      },
+      "bras_gauche": {
+        "rotate": 6.973071
+      },
+      "jambe_droite": {
+        "rotate": 19.698067
+      },
+      "jambe_gauche": {
+        "rotate": -19.698067
+      },
+      "tete": {
+        "rotate": -2.879033
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 10.755999,
+      "ty": -9.941297,
+      "scale": 0.9,
+      "rotate": 13.934396
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 108.997177
+      },
+      "avant_bras_gauche": {
+        "rotate": -108.997177
+      },
+      "tibia_droite": {
+        "rotate": 12.605011
+      },
+      "tibia_gauche": {
+        "rotate": -12.605011
+      },
+      "bras_droite": {
+        "rotate": -12.780768
+      },
+      "bras_gauche": {
+        "rotate": 12.780768
+      },
+      "jambe_droite": {
+        "rotate": 19.970867
+      },
+      "jambe_gauche": {
+        "rotate": -19.970867
+      },
+      "tete": {
+        "rotate": -5.158818
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 15.577068,
+      "ty": -9.874798,
+      "scale": 0.9,
+      "rotate": 13.761569
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 146.461273
+      },
+      "avant_bras_gauche": {
+        "rotate": -146.461273
+      },
+      "tibia_droite": {
+        "rotate": 17.762205
+      },
+      "tibia_gauche": {
+        "rotate": -17.762205
+      },
+      "bras_droite": {
+        "rotate": -18.301436
+      },
+      "bras_gauche": {
+        "rotate": 18.301436
+      },
+      "jambe_droite": {
+        "rotate": 19.956432
+      },
+      "jambe_gauche": {
+        "rotate": -19.956432
+      },
+      "tete": {
+        "rotate": -7.117853
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 20.242496,
+      "ty": -9.783617,
+      "scale": 0.9,
+      "rotate": 13.576358
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 170.84242
+      },
+      "avant_bras_gauche": {
+        "rotate": -170.84242
+      },
+      "tibia_droite": {
+        "rotate": 22.211277
+      },
+      "tibia_gauche": {
+        "rotate": -22.211277
+      },
+      "bras_droite": {
+        "rotate": -23.411093
+      },
+      "bras_gauche": {
+        "rotate": 23.411093
+      },
+      "jambe_droite": {
+        "rotate": 19.654968
+      },
+      "jambe_gauche": {
+        "rotate": -19.654968
+      },
+      "tete": {
+        "rotate": -8.634335
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 24.705668,
+      "ty": -9.667982,
+      "scale": 0.9,
+      "rotate": 13.37893
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 179.962722
+      },
+      "avant_bras_gauche": {
+        "rotate": -179.962722
+      },
+      "tibia_droite": {
+        "rotate": 25.774854
+      },
+      "tibia_gauche": {
+        "rotate": -25.774854
+      },
+      "bras_droite": {
+        "rotate": -27.994988
+      },
+      "bras_gauche": {
+        "rotate": 27.994988
+      },
+      "jambe_droite": {
+        "rotate": 19.070813
+      },
+      "jambe_gauche": {
+        "rotate": -19.070813
+      },
+      "tete": {
+        "rotate": -9.613975
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 28.921988,
+      "ty": -9.528182,
+      "scale": 0.9,
+      "rotate": 13.169461
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 173.00749
+      },
+      "avant_bras_gauche": {
+        "rotate": -173.00749
+      },
+      "tibia_droite": {
+        "rotate": 28.31087
+      },
+      "tibia_gauche": {
+        "rotate": -28.31087
+      },
+      "bras_droite": {
+        "rotate": -31.950175
+      },
+      "bras_gauche": {
+        "rotate": 31.950175
+      },
+      "jambe_droite": {
+        "rotate": 18.212367
+      },
+      "jambe_gauche": {
+        "rotate": -18.212367
+      },
+      "tete": {
+        "rotate": -9.995865
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 32.84933,
+      "ty": -9.364567,
+      "scale": 0.9,
+      "rotate": 12.94814
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 150.598015
+      },
+      "avant_bras_gauche": {
+        "rotate": -150.598015
+      },
+      "tibia_droite": {
+        "rotate": 29.718221
+      },
+      "tibia_gauche": {
+        "rotate": -29.718221
+      },
+      "bras_droite": {
+        "rotate": -35.18783
+      },
+      "bras_gauche": {
+        "rotate": 35.18783
+      },
+      "jambe_droite": {
+        "rotate": 17.091978
+      },
+      "jambe_gauche": {
+        "rotate": -17.091978
+      },
+      "tete": {
+        "rotate": -9.75626
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 36.448452,
+      "ty": -9.177545,
+      "scale": 0.9,
+      "rotate": 12.715168
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 114.736067
+      },
+      "avant_bras_gauche": {
+        "rotate": -114.736067
+      },
+      "tibia_droite": {
+        "rotate": 29.9408
+      },
+      "tibia_gauche": {
+        "rotate": -29.9408
+      },
+      "bras_droite": {
+        "rotate": -37.635243
+      },
+      "bras_gauche": {
+        "rotate": 37.635243
+      },
+      "jambe_droite": {
+        "rotate": 15.72576
+      },
+      "jambe_gauche": {
+        "rotate": -15.72576
+      },
+      "tete": {
+        "rotate": -8.910058
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 39.683393,
+      "ty": -8.967584,
+      "scale": 0.9,
+      "rotate": 12.470752
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 68.625088
+      },
+      "avant_bras_gauche": {
+        "rotate": -68.625088
+      },
+      "tibia_droite": {
+        "rotate": 28.969733
+      },
+      "tibia_gauche": {
+        "rotate": -28.969733
+      },
+      "bras_droite": {
+        "rotate": -39.237449
+      },
+      "bras_gauche": {
+        "rotate": 39.237449
+      },
+      "jambe_droite": {
+        "rotate": 14.133362
+      },
+      "jambe_gauche": {
+        "rotate": -14.133362
+      },
+      "tete": {
+        "rotate": -7.509872
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 42.521831,
+      "ty": -8.735209,
+      "scale": 0.9,
+      "rotate": 12.215113
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 16.384035
+      },
+      "avant_bras_gauche": {
+        "rotate": -16.384035
+      },
+      "tibia_droite": {
+        "rotate": 26.843735
+      },
+      "tibia_gauche": {
+        "rotate": -26.843735
+      },
+      "bras_droite": {
+        "rotate": -39.958467
+      },
+      "bras_gauche": {
+        "rotate": 39.958467
+      },
+      "jambe_droite": {
+        "rotate": 12.337688
+      },
+      "jambe_gauche": {
+        "rotate": -12.337688
+      },
+      "tete": {
+        "rotate": -5.642759
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 44.935405,
+      "ty": -8.481,
+      "scale": 0.9,
+      "rotate": 11.948482
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -37.320556
+      },
+      "avant_bras_gauche": {
+        "rotate": 37.320556
+      },
+      "tibia_droite": {
+        "rotate": 23.647562
+      },
+      "tibia_gauche": {
+        "rotate": -23.647562
+      },
+      "bras_droite": {
+        "rotate": -39.782104
+      },
+      "bras_gauche": {
+        "rotate": 39.782104
+      },
+      "jambe_droite": {
+        "rotate": 10.364564
+      },
+      "jambe_gauche": {
+        "rotate": -10.364564
+      },
+      "tete": {
+        "rotate": -3.424806
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 46.899999,
+      "ty": -8.205594,
+      "scale": 0.9,
+      "rotate": 11.671098
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -87.691412
+      },
+      "avant_bras_gauche": {
+        "rotate": 87.691412
+      },
+      "tibia_droite": {
+        "rotate": 19.508635
+      },
+      "tibia_gauche": {
+        "rotate": -19.508635
+      },
+      "bras_droite": {
+        "rotate": -38.71232
+      },
+      "bras_gauche": {
+        "rotate": 38.71232
+      },
+      "jambe_droite": {
+        "rotate": 8.24237
+      },
+      "jambe_gauche": {
+        "rotate": -8.24237
+      },
+      "tete": {
+        "rotate": -0.993915
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 48.395984,
+      "ty": -7.909677,
+      "scale": 0.9,
+      "rotate": 11.383211
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -130.229056
+      },
+      "avant_bras_gauche": {
+        "rotate": 130.229056
+      },
+      "tibia_droite": {
+        "rotate": 14.591961
+      },
+      "tibia_gauche": {
+        "rotate": -14.591961
+      },
+      "bras_droite": {
+        "rotate": -36.773141
+      },
+      "bras_gauche": {
+        "rotate": 36.773141
+      },
+      "jambe_droite": {
+        "rotate": 6.001628
+      },
+      "jambe_gauche": {
+        "rotate": -6.001628
+      },
+      "tete": {
+        "rotate": 1.498772
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 49.408412,
+      "ty": -7.593991,
+      "scale": 0.9,
+      "rotate": 11.085079
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -161.133726
+      },
+      "avant_bras_gauche": {
+        "rotate": 161.133726
+      },
+      "tibia_droite": {
+        "rotate": 9.093551
+      },
+      "tibia_gauche": {
+        "rotate": -9.093551
+      },
+      "bras_droite": {
+        "rotate": -34.008117
+      },
+      "bras_gauche": {
+        "rotate": 34.008117
+      },
+      "jambe_droite": {
+        "rotate": 3.674566
+      },
+      "jambe_gauche": {
+        "rotate": -3.674566
+      },
+      "tete": {
+        "rotate": 3.898273
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 49.927167,
+      "ty": -7.259323,
+      "scale": 0.9,
+      "rotate": 10.776972
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -177.6448
+      },
+      "avant_bras_gauche": {
+        "rotate": 177.6448
+      },
+      "tibia_droite": {
+        "rotate": 3.23261
+      },
+      "tibia_gauche": {
+        "rotate": -3.23261
+      },
+      "bras_droite": {
+        "rotate": -30.479343
+      },
+      "bras_gauche": {
+        "rotate": 30.479343
+      },
+      "jambe_droite": {
+        "rotate": 1.294653
+      },
+      "jambe_gauche": {
+        "rotate": -1.294653
+      },
+      "tete": {
+        "rotate": 6.055399
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 49.947067,
+      "ty": -6.906511,
+      "scale": 0.9,
+      "rotate": 10.459166
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -178.287394
+      },
+      "avant_bras_gauche": {
+        "rotate": 178.287394
+      },
+      "tibia_droite": {
+        "rotate": -2.757206
+      },
+      "tibia_gauche": {
+        "rotate": 2.757206
+      },
+      "bras_droite": {
+        "rotate": -26.26607
+      },
+      "bras_gauche": {
+        "rotate": 26.26607
+      },
+      "jambe_droite": {
+        "rotate": -1.10388
+      },
+      "jambe_gauche": {
+        "rotate": 1.10388
+      },
+      "tete": {
+        "rotate": 7.836029
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 49.467912,
+      "ty": -6.536436,
+      "scale": 0.9,
+      "rotate": 10.131948
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -163.004105
+      },
+      "avant_bras_gauche": {
+        "rotate": 163.004105
+      },
+      "tibia_droite": {
+        "rotate": -8.637099
+      },
+      "tibia_gauche": {
+        "rotate": 8.637099
+      },
+      "bras_droite": {
+        "rotate": -21.462917
+      },
+      "bras_gauche": {
+        "rotate": 21.462917
+      },
+      "jambe_droite": {
+        "rotate": -3.486536
+      },
+      "jambe_gauche": {
+        "rotate": 3.486536
+      },
+      "tete": {
+        "rotate": 9.129453
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 48.494491,
+      "ty": -6.150024,
+      "scale": 0.9,
+      "rotate": 9.795611
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -133.160145
+      },
+      "avant_bras_gauche": {
+        "rotate": 133.160145
+      },
+      "tibia_droite": {
+        "rotate": -14.17266
+      },
+      "tibia_gauche": {
+        "rotate": 14.17266
+      },
+      "bras_droite": {
+        "rotate": -16.177753
+      },
+      "bras_gauche": {
+        "rotate": 16.177753
+      },
+      "jambe_droite": {
+        "rotate": -5.819046
+      },
+      "jambe_gauche": {
+        "rotate": 5.819046
+      },
+      "tete": {
+        "rotate": 9.855251
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 47.036528,
+      "ty": -5.748239,
+      "scale": 0.9,
+      "rotate": 9.450459
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -91.421386
+      },
+      "avant_bras_gauche": {
+        "rotate": 91.421386
+      },
+      "tibia_droite": {
+        "rotate": -19.1432
+      },
+      "tibia_gauche": {
+        "rotate": 19.1432
+      },
+      "bras_droite": {
+        "rotate": -10.529272
+      },
+      "bras_gauche": {
+        "rotate": 10.529272
+      },
+      "jambe_droite": {
+        "rotate": -8.067862
+      },
+      "jambe_gauche": {
+        "rotate": 8.067862
+      },
+      "tete": {
+        "rotate": 9.968298
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 45.108592,
+      "ty": -5.332088,
+      "scale": 0.9,
+      "rotate": 9.096803
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -41.516227
+      },
+      "avant_bras_gauche": {
+        "rotate": 41.516227
+      },
+      "tibia_droite": {
+        "rotate": -23.350562
+      },
+      "tibia_gauche": {
+        "rotate": 23.350562
+      },
+      "bras_droite": {
+        "rotate": -4.644326
+      },
+      "bras_gauche": {
+        "rotate": 4.644326
+      },
+      "jambe_droite": {
+        "rotate": -10.200641
+      },
+      "jambe_gauche": {
+        "rotate": 10.200641
+      },
+      "tete": {
+        "rotate": 9.461564
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 42.729945,
+      "ty": -4.902608,
+      "scale": 0.9,
+      "rotate": 8.73496
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 12.097453
+      },
+      "avant_bras_gauche": {
+        "rotate": -12.097453
+      },
+      "tibia_droite": {
+        "rotate": -26.627011
+      },
+      "tibia_gauche": {
+        "rotate": 26.627011
+      },
+      "bras_droite": {
+        "rotate": 1.344922
+      },
+      "bras_gauche": {
+        "rotate": -1.344922
+      },
+      "jambe_droite": {
+        "rotate": -12.186706
+      },
+      "jambe_gauche": {
+        "rotate": 12.186706
+      },
+      "tete": {
+        "rotate": 8.366556
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 39.924356,
+      "ty": -4.460875,
+      "scale": 0.9,
+      "rotate": 8.365256
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 64.630504
+      },
+      "avant_bras_gauche": {
+        "rotate": -64.630504
+      },
+      "tibia_droite": {
+        "rotate": -28.841925
+      },
+      "tibia_gauche": {
+        "rotate": 28.841925
+      },
+      "bras_droite": {
+        "rotate": 7.303965
+      },
+      "bras_gauche": {
+        "rotate": -7.303965
+      },
+      "jambe_droite": {
+        "rotate": -13.997494
+      },
+      "jambe_gauche": {
+        "rotate": 13.997494
+      },
+      "tete": {
+        "rotate": 6.751357
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 36.719855,
+      "ty": -4.007992,
+      "scale": 0.9,
+      "rotate": 7.988024
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 111.390304
+      },
+      "avant_bras_gauche": {
+        "rotate": -111.390304
+      },
+      "tibia_droite": {
+        "rotate": -29.907002
+      },
+      "tibia_gauche": {
+        "rotate": 29.907002
+      },
+      "bras_droite": {
+        "rotate": 13.098978
+      },
+      "bras_gauche": {
+        "rotate": -13.098978
+      },
+      "jambe_droite": {
+        "rotate": -15.606959
+      },
+      "jambe_gauche": {
+        "rotate": 15.606959
+      },
+      "tete": {
+        "rotate": 4.71639
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 33.148462,
+      "ty": -3.545091,
+      "scale": 0.9,
+      "rotate": 7.603603
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 148.19994
+      },
+      "avant_bras_gauche": {
+        "rotate": -148.19994
+      },
+      "tibia_droite": {
+        "rotate": -29.779781
+      },
+      "tibia_gauche": {
+        "rotate": 29.779781
+      },
+      "bras_droite": {
+        "rotate": 18.599815
+      },
+      "bras_gauche": {
+        "rotate": -18.599815
+      },
+      "jambe_droite": {
+        "rotate": -16.991954
+      },
+      "jambe_gauche": {
+        "rotate": 16.991954
+      },
+      "tete": {
+        "rotate": 2.388181
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 29.24586,
+      "ty": -3.073329,
+      "scale": 0.9,
+      "rotate": 7.212339
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 171.771317
+      },
+      "avant_bras_gauche": {
+        "rotate": -171.771317
+      },
+      "tibia_droite": {
+        "rotate": -28.465335
+      },
+      "tibia_gauche": {
+        "rotate": 28.465335
+      },
+      "bras_droite": {
+        "rotate": 23.682941
+      },
+      "bras_gauche": {
+        "rotate": -23.682941
+      },
+      "jambe_droite": {
+        "rotate": -18.132558
+      },
+      "jambe_gauche": {
+        "rotate": 18.132558
+      },
+      "tete": {
+        "rotate": -0.088513
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 25.051043,
+      "ty": -2.593885,
+      "scale": 0.9,
+      "rotate": 6.814585
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 179.998874
+      },
+      "avant_bras_gauche": {
+        "rotate": -179.998874
+      },
+      "tibia_droite": {
+        "rotate": -26.016065
+      },
+      "tibia_gauche": {
+        "rotate": 26.016065
+      },
+      "bras_droite": {
+        "rotate": 28.234198
+      },
+      "bras_gauche": {
+        "rotate": -28.234198
+      },
+      "jambe_droite": {
+        "rotate": -19.012366
+      },
+      "jambe_gauche": {
+        "rotate": 19.012366
+      },
+      "tete": {
+        "rotate": -2.559704
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 20.605924,
+      "ty": -2.107958,
+      "scale": 0.9,
+      "rotate": 6.410698
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 172.147667
+      },
+      "avant_bras_gauche": {
+        "rotate": -172.147667
+      },
+      "tibia_droite": {
+        "rotate": -22.529617
+      },
+      "tibia_gauche": {
+        "rotate": 22.529617
+      },
+      "bras_droite": {
+        "rotate": 32.151377
+      },
+      "bras_gauche": {
+        "rotate": -32.151377
+      },
+      "jambe_droite": {
+        "rotate": -19.618725
+      },
+      "jambe_gauche": {
+        "rotate": 19.618725
+      },
+      "tete": {
+        "rotate": -4.871745
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 15.954918,
+      "ty": -1.616762,
+      "scale": 0.9,
+      "rotate": 6.001042
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 148.919022
+      },
+      "avant_bras_gauche": {
+        "rotate": -148.919022
+      },
+      "tibia_droite": {
+        "rotate": -18.144985
+      },
+      "tibia_gauche": {
+        "rotate": 18.144985
+      },
+      "bras_droite": {
+        "rotate": 35.346505
+      },
+      "bras_gauche": {
+        "rotate": -35.346505
+      },
+      "jambe_droite": {
+        "rotate": -19.942912
+      },
+      "jambe_gauche": {
+        "rotate": 19.942912
+      },
+      "tete": {
+        "rotate": -6.880885
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 11.144496,
+      "ty": -1.121525,
+      "scale": 0.9,
+      "rotate": 5.585986
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 112.387884
+      },
+      "avant_bras_gauche": {
+        "rotate": -112.387884
+      },
+      "tibia_droite": {
+        "rotate": -13.036969
+      },
+      "tibia_gauche": {
+        "rotate": 13.036969
+      },
+      "bras_droite": {
+        "rotate": 37.747827
+      },
+      "bras_gauche": {
+        "rotate": -37.747827
+      },
+      "jambe_droite": {
+        "rotate": -19.980267
+      },
+      "jambe_gauche": {
+        "rotate": 19.980267
+      },
+      "tete": {
+        "rotate": -8.462204
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 6.222721,
+      "ty": -0.623485,
+      "scale": 0.9,
+      "rotate": 5.165902
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 65.817472
+      },
+      "avant_bras_gauche": {
+        "rotate": -65.817472
+      },
+      "tibia_droite": {
+        "rotate": -7.40921
+      },
+      "tibia_gauche": {
+        "rotate": 7.40921
+      },
+      "bras_droite": {
+        "rotate": 39.301414
+      },
+      "bras_gauche": {
+        "rotate": -39.301414
+      },
+      "jambe_droite": {
+        "rotate": -19.73025
+      },
+      "jambe_gauche": {
+        "rotate": 19.73025
+      },
+      "tete": {
+        "rotate": -9.517385
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": 1.238771,
+      "ty": -0.123887,
+      "scale": 0.9,
+      "rotate": 4.741169
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": 13.36778
+      },
+      "avant_bras_gauche": {
+        "rotate": -13.36778
+      },
+      "tibia_droite": {
+        "rotate": -1.486069
+      },
+      "tibia_gauche": {
+        "rotate": 1.486069
+      },
+      "bras_droite": {
+        "rotate": 39.972376
+      },
+      "bras_gauche": {
+        "rotate": -39.972376
+      },
+      "jambe_droite": {
+        "rotate": -19.196459
+      },
+      "jambe_gauche": {
+        "rotate": 19.196459
+      },
+      "tete": {
+        "rotate": -9.98082
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -3.757556,
+      "ty": 0.376022,
+      "scale": 0.9,
+      "rotate": 4.31217
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -40.276015
+      },
+      "avant_bras_gauche": {
+        "rotate": 40.276015
+      },
+      "tibia_droite": {
+        "rotate": 4.496316
+      },
+      "tibia_gauche": {
+        "rotate": -4.496316
+      },
+      "bras_droite": {
+        "rotate": 39.745644
+      },
+      "bras_gauche": {
+        "rotate": -39.745644
+      },
+      "jambe_droite": {
+        "rotate": -18.386571
+      },
+      "jambe_gauche": {
+        "rotate": 18.386571
+      },
+      "tete": {
+        "rotate": -9.823697
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -8.716339,
+      "ty": 0.87499,
+      "scale": 0.9,
+      "rotate": 3.87929
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -90.322074
+      },
+      "avant_bras_gauche": {
+        "rotate": 90.322074
+      },
+      "tibia_droite": {
+        "rotate": 10.299448
+      },
+      "tibia_gauche": {
+        "rotate": -10.299448
+      },
+      "bras_droite": {
+        "rotate": 38.626311
+      },
+      "bras_gauche": {
+        "rotate": -38.626311
+      },
+      "jambe_droite": {
+        "rotate": -17.312233
+      },
+      "jambe_gauche": {
+        "rotate": 17.312233
+      },
+      "tete": {
+        "rotate": -9.055784
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -13.588031,
+      "ty": 1.371771,
+      "scale": 0.9,
+      "rotate": 3.442919
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -132.299931
+      },
+      "avant_bras_gauche": {
+        "rotate": 132.299931
+      },
+      "tibia_droite": {
+        "rotate": 15.691973
+      },
+      "tibia_gauche": {
+        "rotate": -15.691973
+      },
+      "bras_droite": {
+        "rotate": 36.639514
+      },
+      "bras_gauche": {
+        "rotate": -36.639514
+      },
+      "jambe_droite": {
+        "rotate": -15.988898
+      },
+      "jambe_gauche": {
+        "rotate": 15.988898
+      },
+      "tete": {
+        "rotate": -7.724826
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -18.323956,
+      "ty": 1.865124,
+      "scale": 0.9,
+      "rotate": 3.00345
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -162.459829
+      },
+      "avant_bras_gauche": {
+        "rotate": 162.459829
+      },
+      "tibia_droite": {
+        "rotate": 20.458909
+      },
+      "tibia_gauche": {
+        "rotate": -20.458909
+      },
+      "bras_droite": {
+        "rotate": 33.829873
+      },
+      "bras_gauche": {
+        "rotate": -33.829873
+      },
+      "jambe_droite": {
+        "rotate": -14.435599
+      },
+      "jambe_gauche": {
+        "rotate": 14.435599
+      },
+      "tete": {
+        "rotate": -5.913575
+      }
+    }
+  },
+  {
+    "transform": {
+      "tx": -22.876795,
+      "ty": 2.353814,
+      "scale": 0.9,
+      "rotate": 2.561277
+    },
+    "members": {
+      "avant_bras_droite": {
+        "rotate": -178.107675
+      },
+      "avant_bras_gauche": {
+        "rotate": 178.107675
+      },
+      "tibia_droite": {
+        "rotate": 24.410212
+      },
+      "tibia_gauche": {
+        "rotate": -24.410212
+      },
+      "bras_droite": {
+        "rotate": 30.260486
+      },
+      "bras_gauche": {
+        "rotate": -30.260486
+      },
+      "jambe_droite": {
+        "rotate": -12.674677
+      },
+      "jambe_gauche": {
+        "rotate": 12.674677
+      },
+      "tete": {
+        "rotate": -3.734648
+      }
+    }
+  }
+]
+
