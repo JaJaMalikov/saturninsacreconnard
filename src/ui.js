@@ -16,6 +16,7 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
   const nextFrameBtn = document.getElementById('nextFrame');
   const playBtn = document.getElementById('playAnim');
   const stopBtn = document.getElementById('stopAnim');
+  const loopToggleBtn = document.getElementById('loopToggle');
   const addFrameBtn = document.getElementById('addFrame');
   const delFrameBtn = document.getElementById('delFrame');
   const exportAnimBtn = document.getElementById('exportAnim');
@@ -127,6 +128,13 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
   });
 
   let savedOnionSkinState = true;
+  let loopEnabled = true;
+
+  loopToggleBtn.addEventListener('click', () => {
+    loopEnabled = !loopEnabled;
+    loopToggleBtn.textContent = loopEnabled ? '🔁' : '➡️';
+    loopToggleBtn.title = loopEnabled ? 'Boucle activée' : 'Boucle désactivée';
+  });
 
   playBtn.addEventListener('click', () => {
     debugLog('Play button clicked.');
@@ -139,10 +147,14 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     updateOnionSkinSettings({ enabled: false });
     onFrameChange();
 
-    timeline.loop((frame, index) => {
+    timeline.play((frame, index) => {
       timeline.setCurrentFrame(index);
       updateUI();
-    }, fps);
+    }, () => {
+      playBtn.textContent = '▶️';
+      updateOnionSkinSettings({ enabled: savedOnionSkinState });
+      updateUI();
+    }, fps, { loop: loopEnabled });
   });
 
   stopBtn.addEventListener('click', () => {
@@ -234,6 +246,7 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
       selectedElementName.textContent = id;
     } else {
       selection = 'pantin';
+      objects.selectObject(null);
       selectedElementName.textContent = 'Pantin';
     }
     updateUI(true);
