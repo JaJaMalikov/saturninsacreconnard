@@ -3,6 +3,7 @@ import { loadSVG } from './svgLoader.js';
 import { Timeline } from './timeline.js';
 import { setupInteractions, setupPantinGlobalInteractions } from './interactions.js';
 import { initUI } from './ui.js';
+import { initObjects } from './objects.js';
 import { debugLog } from './debug.js';
 import CONFIG from './config.js';
 
@@ -67,6 +68,8 @@ async function main() {
       }
     }
 
+    let objects;
+
     const onFrameChange = () => {
       debugLog("onFrameChange triggered. Current frame:", timeline.current);
       const frame = timeline.getCurrentFrame();
@@ -81,6 +84,9 @@ async function main() {
 
       // Render onion skins
       renderOnionSkins(timeline, applyFrameToPantinElement);
+
+      // Render scene objects
+      objects && objects.renderObjects();
     };
 
     debugLog("Initializing Onion Skin...");
@@ -91,13 +97,15 @@ async function main() {
       grabId: GRAB_ID,
     };
 
+    objects = initObjects(svgElement, PANTIN_ROOT_ID, timeline, memberList, onFrameChange, onSave);
+
     debugLog("Setting up member interactions...");
     const teardownMembers = setupInteractions(svgElement, memberList, pivots, timeline, onFrameChange, onSave);
     debugLog("Setting up global pantin interactions...");
     const teardownGlobal = setupPantinGlobalInteractions(svgElement, interactionOptions, timeline, onFrameChange, onSave);
 
     debugLog("Initializing UI...");
-    initUI(timeline, onFrameChange, onSave);
+    initUI(timeline, onFrameChange, onSave, objects);
 
     window.addEventListener('beforeunload', () => {
       teardownMembers();

@@ -4,7 +4,8 @@
  * Gestion de la timeline d'animation (frames)
  * Une frame = {
  *   transform: { tx, ty, scale, rotate },
- *   members: { segmentId: { rotate: angleDeg }, ... }
+ *   members: { segmentId: { rotate: angleDeg }, ... },
+ *   objects: { objectId: { x, y, scale, rotate, layer, attachedTo, src } }
  * }
  */
 
@@ -23,6 +24,7 @@ export class Timeline {
     return {
       transform: { tx: 0, ty: 0, scale: 1, rotate: 0 },
       members,
+      objects: {},
     };
   }
 
@@ -45,6 +47,26 @@ export class Timeline {
   updateTransform(values) {
     const frame = this.getCurrentFrame();
     frame.transform = { ...frame.transform, ...values };
+  }
+
+  addObject(id, data) {
+    this.frames.forEach(f => {
+      f.objects[id] = typeof structuredClone === 'function'
+        ? structuredClone(data)
+        : JSON.parse(JSON.stringify(data));
+    });
+  }
+
+  updateObject(id, values) {
+    const frame = this.getCurrentFrame();
+    if (!frame.objects[id]) return;
+    frame.objects[id] = { ...frame.objects[id], ...values };
+  }
+
+  removeObject(id) {
+    this.frames.forEach(f => {
+      delete f.objects[id];
+    });
   }
 
   addFrame(duplicate = true) {
@@ -128,7 +150,13 @@ export class Timeline {
 
       // Rétro-compatibilité : convertir l'ancien format
       const migratedFrames = arr.map(f => {
-        if (f.members && f.transform) return f; // Déjà au bon format
+        if (f.members && f.transform) {
+          return {
+            transform: f.transform,
+            members: f.members,
+            objects: f.objects || {},
+          };
+        }
         return this._migrateOldFrame(f);
       });
 
@@ -147,6 +175,7 @@ export class Timeline {
       }
     });
     // Les transformations globales seront celles par défaut
+    newFrame.objects = {};
     return newFrame;
   }
 }
