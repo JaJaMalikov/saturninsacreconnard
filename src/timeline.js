@@ -16,6 +16,7 @@ export class Timeline {
     this.current = 0;
     this.playing = false;
     this._rafId = null;
+    this.objectStore = {};
   }
 
   createEmptyFrame() {
@@ -46,27 +47,57 @@ export class Timeline {
 
   updateTransform(values) {
     const frame = this.getCurrentFrame();
-    frame.transform = { ...frame.transform, ...values };
+    const updated = { ...frame.transform, ...values };
+    if ('scale' in values) {
+      updated.scale = Math.min(Math.max(updated.scale, 0.1), 10);
+    }
+    if ('rotate' in values) {
+      updated.rotate = ((updated.rotate % 360) + 360) % 360;
+    }
+    frame.transform = updated;
   }
 
   addObject(id, data) {
+    const { src, width, height, ...transform } = data;
+    this.objectStore[id] = { src, width, height };
     this.frames.forEach(f => {
-      f.objects[id] = typeof structuredClone === 'function'
-        ? structuredClone(data)
-        : JSON.parse(JSON.stringify(data));
+      f.objects[id] = { ...transform };
     });
   }
 
   updateObject(id, values) {
     const frame = this.getCurrentFrame();
     if (!frame.objects[id]) return;
-    frame.objects[id] = { ...frame.objects[id], ...values };
+    const constant = {};
+    const transform = { ...frame.objects[id] };
+    ['src', 'width', 'height'].forEach(k => {
+      if (k in values) constant[k] = values[k];
+    });
+    Object.assign(transform, values);
+    if ('scale' in values) {
+      transform.scale = Math.min(Math.max(transform.scale, 0.1), 10);
+    }
+    if ('rotate' in values) {
+      transform.rotate = ((transform.rotate % 360) + 360) % 360;
+    }
+    frame.objects[id] = transform;
+    if (Object.keys(constant).length) {
+      this.objectStore[id] = { ...this.objectStore[id], ...constant };
+    }
   }
 
   removeObject(id) {
+    delete this.objectStore[id];
     this.frames.forEach(f => {
       delete f.objects[id];
     });
+  }
+
+  getObject(id) {
+    const frame = this.getCurrentFrame();
+    const transform = frame.objects[id];
+    if (!transform) return null;
+    return { ...this.objectStore[id], ...transform };
   }
 
   addFrame(duplicate = true) {
@@ -140,13 +171,22 @@ export class Timeline {
   }
 
   exportJSON() {
-    return JSON.stringify(this.frames, null, 2);
+    return JSON.stringify({ frames: this.frames, objects: this.objectStore }, null, 2);
   }
 
   importJSON(json) {
     try {
-      const arr = JSON.parse(json);
-      if (!Array.isArray(arr)) throw new Error('Invalid format');
+      const data = JSON.parse(json);
+      let arr;
+      if (Array.isArray(data)) {
+        arr = data;
+        this.objectStore = {};
+      } else if (data && Array.isArray(data.frames)) {
+        arr = data.frames;
+        this.objectStore = data.objects || {};
+      } else {
+        throw new Error('Invalid format');
+      }
 
       // Rétro-compatibilité : convertir l'ancien format
       const migratedFrames = arr.map(f => {
@@ -158,6 +198,18 @@ export class Timeline {
           };
         }
         return this._migrateOldFrame(f);
+      });
+
+      migratedFrames.forEach(frame => {
+        Object.entries(frame.objects).forEach(([id, obj]) => {
+          if (!this.objectStore[id]) {
+            const { src, width = 100, height = 100 } = obj;
+            this.objectStore[id] = { src, width, height };
+          }
+          delete obj.src;
+          delete obj.width;
+          delete obj.height;
+        });
       });
 
       this.frames = migratedFrames;
