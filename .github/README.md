@@ -1,4 +1,7 @@
-# ** 🤑 Le MACRON‑O‑TRON 3000 🤑 ** #
+<h1 align="center">
+   ** 🤑 Le MACRON‑O‑TRON 3000 🤑 **
+</h1>
+
 
 ![apercu](https://github.com/user-attachments/assets/243fd05d-de03-4068-abe9-b780baf8999f)
 
@@ -41,7 +44,7 @@ Puis ouvre `http://localhost:8000` et que le spectacle commence ! 🎭
 
 ## 📄 Licence
 
-[The Unlicense](https://unlicense.org/) — libre de droit, libre d’usage, LIBRE
+[The Unlicense](https://unlicense.org/) — libre de droit, libre d’usage, libre de ce que tu veux.
 
 ---
 
