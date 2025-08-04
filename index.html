@@ -49,6 +49,34 @@
           <input type="number" id="future-frames" value="1" min="0" max="10">
         </div>
       </div>
+      <div id="object-controls">
+        <h3>Objets</h3>
+        <div class="control-group">
+          <label for="object-select">Ajouter</label>
+          <select id="object-select">
+            <option value="assets/objets/carre.svg">Carré</option>
+            <option value="assets/objets/faucille.svg">Faucille</option>
+            <option value="assets/objets/marteau.svg">Marteau</option>
+          </select>
+          <button type="button" id="add-object-btn">➕</button>
+        </div>
+        <div class="control-group">
+          <button type="button" id="delete-object-btn" disabled>Supprimer</button>
+        </div>
+        <div class="control-group">
+          <label for="object-layer-select">Calque</label>
+          <select id="object-layer-select">
+            <option value="front">Devant</option>
+            <option value="back">Derrière</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="attach-select">Coller à</label>
+          <select id="attach-select">
+            <option value="">Aucun</option>
+          </select>
+        </div>
+      </div>
     </aside>
     <main id="theatre" role="main"></main>
     <footer id="timeline-panel" role="contentinfo">

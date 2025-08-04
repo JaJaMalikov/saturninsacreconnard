@@ -23,6 +23,7 @@ export class Timeline {
     return {
       transform: { tx: 0, ty: 0, scale: 1, rotate: 0 },
       members,
+      objects: [],
     };
   }
 
@@ -45,6 +46,33 @@ export class Timeline {
   updateTransform(values) {
     const frame = this.getCurrentFrame();
     frame.transform = { ...frame.transform, ...values };
+  }
+
+  addObject(obj) {
+    const base = { ...obj };
+    this.frames.forEach(f => {
+      f.objects.push(structuredClone ? structuredClone(base) : JSON.parse(JSON.stringify(base)));
+    });
+  }
+
+  updateObject(id, values) {
+    const frame = this.getCurrentFrame();
+    const obj = frame.objects.find(o => o.id === id);
+    if (obj) Object.assign(obj, values);
+  }
+
+  updateObjectAllFrames(id, values) {
+    this.frames.forEach(f => {
+      const obj = f.objects.find(o => o.id === id);
+      if (obj) Object.assign(obj, values);
+    });
+  }
+
+  deleteObject(id) {
+    this.frames.forEach(f => {
+      const idx = f.objects.findIndex(o => o.id === id);
+      if (idx >= 0) f.objects.splice(idx, 1);
+    });
   }
 
   addFrame(duplicate = true) {
