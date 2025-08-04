@@ -7,7 +7,7 @@ import { debugLog } from './debug.js';
  * @param {Function} onFrameChange - Callback pour rafraîchir le SVG.
  * @param {Function} onSave - Callback pour sauvegarder l'état.
  */
-export function initUI(timeline, onFrameChange, onSave) {
+export function initUI(timeline, onFrameChange, onSave, objects) {
   debugLog("initUI called.");
   const frameInfo = document.getElementById('frameInfo');
   const timelineSlider = document.getElementById('timeline-slider');
@@ -25,6 +25,13 @@ export function initUI(timeline, onFrameChange, onSave) {
   const onionSkinToggle = document.getElementById('onion-skin-toggle');
   const pastFramesInput = document.getElementById('past-frames');
   const futureFramesInput = document.getElementById('future-frames');
+  const selectedElementName = document.getElementById('selected-element-name');
+  const objectAssetSelect = document.getElementById('object-asset');
+  const addObjectBtn = document.getElementById('add-object');
+  const objectList = document.getElementById('object-list');
+  const removeObjectBtn = document.getElementById('remove-object');
+  const objectLayerSelect = document.getElementById('object-layer');
+  const objectAttachSelect = document.getElementById('object-attach');
 
   // --- Panneau Inspecteur Escamotable ---
   const appContainer = document.getElementById('app-container');
@@ -41,6 +48,26 @@ export function initUI(timeline, onFrameChange, onSave) {
     localStorage.setItem(inspectorStateKey, appContainer.classList.contains('inspector-collapsed'));
   });
 
+  objects.memberList.forEach(id => {
+    const opt = document.createElement('option');
+    opt.value = id;
+    opt.textContent = id;
+    objectAttachSelect.appendChild(opt);
+  });
+
+  let selection = 'pantin';
+
+  function refreshObjectList() {
+    const frame = timeline.getCurrentFrame();
+    objectList.innerHTML = '';
+    Object.keys(frame.objects).forEach(id => {
+      const opt = document.createElement('option');
+      opt.value = id;
+      opt.textContent = id;
+      objectList.appendChild(opt);
+    });
+  }
+
   // --- Mise à jour de l'UI --- //
   function updateUI() {
     debugLog("updateUI called.");
@@ -50,8 +77,23 @@ export function initUI(timeline, onFrameChange, onSave) {
     frameInfo.textContent = `${currentIndex + 1} / ${frameCount}`;
     timelineSlider.max = frameCount > 1 ? frameCount - 1 : 0;
     timelineSlider.value = currentIndex;
+    refreshObjectList();
 
     onFrameChange(); // Rafraîchit le SVG et les valeurs de l'inspecteur
+
+    if (selection === 'pantin') {
+      const frame = timeline.getCurrentFrame();
+      document.getElementById('scale-value').textContent = frame.transform.scale.toFixed(2);
+      document.getElementById('rotate-value').textContent = Math.round(frame.transform.rotate);
+    } else {
+      const obj = timeline.getCurrentFrame().objects[selection];
+      if (obj) {
+        document.getElementById('scale-value').textContent = obj.scale.toFixed(2);
+        document.getElementById('rotate-value').textContent = Math.round(obj.rotate);
+        objectLayerSelect.value = obj.layer;
+        objectAttachSelect.value = obj.attachedTo || '';
+      }
+    }
   }
 
   // --- Connexions des événements --- //
@@ -171,6 +213,69 @@ export function initUI(timeline, onFrameChange, onSave) {
     }
   });
 
+  // --- Contrôles Objets ---
+  addObjectBtn.addEventListener('click', () => {
+    debugLog('Add object button clicked.');
+    const src = objectAssetSelect.value;
+    if (!src) return;
+    const id = objects.addObject(src, objectLayerSelect.value);
+    refreshObjectList();
+    objectList.value = id;
+    selection = id;
+    selectedElementName.textContent = id;
+    onSave();
+  });
+
+  objectList.addEventListener('change', () => {
+    const id = objectList.value;
+    if (id) {
+      selection = id;
+      objects.selectObject(id);
+      selectedElementName.textContent = id;
+      const obj = timeline.getCurrentFrame().objects[id];
+      document.getElementById('scale-value').textContent = obj.scale.toFixed(2);
+      document.getElementById('rotate-value').textContent = Math.round(obj.rotate);
+      objectLayerSelect.value = obj.layer;
+      objectAttachSelect.value = obj.attachedTo || '';
+    } else {
+      selection = 'pantin';
+      selectedElementName.textContent = 'Pantin';
+    }
+  });
+
+  removeObjectBtn.addEventListener('click', () => {
+    const id = objectList.value;
+    if (!id) return;
+    objects.removeObject(id);
+    refreshObjectList();
+    selection = 'pantin';
+    selectedElementName.textContent = 'Pantin';
+  });
+
+  objectLayerSelect.addEventListener('change', () => {
+    const id = objectList.value;
+    if (!id) return;
+    objects.setLayer(id, objectLayerSelect.value);
+  });
+
+  objectAttachSelect.addEventListener('change', () => {
+    const id = objectList.value;
+    if (!id) return;
+    objects.attach(id, objectAttachSelect.value || null);
+  });
+
+  objects.onSelect(id => {
+    if (!id) return;
+    objectList.value = id;
+    selection = id;
+    selectedElementName.textContent = id;
+    const obj = timeline.getCurrentFrame().objects[id];
+    document.getElementById('scale-value').textContent = obj.scale.toFixed(2);
+    document.getElementById('rotate-value').textContent = Math.round(obj.rotate);
+    objectLayerSelect.value = obj.layer;
+    objectAttachSelect.value = obj.attachedTo || '';
+  });
+
   // --- Contrôles de l'inspecteur --- //
   const controls = {
     scale: { plus: 'scale-plus', minus: 'scale-minus', value: 'scale-value', step: 0.1 },
@@ -191,14 +296,26 @@ export function initUI(timeline, onFrameChange, onSave) {
   function updateTransform(key, delta) {
     debugLog(`updateTransform for ${key} by ${delta}.`);
     const currentFrame = timeline.getCurrentFrame();
-    const currentValue = currentFrame.transform[key];
-    let newValue = currentValue + delta;
-    if (key === 'scale') {
-      newValue = Math.min(Math.max(newValue, 0.1), 10);
-    } else if (key === 'rotate') {
-      newValue = ((newValue % 360) + 360) % 360;
+    if (selection === 'pantin') {
+      const currentValue = currentFrame.transform[key];
+      let newValue = currentValue + delta;
+      if (key === 'scale') {
+        newValue = Math.min(Math.max(newValue, 0.1), 10);
+      } else if (key === 'rotate') {
+        newValue = ((newValue % 360) + 360) % 360;
+      }
+      timeline.updateTransform({ [key]: newValue });
+    } else {
+      const obj = currentFrame.objects[selection];
+      if (!obj) return;
+      let newValue = obj[key] + delta;
+      if (key === 'scale') {
+        newValue = Math.min(Math.max(newValue, 0.1), 10);
+      } else if (key === 'rotate') {
+        newValue = ((newValue % 360) + 360) % 360;
+      }
+      timeline.updateObject(selection, { [key]: newValue });
     }
-    timeline.updateTransform({ [key]: newValue });
     updateUI();
     onSave();
   }
