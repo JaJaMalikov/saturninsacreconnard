@@ -32,6 +32,8 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
   const removeObjectBtn = document.getElementById('remove-object');
   const objectLayerSelect = document.getElementById('object-layer');
   const objectAttachSelect = document.getElementById('object-attach');
+  const scaleValueEl = document.getElementById('scale-value');
+  const rotateValueEl = document.getElementById('rotate-value');
 
   // --- Panneau Inspecteur Escamotable ---
   const appContainer = document.getElementById('app-container');
@@ -69,7 +71,7 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
   }
 
   // --- Mise à jour de l'UI --- //
-  function updateUI() {
+  function updateUI(skipFrameRefresh = false) {
     debugLog("updateUI called.");
     const frameCount = timeline.frames.length;
     const currentIndex = timeline.current;
@@ -78,18 +80,19 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     timelineSlider.max = frameCount > 1 ? frameCount - 1 : 0;
     timelineSlider.value = currentIndex;
     refreshObjectList();
+    objectList.value = selection !== 'pantin' ? selection : '';
 
-    onFrameChange(); // Rafraîchit le SVG et les valeurs de l'inspecteur
+    if (!skipFrameRefresh) onFrameChange();
 
     if (selection === 'pantin') {
       const frame = timeline.getCurrentFrame();
-      document.getElementById('scale-value').textContent = frame.transform.scale.toFixed(2);
-      document.getElementById('rotate-value').textContent = Math.round(frame.transform.rotate);
+      scaleValueEl.textContent = frame.transform.scale.toFixed(2);
+      rotateValueEl.textContent = Math.round(frame.transform.rotate);
     } else {
-      const obj = timeline.getCurrentFrame().objects[selection];
+      const obj = timeline.getObject(selection);
       if (obj) {
-        document.getElementById('scale-value').textContent = obj.scale.toFixed(2);
-        document.getElementById('rotate-value').textContent = Math.round(obj.rotate);
+        scaleValueEl.textContent = obj.scale.toFixed(2);
+        rotateValueEl.textContent = Math.round(obj.rotate);
         objectLayerSelect.value = obj.layer;
         objectAttachSelect.value = obj.attachedTo || '';
       }
@@ -214,16 +217,11 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
   });
 
   // --- Contrôles Objets ---
-  addObjectBtn.addEventListener('click', () => {
+  addObjectBtn.addEventListener('click', async () => {
     debugLog('Add object button clicked.');
     const src = objectAssetSelect.value;
     if (!src) return;
-    const id = objects.addObject(src, objectLayerSelect.value);
-    refreshObjectList();
-    objectList.value = id;
-    selection = id;
-    selectedElementName.textContent = id;
-    onSave();
+    await objects.addObject(src, objectLayerSelect.value);
   });
 
   objectList.addEventListener('change', () => {
@@ -232,48 +230,41 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
       selection = id;
       objects.selectObject(id);
       selectedElementName.textContent = id;
-      const obj = timeline.getCurrentFrame().objects[id];
-      document.getElementById('scale-value').textContent = obj.scale.toFixed(2);
-      document.getElementById('rotate-value').textContent = Math.round(obj.rotate);
-      objectLayerSelect.value = obj.layer;
-      objectAttachSelect.value = obj.attachedTo || '';
     } else {
       selection = 'pantin';
       selectedElementName.textContent = 'Pantin';
     }
+    updateUI(true);
   });
 
   removeObjectBtn.addEventListener('click', () => {
     const id = objectList.value;
     if (!id) return;
     objects.removeObject(id);
-    refreshObjectList();
     selection = 'pantin';
     selectedElementName.textContent = 'Pantin';
+    updateUI(true);
   });
 
   objectLayerSelect.addEventListener('change', () => {
     const id = objectList.value;
     if (!id) return;
     objects.setLayer(id, objectLayerSelect.value);
+    updateUI(true);
   });
 
   objectAttachSelect.addEventListener('change', () => {
     const id = objectList.value;
     if (!id) return;
     objects.attach(id, objectAttachSelect.value || null);
+    updateUI(true);
   });
 
   objects.onSelect(id => {
     if (!id) return;
-    objectList.value = id;
     selection = id;
     selectedElementName.textContent = id;
-    const obj = timeline.getCurrentFrame().objects[id];
-    document.getElementById('scale-value').textContent = obj.scale.toFixed(2);
-    document.getElementById('rotate-value').textContent = Math.round(obj.rotate);
-    objectLayerSelect.value = obj.layer;
-    objectAttachSelect.value = obj.attachedTo || '';
+    updateUI(true);
   });
 
   // --- Contrôles de l'inspecteur --- //
@@ -295,26 +286,13 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
 
   function updateTransform(key, delta) {
     debugLog(`updateTransform for ${key} by ${delta}.`);
-    const currentFrame = timeline.getCurrentFrame();
     if (selection === 'pantin') {
-      const currentValue = currentFrame.transform[key];
-      let newValue = currentValue + delta;
-      if (key === 'scale') {
-        newValue = Math.min(Math.max(newValue, 0.1), 10);
-      } else if (key === 'rotate') {
-        newValue = ((newValue % 360) + 360) % 360;
-      }
-      timeline.updateTransform({ [key]: newValue });
+      const current = timeline.getCurrentFrame().transform[key];
+      timeline.updateTransform({ [key]: current + delta });
     } else {
-      const obj = currentFrame.objects[selection];
+      const obj = timeline.getObject(selection);
       if (!obj) return;
-      let newValue = obj[key] + delta;
-      if (key === 'scale') {
-        newValue = Math.min(Math.max(newValue, 0.1), 10);
-      } else if (key === 'rotate') {
-        newValue = ((newValue % 360) + 360) % 360;
-      }
-      timeline.updateObject(selection, { [key]: newValue });
+      timeline.updateObject(selection, { [key]: obj[key] + delta });
     }
     updateUI();
     onSave();

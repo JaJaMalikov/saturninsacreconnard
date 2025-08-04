@@ -1,9 +1,11 @@
 import { debugLog } from './debug.js';
+import { memberMapStore } from './memberMapStore.js';
 
 let svgElement = null;
 let pantinRoot = null;
 let onionLayer = null;
 let memberList = [];
+let pantinTemplate = null;
 const pastGhosts = [];
 const futureGhosts = [];
 
@@ -23,6 +25,9 @@ export function initOnionSkin(svg, rootId, members) {
   svgElement = svg;
   pantinRoot = svg.querySelector(`#${rootId}`);
   memberList = members || [];
+
+  pantinTemplate = pantinRoot.cloneNode(true);
+  stripIds(pantinTemplate);
 
   // Crée un calque dédié pour les fantômes afin de garder le DOM propre
   // et de s'assurer qu'ils sont rendus derrière le pantin principal.
@@ -72,7 +77,7 @@ export function renderOnionSkins(timeline, applyFrameToPantin) {
     const ghost = pastGhosts[i];
     if (frameIndex >= 0) {
       debugLog("Updating past ghost for frame:", frameIndex);
-      applyFrameToPantin(frames[frameIndex], ghost, ghost._memberMap);
+      applyFrameToPantin(frames[frameIndex], ghost, memberMapStore.get(ghost));
       ghost.style.display = '';
       onionLayer.appendChild(ghost);
     } else {
@@ -86,7 +91,7 @@ export function renderOnionSkins(timeline, applyFrameToPantin) {
     const ghost = futureGhosts[i];
     if (frameIndex < frames.length) {
       debugLog("Updating future ghost for frame:", frameIndex);
-      applyFrameToPantin(frames[frameIndex], ghost, ghost._memberMap);
+      applyFrameToPantin(frames[frameIndex], ghost, memberMapStore.get(ghost));
       ghost.style.display = '';
       onionLayer.appendChild(ghost);
     } else {
@@ -97,14 +102,13 @@ export function renderOnionSkins(timeline, applyFrameToPantin) {
 
 function adjustGhosts(arr, count, type) {
   while (arr.length < count) {
-    const ghost = pantinRoot.cloneNode(true);
+    const ghost = pantinTemplate.cloneNode(true);
     const memberMap = {};
     memberList.forEach(id => {
       const el = ghost.querySelector(`#${id}`);
       if (el) memberMap[id] = el;
     });
-    ghost._memberMap = memberMap;
-    stripIds(ghost);
+    memberMapStore.set(ghost, memberMap);
     ghost.classList.add('onion-skin-ghost', `onion-skin-${type}`);
     arr.push(ghost);
   }

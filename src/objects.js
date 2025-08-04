@@ -23,20 +23,41 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
   }
 
   function addObject(src, layer = 'front') {
-    const id = `obj-${Date.now()}`;
-    timeline.addObject(id, { x: 0, y: 0, scale: 1, rotate: 0, layer, attachedTo: null, src: `assets/objets/${src}` });
-    const img = document.createElementNS(ns, 'image');
-    img.setAttribute('href', `assets/objets/${src}`);
-    img.setAttribute('width', 100);
-    img.setAttribute('height', 100);
-    img.id = id;
-    img.classList.add('scene-object');
-    (layer === 'front' ? frontLayer : backLayer).appendChild(img);
-    setupInteract(img, id);
-    selectObject(id);
-    onUpdate();
-    onSave();
-    return id;
+    return new Promise(resolve => {
+      const id = crypto.randomUUID();
+      const path = `assets/objets/${src}`;
+      const img = document.createElementNS(ns, 'image');
+      img.setAttribute('href', path);
+      img.id = id;
+      img.classList.add('scene-object');
+      (layer === 'front' ? frontLayer : backLayer).appendChild(img);
+      setupInteract(img, id);
+
+      const temp = new Image();
+      temp.onload = () => {
+        const width = temp.naturalWidth || 100;
+        const height = temp.naturalHeight || 100;
+        img.setAttribute('width', width);
+        img.setAttribute('height', height);
+        timeline.addObject(id, { x: 0, y: 0, scale: 1, rotate: 0, layer, attachedTo: null, src: path, width, height });
+        selectObject(id);
+        onUpdate();
+        onSave();
+        resolve(id);
+      };
+      temp.onerror = () => {
+        const width = 100;
+        const height = 100;
+        img.setAttribute('width', width);
+        img.setAttribute('height', height);
+        timeline.addObject(id, { x: 0, y: 0, scale: 1, rotate: 0, layer, attachedTo: null, src: path, width, height });
+        selectObject(id);
+        onUpdate();
+        onSave();
+        resolve(id);
+      };
+      temp.src = path;
+    });
   }
 
   function removeObject(id) {
@@ -131,14 +152,16 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
   function renderObjects() {
     const currentFrame = timeline.getCurrentFrame();
     const existing = new Set();
-    Object.entries(currentFrame.objects).forEach(([id, obj]) => {
+    Object.keys(currentFrame.objects).forEach(id => {
       existing.add(id);
       let el = svgElement.getElementById(id);
+      const obj = timeline.getObject(id);
+      if (!obj) return;
       if (!el) {
         el = document.createElementNS(ns, 'image');
         el.setAttribute('href', obj.src);
-        el.setAttribute('width', 100);
-        el.setAttribute('height', 100);
+        el.setAttribute('width', obj.width);
+        el.setAttribute('height', obj.height);
         el.id = id;
         el.classList.add('scene-object');
         (obj.layer === 'front' ? frontLayer : backLayer).appendChild(el);
