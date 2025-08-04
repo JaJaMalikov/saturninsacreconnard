@@ -3,7 +3,7 @@
 import { debugLog } from './debug.js';
 
 /** Setup global interactions: drag on torse, scale & rotate sliders. */
-export function setupPantinGlobalInteractions(svgElement, options, timeline, onUpdate, onEnd) {
+export function setupPantinGlobalInteractions(svgElement, options, timeline, onUpdate, onEnd, onPantinSelect = () => {}) {
   debugLog("setupPantinGlobalInteractions called.");
   const { rootGroupId, grabId } = options;
   const rootGroup = svgElement.querySelector(`#${rootGroupId}`);
@@ -51,6 +51,7 @@ export function setupPantinGlobalInteractions(svgElement, options, timeline, onU
 
   const onPointerDown = e => {
     debugLog("Global drag: pointerdown");
+    onPantinSelect();
     dragging = true;
     startPt = getSVGCoords(e);
     grabEl.style.cursor = 'grabbing';
@@ -79,7 +80,7 @@ export function setupPantinGlobalInteractions(svgElement, options, timeline, onU
  * @param pivots - not used here
  * @param timeline - has updateMember(id, state)
  */
-export function setupInteractions(svgElement, memberList, pivots, timeline, onUpdate, onEnd) {
+export function setupInteractions(svgElement, memberList, pivots, timeline, onUpdate, onEnd, onPantinSelect = () => {}) {
   debugLog("setupInteractions (members) called.");
   // Terminal mappings (IDs of end segments)
   const terminalMap = {
@@ -130,6 +131,7 @@ export function setupInteractions(svgElement, memberList, pivots, timeline, onUp
 
     const onPointerDown = e => {
       debugLog(`Member ${id}: pointerdown`);
+      onPantinSelect();
       e.stopPropagation(); e.preventDefault();
       rotating = true;
       seg.setPointerCapture(e.pointerId);

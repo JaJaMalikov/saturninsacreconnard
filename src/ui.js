@@ -16,6 +16,7 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
   const nextFrameBtn = document.getElementById('nextFrame');
   const playBtn = document.getElementById('playAnim');
   const stopBtn = document.getElementById('stopAnim');
+  const loopToggleBtn = document.getElementById('loopToggle');
   const addFrameBtn = document.getElementById('addFrame');
   const delFrameBtn = document.getElementById('delFrame');
   const exportAnimBtn = document.getElementById('exportAnim');
@@ -58,6 +59,15 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
   });
 
   let selection = 'pantin';
+  let loopEnabled = true;
+
+  const updateLoopButton = () => {
+    loopToggleBtn.textContent = loopEnabled ? '🔁' : '➡️';
+    loopToggleBtn.setAttribute('title', loopEnabled ? 'Lecture en boucle activée' : 'Lecture en boucle désactivée');
+    loopToggleBtn.setAttribute('aria-pressed', loopEnabled);
+  };
+
+  updateLoopButton();
 
   function refreshObjectList() {
     const frame = timeline.getCurrentFrame();
@@ -119,6 +129,11 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     updateUI();
     onSave();
   });
+
+  loopToggleBtn.addEventListener('click', () => {
+    loopEnabled = !loopEnabled;
+    updateLoopButton();
+  });
   nextFrameBtn.addEventListener('click', () => {
     debugLog('Next frame button clicked.');
     timeline.nextFrame();
@@ -139,10 +154,16 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     updateOnionSkinSettings({ enabled: false });
     onFrameChange();
 
-    timeline.loop((frame, index) => {
+    timeline.play((frame, index) => {
       timeline.setCurrentFrame(index);
       updateUI();
-    }, fps);
+    }, () => {
+      playBtn.textContent = '▶️';
+      updateOnionSkinSettings({ enabled: savedOnionSkinState });
+      onFrameChange();
+      updateUI();
+      onSave();
+    }, fps, { loop: loopEnabled });
   });
 
   stopBtn.addEventListener('click', () => {
@@ -234,6 +255,7 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
       selectedElementName.textContent = id;
     } else {
       selection = 'pantin';
+      objects.selectObject(null);
       selectedElementName.textContent = 'Pantin';
     }
     updateUI(true);
@@ -244,6 +266,7 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     if (!id) return;
     objects.removeObject(id);
     selection = 'pantin';
+    objects.selectObject(null);
     selectedElementName.textContent = 'Pantin';
     updateUI(true);
   });
@@ -263,9 +286,14 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
   });
 
   objects.onSelect(id => {
-    if (!id) return;
-    selection = id;
-    selectedElementName.textContent = id;
+    if (id) {
+      selection = id;
+      selectedElementName.textContent = id;
+    } else {
+      selection = 'pantin';
+      objectList.value = '';
+      selectedElementName.textContent = 'Pantin';
+    }
     updateUI(true);
   });
 

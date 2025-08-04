@@ -100,11 +100,12 @@ async function main() {
     };
 
     objects = initObjects(svgElement, PANTIN_ROOT_ID, timeline, attachableMembers, onFrameChange, onSave);
+    const deselectObjects = () => objects.selectObject(null);
 
     debugLog("Setting up member interactions...");
-    const teardownMembers = setupInteractions(svgElement, memberList, pivots, timeline, onFrameChange, onSave);
+    const teardownMembers = setupInteractions(svgElement, memberList, pivots, timeline, onFrameChange, onSave, deselectObjects);
     debugLog("Setting up global pantin interactions...");
-    const teardownGlobal = setupPantinGlobalInteractions(svgElement, interactionOptions, timeline, onFrameChange, onSave);
+    const teardownGlobal = setupPantinGlobalInteractions(svgElement, interactionOptions, timeline, onFrameChange, onSave, deselectObjects);
 
     debugLog("Initializing UI...");
     initUI(timeline, onFrameChange, onSave, objects);
