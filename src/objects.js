@@ -244,12 +244,12 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
           const segAngle = currentFrame.members[obj.attachedTo]?.rotate || 0;
           const totalRotate = obj.rotate + currentFrame.transform.rotate + segAngle;
           const totalScale = obj.scale * currentFrame.transform.scale;
-          el.setAttribute('transform', `translate(${g.x},${g.y}) rotate(${totalRotate}) scale(${totalScale})`);
+          el.setAttribute('transform', `translate(${g.x + obj.width / 2},${g.y + obj.height / 2}) rotate(${totalRotate}) scale(${totalScale}) translate(${-obj.width / 2},${-obj.height / 2})`);
         }
       } else {
         const totalRotate = obj.rotate + currentFrame.transform.rotate;
         const totalScale = obj.scale * currentFrame.transform.scale;
-        el.setAttribute('transform', `translate(${obj.x + currentFrame.transform.tx},${obj.y + currentFrame.transform.ty}) rotate(${totalRotate}) scale(${totalScale})`);
+        el.setAttribute('transform', `translate(${obj.x + currentFrame.transform.tx + obj.width / 2},${obj.y + currentFrame.transform.ty + obj.height / 2}) rotate(${totalRotate}) scale(${totalScale}) translate(${-obj.width / 2},${-obj.height / 2})`);
       }
       if (selectedId === id) el.classList.add('selected');
       else el.classList.remove('selected');

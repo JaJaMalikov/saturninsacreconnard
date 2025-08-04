@@ -111,9 +111,13 @@ body, html {
   font-size: 1.2em;
   padding: 0;
 }
-
-.value-stepper span {
-  font-size: 1.1em;
+.value-stepper input {
+  width: 60px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  text-align: center;
   font-variant-numeric: tabular-nums;
   padding: 0 10px;
 }
@@ -131,6 +135,9 @@ body, html {
 
 #timeline-slider-container {
   flex-grow: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 input[type="range"] {
@@ -172,6 +179,10 @@ button, .button {
 button:hover, .button:hover {
   background-color: var(--accent-hover-color);
   border-color: var(--accent-color);
+}
+
+button.active {
+  background-color: var(--accent-color);
 }
 
 #timeline-actions, #timeline-controls, #app-actions {

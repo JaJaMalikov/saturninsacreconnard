@@ -80,8 +80,8 @@ async function main() {
       applyFrameToPantinElement(frame, pantinRootGroup);
 
       // Update inspector values
-      scaleValueEl.textContent = frame.transform.scale.toFixed(2);
-      rotateValueEl.textContent = Math.round(frame.transform.rotate);
+      scaleValueEl.value = frame.transform.scale.toFixed(2);
+      rotateValueEl.value = Math.round(frame.transform.rotate);
 
       // Render onion skins
       renderOnionSkins(timeline, applyFrameToPantinElement);

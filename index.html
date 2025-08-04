@@ -21,7 +21,7 @@
           <label for="scale-value">Échelle</label>
           <div class="value-stepper">
             <button type="button" id="scale-minus" aria-label="Diminuer l'échelle">-</button>
-            <output id="scale-value" for="scale-minus scale-plus">1.00</output>
+            <input type="number" id="scale-value" value="1.00" step="0.1" min="0.1" max="10">
             <button type="button" id="scale-plus" aria-label="Augmenter l'échelle">+</button>
           </div>
         </div>
@@ -29,7 +29,7 @@
           <label for="rotate-value">Rotation</label>
           <div class="value-stepper">
             <button type="button" id="rotate-minus" aria-label="Diminuer la rotation">-</button>
-            <output id="rotate-value" for="rotate-minus rotate-plus">0</output>
+            <input type="number" id="rotate-value" value="0" step="1">
             <button type="button" id="rotate-plus" aria-label="Augmenter la rotation">+</button>
           </div>
         </div>
@@ -47,7 +47,9 @@
         </div>
         <div class="control-group">
           <label for="object-list">Sélection</label>
-          <select id="object-list" size="4"></select>
+          <select id="object-list" size="4">
+            <option value="">Pantin</option>
+          </select>
           <button type="button" id="remove-object">Supprimer</button>
         </div>
         <div class="control-group">
@@ -86,11 +88,13 @@
         <button type="button" id="prevFrame" title="Image précédente" aria-label="Image précédente">⏮️</button>
         <button type="button" id="playAnim" title="Lire l'animation" aria-label="Lire l'animation">▶️</button>
         <button type="button" id="stopAnim" title="Arrêter" aria-label="Arrêter">⏹️</button>
+        <button type="button" id="loopAnim" title="Lire en boucle" aria-label="Lire en boucle">🔁</button>
         <button type="button" id="nextFrame" title="Image suivante" aria-label="Image suivante">⏭️</button>
       </div>
       <div id="timeline-slider-container">
         <label for="timeline-slider" class="sr-only">Timeline</label>
         <input type="range" id="timeline-slider" min="0" max="0" step="1" value="0">
+        <output id="frameInfo" for="timeline-slider" aria-live="polite">1 / 1</output>
       </div>
       <div id="timeline-actions">
         <div class="control-group fps-control">
@@ -99,7 +103,6 @@
         </div>
         <button type="button" id="addFrame" title="Ajouter une image" aria-label="Ajouter une image">➕</button>
         <button type="button" id="delFrame" title="Supprimer l'image" aria-label="Supprimer l'image">🗑️</button>
-        <span id="frameInfo" aria-live="polite">1 / 1</span>
       </div>
       <div id="app-actions">
         <button type="button" id="inspector-toggle-btn" title="Afficher/Masquer l'inspecteur" aria-label="Afficher/Masquer l'inspecteur">↔️</button>
