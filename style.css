@@ -187,6 +187,11 @@ button:hover, .button:hover {
   border-radius: 3px;
 }
 
+#loopToggle[aria-pressed="true"] {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
 .onion-skin-ghost {
   pointer-events: none; /* Make ghosts non-interactive */
   opacity: 0.3; /* Semi-transparent */

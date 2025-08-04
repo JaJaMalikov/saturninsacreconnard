@@ -16,6 +16,7 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
   const nextFrameBtn = document.getElementById('nextFrame');
   const playBtn = document.getElementById('playAnim');
   const stopBtn = document.getElementById('stopAnim');
+  const loopToggleBtn = document.getElementById('loopToggle');
   const addFrameBtn = document.getElementById('addFrame');
   const delFrameBtn = document.getElementById('delFrame');
   const exportAnimBtn = document.getElementById('exportAnim');
@@ -127,6 +128,12 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
   });
 
   let savedOnionSkinState = true;
+  let loopEnabled = true;
+  loopToggleBtn.setAttribute('aria-pressed', 'true');
+  loopToggleBtn.addEventListener('click', () => {
+    loopEnabled = !loopEnabled;
+    loopToggleBtn.setAttribute('aria-pressed', String(loopEnabled));
+  });
 
   playBtn.addEventListener('click', () => {
     debugLog('Play button clicked.');
@@ -138,11 +145,16 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     savedOnionSkinState = onionSkinToggle.checked;
     updateOnionSkinSettings({ enabled: false });
     onFrameChange();
-
-    timeline.loop((frame, index) => {
+    timeline.play((frame, index) => {
       timeline.setCurrentFrame(index);
       updateUI();
-    }, fps);
+    }, () => {
+      playBtn.textContent = '▶️';
+      updateOnionSkinSettings({ enabled: savedOnionSkinState });
+      onFrameChange();
+      updateUI();
+      onSave();
+    }, fps, { loop: loopEnabled });
   });
 
   stopBtn.addEventListener('click', () => {
@@ -235,6 +247,7 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     } else {
       selection = 'pantin';
       selectedElementName.textContent = 'Pantin';
+      objects.selectObject(null);
     }
     updateUI(true);
   });
@@ -245,6 +258,7 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     objects.removeObject(id);
     selection = 'pantin';
     selectedElementName.textContent = 'Pantin';
+    objects.selectObject(null);
     updateUI(true);
   });
 
@@ -263,9 +277,13 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
   });
 
   objects.onSelect(id => {
-    if (!id) return;
-    selection = id;
-    selectedElementName.textContent = id;
+    if (id) {
+      selection = id;
+      selectedElementName.textContent = id;
+    } else {
+      selection = 'pantin';
+      selectedElementName.textContent = 'Pantin';
+    }
     updateUI(true);
   });
 
