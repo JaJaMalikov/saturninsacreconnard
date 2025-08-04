@@ -1,6 +1,8 @@
 import { debugLog } from './debug.js';
 import { memberMapStore } from './memberMapStore.js';
 
+const ns = 'http://www.w3.org/2000/svg';
+
 let svgElement = null;
 let pantinRoot = null;
 let onionLayer = null;
@@ -27,7 +29,6 @@ export function initOnionSkin(svg, rootId, members) {
   memberList = members || [];
 
   pantinTemplate = pantinRoot.cloneNode(true);
-  stripIds(pantinTemplate);
 
   // Crée un calque dédié pour les fantômes afin de garder le DOM propre
   // et de s'assurer qu'ils sont rendus derrière le pantin principal.
@@ -58,7 +59,6 @@ export function updateOnionSkinSettings(newSettings) {
  */
 export function renderOnionSkins(timeline, applyFrameToPantin) {
   debugLog("renderOnionSkins called. Settings:", settings);
-  // Efface les anciens fantômes du calque (les objets restent en cache)
   onionLayer.replaceChildren();
 
   if (!settings.enabled || !pantinRoot) {
@@ -71,47 +71,96 @@ export function renderOnionSkins(timeline, applyFrameToPantin) {
   adjustGhosts(pastGhosts, settings.pastFrames, 'past');
   adjustGhosts(futureGhosts, settings.futureFrames, 'future');
 
-  // Rend les images passées
   for (let i = 0; i < settings.pastFrames; i++) {
     const frameIndex = current - (i + 1);
     const ghost = pastGhosts[i];
     if (frameIndex >= 0) {
-      debugLog("Updating past ghost for frame:", frameIndex);
-      applyFrameToPantin(frames[frameIndex], ghost, memberMapStore.get(ghost));
-      ghost.style.display = '';
-      onionLayer.appendChild(ghost);
-    } else {
-      ghost.style.display = 'none';
+      const frame = frames[frameIndex];
+      applyFrameToPantin(frame, ghost.pantin, memberMapStore.get(ghost.pantin));
+      onionLayer.appendChild(ghost.container);
+      renderGhostObjects(ghost.pantin, ghost.back, ghost.front, ghost.objects, frame, timeline.objectStore);
     }
   }
 
-  // Rend les images futures
   for (let i = 0; i < settings.futureFrames; i++) {
     const frameIndex = current + (i + 1);
     const ghost = futureGhosts[i];
     if (frameIndex < frames.length) {
-      debugLog("Updating future ghost for frame:", frameIndex);
-      applyFrameToPantin(frames[frameIndex], ghost, memberMapStore.get(ghost));
-      ghost.style.display = '';
-      onionLayer.appendChild(ghost);
-    } else {
-      ghost.style.display = 'none';
+      const frame = frames[frameIndex];
+      applyFrameToPantin(frame, ghost.pantin, memberMapStore.get(ghost.pantin));
+      onionLayer.appendChild(ghost.container);
+      renderGhostObjects(ghost.pantin, ghost.back, ghost.front, ghost.objects, frame, timeline.objectStore);
     }
   }
 }
 
 function adjustGhosts(arr, count, type) {
   while (arr.length < count) {
-    const ghost = pantinTemplate.cloneNode(true);
+    const pantin = pantinTemplate.cloneNode(true);
     const memberMap = {};
     memberList.forEach(id => {
-      const el = ghost.querySelector(`#${id}`);
+      const el = pantin.querySelector(`#${id}`);
       if (el) memberMap[id] = el;
     });
-    memberMapStore.set(ghost, memberMap);
-    ghost.classList.add('onion-skin-ghost', `onion-skin-${type}`);
-    arr.push(ghost);
+    stripIds(pantin);
+    memberMapStore.set(pantin, memberMap);
+
+    const back = document.createElementNS(ns, 'g');
+    const front = document.createElementNS(ns, 'g');
+    const container = document.createElementNS(ns, 'g');
+    container.classList.add('onion-skin-ghost', `onion-skin-${type}`);
+    container.appendChild(back);
+    container.appendChild(pantin);
+    container.appendChild(front);
+    arr.push({ container, pantin, back, front, objects: {} });
   }
+}
+
+function renderGhostObjects(pantin, backLayer, frontLayer, cache, frame, objectStore) {
+  const existing = new Set();
+  Object.keys(frame.objects).forEach(id => {
+    existing.add(id);
+    let el = cache[id];
+    const objConst = objectStore[id];
+    if (!objConst) return;
+    if (!el) {
+      el = document.createElementNS(ns, 'image');
+      el.setAttribute('href', objConst.src);
+      el.setAttribute('width', objConst.width);
+      el.setAttribute('height', objConst.height);
+      cache[id] = el;
+    }
+    const obj = { ...objConst, ...frame.objects[id] };
+    let transform = '';
+    if (obj.attachedTo) {
+      const seg = pantin.querySelector(`#${obj.attachedTo}`);
+      if (seg) {
+        const matrix = seg.getCTM();
+        const pt = svgElement.createSVGPoint();
+        pt.x = obj.x;
+        pt.y = obj.y;
+        const g = pt.matrixTransform(matrix);
+        const segAngle = Math.atan2(matrix.b, matrix.a) * 180 / Math.PI - frame.transform.rotate;
+        const totalRotate = obj.rotate + frame.transform.rotate + segAngle;
+        const totalScale = obj.scale * frame.transform.scale;
+        transform = `translate(${g.x},${g.y}) rotate(${totalRotate},${obj.width/2},${obj.height/2}) scale(${totalScale})`;
+      }
+    } else {
+      const totalRotate = obj.rotate + frame.transform.rotate;
+      const totalScale = obj.scale * frame.transform.scale;
+      const tx = obj.x + frame.transform.tx;
+      const ty = obj.y + frame.transform.ty;
+      transform = `translate(${tx},${ty}) rotate(${totalRotate},${obj.width/2},${obj.height/2}) scale(${totalScale})`;
+    }
+    el.setAttribute('transform', transform);
+    (obj.layer === 'front' ? frontLayer : backLayer).appendChild(el);
+  });
+  Object.keys(cache).forEach(id => {
+    if (!existing.has(id)) {
+      cache[id].remove();
+      delete cache[id];
+    }
+  });
 }
 
 function stripIds(el) {
