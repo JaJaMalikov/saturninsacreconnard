@@ -43,6 +43,15 @@ Le **MACRON‑O‑TRON 3000** est une application web interactive permettant de
 
 Après démarrage du serveur, accédez à `http://localhost:8000/index.html` pour utiliser l’application.
 
+## Interface React (expérimentale)
+
+Une nouvelle interface construite avec React et Vite est disponible dans `src-v2`.
+Pour l'exécuter en mode développement :
+```bash
+pnpm install
+pnpm dev
+```
+
 ## 📄 Licence
 
 [The Unlicense](https://unlicense.org/) — libre de droit, libre d’usage, libre d’esprit ✊
