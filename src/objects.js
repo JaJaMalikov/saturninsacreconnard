@@ -42,7 +42,8 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
 
   function addObject(src, layer = 'front') {
     return new Promise(resolve => {
-      const id = generateId();
+      const baseName = src.replace(/\.[^/.]+$/, '');
+      const id = `${baseName}-${generateId()}`;
       const path = `assets/objets/${src}`;
       const img = document.createElementNS(ns, 'image');
       img.setAttribute('href', path);
@@ -167,17 +168,19 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
         const p = pointers.get(e.pointerId);
         const dx = p.clientX - dragStart.x;
         const dy = p.clientY - dragStart.y;
+        const svgInv = svgElement.getScreenCTM().inverse();
+        const pt = svgElement.createSVGPoint();
+        pt.x = dx;
+        pt.y = dy;
+        const svgDelta = pt.matrixTransform(svgInv);
         if (obj.attachedTo) {
           const seg = pantinRoot.querySelector(`#${obj.attachedTo}`);
           if (!seg) return;
-          const inv = seg.getCTM().inverse();
-          const pt = svgElement.createSVGPoint();
-          pt.x = dx;
-          pt.y = dy;
-          const local = pt.matrixTransform(inv);
+          const segInv = seg.getCTM().inverse();
+          const local = svgDelta.matrixTransform(segInv);
           timeline.updateObject(id, { x: dragStart.objX + local.x, y: dragStart.objY + local.y });
         } else {
-          timeline.updateObject(id, { x: dragStart.objX + dx, y: dragStart.objY + dy });
+          timeline.updateObject(id, { x: dragStart.objX + svgDelta.x, y: dragStart.objY + svgDelta.y });
         }
         onUpdate();
       } else if (pointers.size >= 2 && gestureStart) {

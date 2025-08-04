@@ -16,6 +16,7 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
   const nextFrameBtn = document.getElementById('nextFrame');
   const playBtn = document.getElementById('playAnim');
   const stopBtn = document.getElementById('stopAnim');
+  const loopToggleBtn = document.getElementById('loopToggle');
   const addFrameBtn = document.getElementById('addFrame');
   const delFrameBtn = document.getElementById('delFrame');
   const exportAnimBtn = document.getElementById('exportAnim');
@@ -127,6 +128,7 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
   });
 
   let savedOnionSkinState = true;
+  let looping = true;
 
   playBtn.addEventListener('click', () => {
     debugLog('Play button clicked.');
@@ -139,10 +141,16 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     updateOnionSkinSettings({ enabled: false });
     onFrameChange();
 
-    timeline.loop((frame, index) => {
+    timeline.play((frame, index) => {
       timeline.setCurrentFrame(index);
       updateUI();
-    }, fps);
+    }, () => {
+      playBtn.textContent = '▶️';
+      updateOnionSkinSettings({ enabled: savedOnionSkinState });
+      onFrameChange();
+      updateUI();
+      onSave();
+    }, fps, { loop: looping });
   });
 
   stopBtn.addEventListener('click', () => {
@@ -154,6 +162,11 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     onFrameChange();
     updateUI();
     onSave();
+  });
+
+  loopToggleBtn.addEventListener('click', () => {
+    looping = !looping;
+    loopToggleBtn.textContent = looping ? '🔁' : '➡️';
   });
 
   // Actions sur les frames
@@ -234,6 +247,7 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
       selectedElementName.textContent = id;
     } else {
       selection = 'pantin';
+      objects.selectObject(null);
       selectedElementName.textContent = 'Pantin';
     }
     updateUI(true);
@@ -244,6 +258,7 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     if (!id) return;
     objects.removeObject(id);
     selection = 'pantin';
+    objects.selectObject(null);
     selectedElementName.textContent = 'Pantin';
     updateUI(true);
   });
