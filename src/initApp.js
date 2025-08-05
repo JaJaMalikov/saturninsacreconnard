@@ -2,7 +2,6 @@ import { initOnionSkin, renderOnionSkins } from './onionSkin.js';
 import { loadSVG } from './svgLoader.js';
 import { Timeline } from './timeline.js';
 import { setupInteractions, setupPantinGlobalInteractions } from './interactions.js';
-import { initUI } from './ui.js';
 import { initObjects } from './objects.js';
 import { debugLog } from './debug.js';
 import CONFIG from './config.js';
@@ -17,10 +16,6 @@ export async function initApp() {
     debugLog("SVG loaded, Timeline instantiated.");
     const timeline = new Timeline(memberList);
     const attachableMembers = Array.from(new Set([...memberList, 'main_droite', 'main_gauche', 'pied_droite', 'pied_gauche', 'bouche']));
-
-    // Cache frequently accessed DOM elements
-    const scaleValueEl = document.getElementById('scale-value');
-    const rotateValueEl = document.getElementById('rotate-value');
 
     // Cache elements for transformations
     const pantinRootGroup = svgElement.querySelector(`#${PANTIN_ROOT_ID}`);
@@ -72,8 +67,7 @@ export async function initApp() {
 
     let objects;
 
-    const onFrameChange = () => {
-      debugLog("onFrameChange triggered. Current frame:", timeline.current);
+    timeline.on('frameChange', () => {
       const frame = timeline.getCurrentFrame();
       if (!frame) return;
 
@@ -89,7 +83,31 @@ export async function initApp() {
 
       // Render scene objects
       objects && objects.renderObjects();
-    };
+    });
+
+    // Quand un membre est mis à jour (scale / rotate)…
+timeline.on('memberTransform', ({ id, scale, rotate }) => {
+  // On récupère la frame courante et on ré-applique tout
+  const frame = timeline.getCurrentFrame();
+  if (!frame) return;
+  applyFrameToPantinElement(frame, pantinRootGroup);
+  renderOnionSkins(timeline, applyFrameToPantinElement);
+  objects && objects.renderObjects();
+});
+
+// Quand la transformation globale change (translate / scale / rotate)…
+timeline.on('transformChange', transform => {
+  // On positionne directement le groupe principal
+  const { tx, ty, scale, rotate } = transform;
+  pantinRootGroup.setAttribute(
+    'transform',
+    `translate(${tx},${ty}) scale(${scale}) rotate(${rotate})`
+  );
+  // Ré-affichage des onion skins et objets
+  renderOnionSkins(timeline, applyFrameToPantinElement);
+  objects && objects.renderObjects();
+});
+
 
     debugLog("Initializing Onion Skin...");
     initOnionSkin(svgElement, PANTIN_ROOT_ID, memberList);
@@ -99,23 +117,20 @@ export async function initApp() {
       grabId: GRAB_ID,
     };
 
-    objects = initObjects(svgElement, PANTIN_ROOT_ID, timeline, attachableMembers, onFrameChange, onSave);
+    objects = initObjects(svgElement, PANTIN_ROOT_ID, timeline, attachableMembers);
 
     debugLog("Setting up member interactions...");
-    const teardownMembers = setupInteractions(svgElement, memberList, pivots, timeline, onFrameChange, onSave);
+    const teardownMembers = setupInteractions(svgElement, memberList, pivots, timeline);
     debugLog("Setting up global pantin interactions...");
-    const teardownGlobal = setupPantinGlobalInteractions(svgElement, interactionOptions, timeline, onFrameChange, onSave);
-
-    debugLog("Initializing UI...");
-    initUI(timeline, onFrameChange, onSave, objects);
-
+    const teardownGlobal = setupPantinGlobalInteractions(svgElement, interactionOptions, timeline);
     window.addEventListener('beforeunload', () => {
       teardownMembers();
       teardownGlobal();
     });
+  return { timeline, svgElement, pivots, memberList };
 
   } catch (err) {
     console.error("Erreur d'initialisation:", err);
-    alert(`Erreur fatale : ${err.message}`);
+    throw err;
   }
 }

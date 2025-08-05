@@ -3,7 +3,7 @@
 import { debugLog } from './debug.js';
 
 /** Setup global interactions: drag on torse, scale & rotate sliders. */
-export function setupPantinGlobalInteractions(svgElement, options, timeline, onUpdate, onEnd) {
+export function setupPantinGlobalInteractions(svgElement, options, timeline) {
   debugLog("setupPantinGlobalInteractions called.");
   const { rootGroupId, grabId } = options;
   const rootGroup = svgElement.querySelector(`#${rootGroupId}`);
@@ -36,7 +36,6 @@ export function setupPantinGlobalInteractions(svgElement, options, timeline, onU
       ty: frame.transform.ty + (pt.y - startPt.y),
     });
     startPt = pt;
-    onUpdate();
   };
 
   const endDrag = e => {
@@ -46,7 +45,6 @@ export function setupPantinGlobalInteractions(svgElement, options, timeline, onU
     grabEl.style.cursor = 'move';
     grabEl.releasePointerCapture && grabEl.releasePointerCapture(e.pointerId);
     svgElement.removeEventListener('pointermove', onMove);
-    onEnd();
   };
 
   const onPointerDown = e => {
@@ -79,7 +77,7 @@ export function setupPantinGlobalInteractions(svgElement, options, timeline, onU
  * @param pivots - not used here
  * @param timeline - has updateMember(id, state)
  */
-export function setupInteractions(svgElement, memberList, pivots, timeline, onUpdate, onEnd) {
+export function setupInteractions(svgElement, memberList, pivots, timeline) {
   debugLog("setupInteractions (members) called.");
   // Terminal mappings (IDs of end segments)
   const terminalMap = {
@@ -116,7 +114,6 @@ export function setupInteractions(svgElement, memberList, pivots, timeline, onUp
       ) * 180 / Math.PI;
       let newAng = ((mouseAng - baseOri + 180) % 360) - 180;
       timeline.updateMember(id, { rotate: newAng });
-      onUpdate();
     };
 
     const onUp = e => {
@@ -125,7 +122,6 @@ export function setupInteractions(svgElement, memberList, pivots, timeline, onUp
       seg.style.cursor = 'grab';
       seg.releasePointerCapture && seg.releasePointerCapture(e.pointerId);
       svgElement.removeEventListener('pointermove', onMove);
-      onEnd();
     };
 
     const onPointerDown = e => {

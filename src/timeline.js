@@ -1,22 +1,67 @@
-// src/timeline.js
-
-/**
- * Gestion de la timeline d'animation (frames)
- * Une frame = {
- *   transform: { tx, ty, scale, rotate },
- *   members: { segmentId: { rotate: angleDeg }, ... },
- *   objects: { objectId: { x, y, scale, rotate, layer, attachedTo, src } }
- * }
- */
+import EventEmitter from 'eventemitter3';
 
 export class Timeline {
   constructor(memberList, initialFrame = null) {
+    this.emitter = new EventEmitter();
     this.memberList = memberList;
     this.frames = [initialFrame || this.createEmptyFrame()];
     this.current = 0;
     this.playing = false;
+    this.fps        = 8; 
+    this.loop       = false;
     this._rafId = null;
     this.objectStore = {};
+  }
+
+  /**
+   * Subscribe to an event.
+   */
+  on(eventName, callback) {
+    this.emitter.on(eventName, callback);
+  }
+
+  /**
+   * Unsubscribe from an event.
+   */
+  off(eventName, callback) {
+    this.emitter.off(eventName, callback);
+  }
+
+  /**
+   * Emit an event.
+   */
+  emit(eventName, payload) {
+    this.emitter.emit(eventName, payload);
+  }
+
+  getFrameCount() {
+    return this.frames.length;
+  }
+
+  getFps() {
+    return this.fps;
+  }
+
+  getLoop() {
+    return this.loop;
+  }
+
+  setFps(newFps) {
+    this.fps = newFps;
+    this.emit('fpsChange', newFps);
+  }
+
+  setLoop(shouldLoop) {
+    this.loop = shouldLoop;
+    this.emit('loopChange', shouldLoop);
+  }
+
+  togglePlay() {
+    if (this.playing) {
+      this.stop();
+    } else {
+      this.playInternal();
+    }
   }
 
   createEmptyFrame() {
@@ -36,6 +81,7 @@ export class Timeline {
   setCurrentFrame(index) {
     if (index < 0 || index >= this.frames.length) return;
     this.current = index;
+    this.emit('frameChange', this.current);
     return this.getCurrentFrame();
   }
 
@@ -43,6 +89,7 @@ export class Timeline {
     if (!this.memberList.includes(id)) return;
     const frame = this.getCurrentFrame();
     frame.members[id] = { ...frame.members[id], ...value };
+    this.emit('memberTransform', { id, ...value });
   }
 
   updateTransform(values) {
@@ -55,6 +102,7 @@ export class Timeline {
       updated.rotate = ((updated.rotate % 360) + 360) % 360;
     }
     frame.transform = updated;
+    this.emit('transformChange', updated);
   }
 
   addObject(id, data) {
@@ -124,11 +172,13 @@ export class Timeline {
 
   nextFrame() {
     if (this.current < this.frames.length - 1) this.current++;
+    this.emit('frameChange', this.current);
     return this.getCurrentFrame();
   }
 
   prevFrame() {
     if (this.current > 0) this.current--;
+    this.emit('frameChange', this.current);
     return this.getCurrentFrame();
   }
 
@@ -164,6 +214,39 @@ export class Timeline {
     this._rafId = requestAnimationFrame(step);
   }
 
+  playInternal(callback, onEnd, fps = 8, options = {}) {
+    if (this.playing) return;
+    const { loop = false, rewind = false, reverse = false } = options;
+    this.playing = true;
+    this.emit('playToggle', true);
+    const direction = reverse ? -1 : 1;
+    let i = this.current;
+    const frameDuration = 1000 / fps;
+    let lastTime = performance.now();
+    
+    const step = time => {
+      if (!this.playing) return;
+      if (time - lastTime >= frameDuration) {
+        if (i < 0 || i >= this.frames.length) {
+          if (loop) {
+            i = reverse ? this.frames.length - 1 : 0;
+          } else {
+            this.stop();
+            if (rewind) this.current = reverse ? this.frames.length - 1 : 0;
+            if (typeof onEnd === 'function') onEnd();
+            return;
+          }
+        }
+        callback(this.frames[i], i);
+        i += direction;
+        lastTime = time;
+      }
+      this._rafId = requestAnimationFrame(step);
+    };
+
+    this._rafId = requestAnimationFrame(step);
+  }
+
   loop(callback, fps = 8, options = {}) {
     return this.play(callback, null, fps, { ...options, loop: true });
   }
@@ -172,6 +255,7 @@ export class Timeline {
     this.playing = false;
     cancelAnimationFrame(this._rafId);
     this._rafId = null;
+    this.emit('playToggle', false);
   }
 
   exportJSON() {
