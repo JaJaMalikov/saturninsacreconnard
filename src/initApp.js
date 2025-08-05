@@ -8,12 +8,12 @@ import { debugLog } from './debug.js';
 import CONFIG from './config.js';
 import { memberMapStore } from './memberMapStore.js';
 
-const { SVG_URL, THEATRE_ID, PANTIN_ROOT_ID, GRAB_ID } = CONFIG;
+const { SVG_URL, PANTIN_ROOT_ID, GRAB_ID } = CONFIG;
 
-export async function initApp() {
+export async function initApp(theatreEl = document.getElementById(CONFIG.THEATRE_ID)) {
   debugLog("main() started");
   try {
-    const { svgElement, memberList, pivots } = await loadSVG(SVG_URL, THEATRE_ID);
+    const { svgElement, memberList, pivots } = await loadSVG(SVG_URL, theatreEl);
     debugLog("SVG loaded, Timeline instantiated.");
     const timeline = new Timeline(memberList);
     const attachableMembers = Array.from(new Set([...memberList, 'main_droite', 'main_gauche', 'pied_droite', 'pied_gauche', 'bouche']));

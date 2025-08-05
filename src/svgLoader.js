@@ -4,18 +4,18 @@ import { debugLog } from './debug.js';
 /**
  * Charge le fichier SVG, l'injecte dans le DOM et prépare les éléments.
  * @param {string} url - URL du fichier SVG (ex: "manu.svg")
- * @param {string} targetId - ID de l'élément où injecter le SVG (ex: "theatre")
+ * @param {HTMLElement|string} target - Élément cible ou son ID où injecter le SVG
  * @returns {Promise<{svgElement, memberList, pivots}>}
  */
-export async function loadSVG(url, targetId) {
+export async function loadSVG(url, target) {
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
   const svgText = await response.text();
 
-  const target = document.getElementById(targetId);
-  if (!target) throw new Error(`Element cible #${targetId} introuvable`);
+  const targetEl = typeof target === 'string' ? document.getElementById(target) : target;
+  if (!targetEl) throw new Error(`Element cible introuvable`);
 
   const parser = new DOMParser();
   const doc = parser.parseFromString(svgText, 'image/svg+xml');
@@ -23,8 +23,8 @@ export async function loadSVG(url, targetId) {
   if (!svgElement) throw new Error('Aucun élément <svg> trouvé dans le fichier chargé.');
   svgElement.querySelectorAll('script').forEach(s => s.remove());
 
-  target.innerHTML = '';
-  target.appendChild(svgElement);
+  targetEl.innerHTML = '';
+  targetEl.appendChild(svgElement);
 
   svgElement.setAttribute('width', '100%');
   svgElement.setAttribute('height', '100%');

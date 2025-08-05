@@ -114,7 +114,7 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
     if (!el) return;
 
     // --- 1. Get object's current world transform properties ---
-    const worldMatrix = el.getCTM();
+    const worldMatrix = el.getScreenCTM() || el.getCTM();
     const worldPos = { x: worldMatrix.e, y: worldMatrix.f };
     const worldRot = Math.atan2(worldMatrix.b, worldMatrix.a) * (180 / Math.PI);
     const worldScale = Math.sqrt(worldMatrix.a * worldMatrix.a + worldMatrix.b * worldMatrix.b);
@@ -125,7 +125,7 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
     if (memberId) {
         const newParent = pantinRoot.querySelector(`#${memberId}`);
         if (newParent) {
-            const parentMatrix = newParent.getCTM();
+            const parentMatrix = newParent.getScreenCTM() || newParent.getCTM();
             const parentInverseMatrix = parentMatrix.inverse();
 
             // Get parent's properties
@@ -276,13 +276,26 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
       const obj = timeline.getObject(id);
       if (!obj) return;
       if (!el) {
-        // This part is now mainly for re-creating objects on timeline import
+        // Recreate objects on timeline import by fetching their SVG content
         el = document.createElementNS(ns, 'g');
         el.id = id;
         el.classList.add('scene-object');
-        // Note: The actual SVG content will be missing here.
-        // A full implementation would require re-fetching the SVG content.
         (obj.layer === 'front' ? frontLayer : backLayer).appendChild(el);
+        if (obj.src) {
+          fetch(obj.src)
+            .then(res => res.text())
+            .then(svgText => {
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(svgText, 'image/svg+xml');
+              const svgContent = doc.querySelector('svg');
+              if (svgContent) {
+                while (svgContent.firstChild) {
+                  el.appendChild(svgContent.firstChild);
+                }
+              }
+            })
+            .catch(err => console.error('Error loading object', err));
+        }
         setupInteract(el, id);
       }
 

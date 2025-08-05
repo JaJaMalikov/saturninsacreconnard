@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './style.css';
 import { initApp } from './initApp.js';
 
@@ -7,8 +7,10 @@ export default function App() {
     return localStorage.getItem('inspector-collapsed') === 'true';
   });
 
+  const theatreRef = useRef(null);
+
   useEffect(() => {
-    initApp();
+    initApp(theatreRef.current);
   }, []);
 
   const toggleInspector = () => {
@@ -94,7 +96,7 @@ export default function App() {
           </div>
         </div>
       </aside>
-      <main id="theatre" role="main"></main>
+      <main id="theatre" role="main" ref={theatreRef}></main>
       <footer id="timeline-panel" role="contentinfo">
         <div id="timeline-controls">
           <button type="button" id="prevFrame" title="Image précédente" aria-label="Image précédente">⏮️</button>
