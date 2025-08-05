@@ -4,11 +4,11 @@ import { TimelineControls, InspectorPanel, DataPanel } from './components/UIComp
 
 export default function App() {
   const {
-    containerRef,
+    containerRef, timelineRef,
     frameIndex, frameCount, isPlaying, fps, loop,
     selectedMember, scale, rotation, onionSettings, objects,
     goToFrame, togglePlay, setLoop, setFps,
-    updateMember, updateTransform, setOnion, addObject, selectObject
+    updateMember, setOnion, addObject, selectObject
   } = useTimeline('/assets/puppet.svg');
 
   return (

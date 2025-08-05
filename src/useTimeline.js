@@ -1,4 +1,3 @@
-import { memberMapStore } from './memberMapStore';
 import { useEffect, useRef, useState } from 'react';
 import { loadSVG } from './svgLoader';
 import { Timeline } from './timeline';
@@ -32,7 +31,7 @@ export function useTimeline() {
       containerRef.current.id = THEATRE_ID;
 
       // Charger et injecter le SVG
-      const { svgElement, memberList, pivots } = await loadSVG(SVG_URL, THEATRE_ID);
+      const { svgElement, memberList } = await loadSVG(SVG_URL, THEATRE_ID);
       if (!mounted) return;
       const svgRoot = svgElement;
 
@@ -95,6 +94,7 @@ export function useTimeline() {
 
   return {
     containerRef,
+    timelineRef,
     frameIndex, frameCount, isPlaying, fps, loop,
     selectedMember, scale, rotation, onionSettings, objects,
     goToFrame, togglePlay, setLoop: setLoopAction, setFps: setFpsAction,

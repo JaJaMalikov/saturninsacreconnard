@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -72,6 +72,7 @@ export function InspectorPanel({
     <Card className="p-4 space-y-4">
       <CardContent>
         <h3 className="text-xl font-semibold">Inspector</h3>
+        <div className="text-sm mb-2">Selected: {selectedMember || 'none'}</div>
         <div>
           <label className="block mb-1">Scale</label>
           <Slider
@@ -93,12 +94,35 @@ export function InspectorPanel({
         </div>
         <div>
           <h4 className="font-medium">Onion Skin</h4>
-          {/* Render onionSettings controls */}
+          <div className="flex items-center space-x-2">
+            <label>Before</label>
+            <input
+              type="number"
+              value={onionSettings.before}
+              onChange={e => onOnionSettingsChange({ ...onionSettings, before: Number(e.target.value) })}
+              className="w-16 border rounded p-1"
+            />
+            <label>After</label>
+            <input
+              type="number"
+              value={onionSettings.after}
+              onChange={e => onOnionSettingsChange({ ...onionSettings, after: Number(e.target.value) })}
+              className="w-16 border rounded p-1"
+            />
+          </div>
         </div>
         <div>
           <h4 className="font-medium">Objects</h4>
           <Button onClick={onAddObject}>Add Object</Button>
-          {/* Render list of objects */}
+          <ul className="mt-2 space-y-1">
+            {objects.map(obj => (
+              <li key={obj.id}>
+                <Button variant={obj.selected ? 'default' : 'secondary'} onClick={() => onSelectObject(obj.id)}>
+                  {obj.name || obj.id}
+                </Button>
+              </li>
+            ))}
+          </ul>
         </div>
       </CardContent>
     </Card>
