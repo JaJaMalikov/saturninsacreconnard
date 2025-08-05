@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import './style.css';
 import { initApp } from './initApp.js';
 
@@ -11,13 +11,13 @@ export default function App() {
     initApp();
   }, []);
 
-  const toggleInspector = () => {
-    setInspectorCollapsed(prev => {
-      const next = !prev;
-      localStorage.setItem('inspector-collapsed', next);
-      return next;
-    });
-  };
+  useEffect(() => {
+    localStorage.setItem('inspector-collapsed', inspectorCollapsed);
+  }, [inspectorCollapsed]);
+
+  const toggleInspector = useCallback(() => {
+    setInspectorCollapsed(prev => !prev);
+  }, []);
 
   return (
     <div

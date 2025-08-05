@@ -106,69 +106,50 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
   }
 
   function attach(id, memberId) {
-    const _frame = timeline.getCurrentFrame();
     const objData = timeline.getObject(id);
     if (!objData) return;
 
     const el = svgElement.getElementById(id);
     if (!el) return;
 
-    // --- 1. Get object's current world transform properties ---
     const worldMatrix = el.getCTM();
-    const worldPos = { x: worldMatrix.e, y: worldMatrix.f };
-    const worldRot = Math.atan2(worldMatrix.b, worldMatrix.a) * (180 / Math.PI);
-    const worldScale = Math.sqrt(worldMatrix.a * worldMatrix.a + worldMatrix.b * worldMatrix.b);
-
     let newX, newY, newRotate, newScale;
 
-    // --- 2. Attach to a new parent ---
     if (memberId) {
-        const newParent = pantinRoot.querySelector(`#${memberId}`);
-        if (newParent) {
-            const parentMatrix = newParent.getCTM();
-            const parentInverseMatrix = parentMatrix.inverse();
-
-            // Get parent's properties
-            const _parentRot = Math.atan2(parentMatrix.b, parentMatrix.a) * (180 / Math.PI);
-            const _parentScale = Math.sqrt(parentMatrix.a * parentMatrix.a + parentMatrix.b * parentMatrix.b);
-
-            // To keep the object visually in the same place, we calculate its new local
-            // transform relative to the new parent.
-            const localMatrix = parentInverseMatrix.multiply(worldMatrix);
-
-            // Decompose the new local matrix to get the timeline values
-            newX = localMatrix.e;
-            newY = localMatrix.f;
-            newRotate = Math.atan2(localMatrix.b, localMatrix.a) * (180 / Math.PI);
-            newScale = Math.sqrt(localMatrix.a * localMatrix.a + localMatrix.b * localMatrix.b);
-
-        } else {
-             // If parent not found, treat as a detach
-            memberId = null;
-        }
+      const newParent = pantinRoot.querySelector(`#${memberId}`);
+      if (newParent) {
+        const parentMatrix = newParent.getCTM();
+        const localMatrix = parentMatrix.inverse().multiply(worldMatrix);
+        newX = localMatrix.e;
+        newY = localMatrix.f;
+        newRotate = Math.atan2(localMatrix.b, localMatrix.a) * (180 / Math.PI);
+        newScale = Math.sqrt(localMatrix.a * localMatrix.a + localMatrix.b * localMatrix.b);
+      } else {
+        memberId = null;
+      }
     }
 
-    // --- 3. Detach from parent ---
     if (!memberId) {
-        // When detaching, the object's new local transform is its old world transform.
-        newX = worldPos.x;
-        newY = worldPos.y;
-        newRotate = worldRot;
-        newScale = worldScale;
+      // Remove the global transform of the pantin to keep world position
+      const globalMatrix = pantinRoot.getCTM();
+      const localMatrix = globalMatrix.inverse().multiply(worldMatrix);
+      newX = localMatrix.e;
+      newY = localMatrix.f;
+      newRotate = Math.atan2(localMatrix.b, localMatrix.a) * (180 / Math.PI);
+      newScale = Math.sqrt(localMatrix.a * localMatrix.a + localMatrix.b * localMatrix.b);
     }
 
-    // --- 4. Update timeline ---
     timeline.updateObject(id, {
-        attachedTo: memberId,
-        x: newX,
-        y: newY,
-        rotate: newRotate,
-        scale: newScale,
+      attachedTo: memberId,
+      x: newX,
+      y: newY,
+      rotate: newRotate,
+      scale: newScale,
     });
 
     onUpdate();
     onSave();
-}
+  }
 
   function setupInteract(el, id) {
     const pointers = new Map();
@@ -276,14 +257,26 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
       const obj = timeline.getObject(id);
       if (!obj) return;
       if (!el) {
-        // This part is now mainly for re-creating objects on timeline import
         el = document.createElementNS(ns, 'g');
         el.id = id;
         el.classList.add('scene-object');
-        // Note: The actual SVG content will be missing here.
-        // A full implementation would require re-fetching the SVG content.
         (obj.layer === 'front' ? frontLayer : backLayer).appendChild(el);
         setupInteract(el, id);
+        if (obj.src) {
+          fetch(obj.src)
+            .then(res => (res.ok ? res.text() : Promise.reject()))
+            .then(svgText => {
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(svgText, 'image/svg+xml');
+              const svgContent = doc.querySelector('svg');
+              if (svgContent) {
+                while (svgContent.firstChild) {
+                  el.appendChild(svgContent.firstChild);
+                }
+              }
+            })
+            .catch(() => {});
+        }
       }
 
       if (obj.attachedTo) {
@@ -295,11 +288,15 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
       } else {
         const parent = obj.layer === 'front' ? frontLayer : backLayer;
         if (el.parentNode !== parent) parent.appendChild(el);
-        const totalRotate = obj.rotate + currentFrame.transform.rotate;
-        const totalScale = obj.scale * currentFrame.transform.scale;
-        const tx = obj.x + currentFrame.transform.tx;
-        const ty = obj.y + currentFrame.transform.ty;
-        el.setAttribute('transform', `translate(${tx},${ty}) rotate(${totalRotate}) scale(${totalScale})`);
+        const { tx, ty, rotate, scale } = currentFrame.transform;
+        const rad = rotate * Math.PI / 180;
+        const cos = Math.cos(rad);
+        const sin = Math.sin(rad);
+        const x = tx + (obj.x * cos - obj.y * sin) * scale;
+        const y = ty + (obj.x * sin + obj.y * cos) * scale;
+        const totalRotate = obj.rotate + rotate;
+        const totalScale = obj.scale * scale;
+        el.setAttribute('transform', `translate(${x},${y}) rotate(${totalRotate}) scale(${totalScale})`);
       }
 
       if (selectedId === id) el.classList.add('selected');
