@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
@@ -57,16 +57,11 @@ export function TimelineControls({
 
 // Inspector panel: member scale, rotation, object management, onion skin settings
 export function InspectorPanel({
-  selectedMember,
   scale,
   rotation,
-  onionSettings,
   onScaleChange,
   onRotationChange,
-  onOnionSettingsChange,
   onAddObject,
-  onSelectObject,
-  objects
 }) {
   return (
     <Card className="p-4 space-y-4">

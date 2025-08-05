@@ -5,10 +5,21 @@ import { TimelineControls, InspectorPanel, DataPanel } from './components/UIComp
 export default function App() {
   const {
     containerRef,
-    frameIndex, frameCount, isPlaying, fps, loop,
-    selectedMember, scale, rotation, onionSettings, objects,
-    goToFrame, togglePlay, setLoop, setFps,
-    updateMember, updateTransform, setOnion, addObject, selectObject
+    frameIndex,
+    frameCount,
+    isPlaying,
+    fps,
+    loop,
+    selectedMember,
+    scale,
+    rotation,
+    goToFrame,
+    togglePlay,
+    setLoop,
+    setFps,
+    updateMember,
+    addObject,
+    timelineRef,
   } = useTimeline('/assets/puppet.svg');
 
   return (
@@ -29,22 +40,24 @@ export default function App() {
         />
 
         <InspectorPanel
-          selectedMember={selectedMember}
           scale={scale}
           rotation={rotation}
-          onionSettings={onionSettings}
           onScaleChange={v => updateMember(selectedMember, { scale: v })}
           onRotationChange={v => updateMember(selectedMember, { rotate: v })}
-          onOnionSettingsChange={setOnion}
           onAddObject={addObject}
-          onSelectObject={selectObject}
-          objects={objects}
         />
 
         <DataPanel
-          onExport={() => timelineRef.current.exportJSON()}
-          onImport={e => timelineRef.current.importJSON(e.target.files[0])}
-          onReset={() => timelineRef.current.reset()}
+          onExport={() => timelineRef.current?.exportJSON()}
+          onImport={e => {
+            const file = e.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = evt => timelineRef.current?.importJSON(evt.target.result);
+              reader.readAsText(file);
+            }
+          }}
+          onReset={() => timelineRef.current?.reset()}
         />
       </div>
 
