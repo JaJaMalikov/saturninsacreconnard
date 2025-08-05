@@ -1,29 +1,31 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import './style.css';
 import { initApp } from './initApp.js';
 
 export default function App() {
-  const [inspectorCollapsed, setInspectorCollapsed] = useState(() => {
-    return localStorage.getItem('inspector-collapsed') === 'true';
-  });
+  const [inspectorCollapsed, setInspectorCollapsed] = useState(() =>
+    localStorage.getItem('inspector-collapsed') === 'true'
+  );
 
   useEffect(() => {
     initApp();
   }, []);
 
-  const toggleInspector = () => {
-    setInspectorCollapsed(prev => {
-      const next = !prev;
-      localStorage.setItem('inspector-collapsed', next);
-      return next;
-    });
-  };
+  useEffect(() => {
+    localStorage.setItem('inspector-collapsed', inspectorCollapsed);
+  }, [inspectorCollapsed]);
+
+  const toggleInspector = useCallback(() => {
+    setInspectorCollapsed(prev => !prev);
+  }, []);
+
+  const containerClass = useMemo(
+    () => `app-container${inspectorCollapsed ? ' inspector-collapsed' : ''}`,
+    [inspectorCollapsed]
+  );
 
   return (
-    <div
-      id="app-container"
-      className={`app-container${inspectorCollapsed ? ' inspector-collapsed' : ''}`}
-    >
+    <div id="app-container" className={containerClass}>
       <aside id="inspector-panel" role="region" aria-label="Contrôles de l'inspecteur">
         <h3>Inspecteur</h3>
         <div id="selection-info">

@@ -11,6 +11,10 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
   pantinRoot.parentNode.insertBefore(backLayer, pantinRoot);
   pantinRoot.parentNode.insertBefore(frontLayer, pantinRoot.nextSibling);
 
+  // Cache for already loaded object SVGs to avoid refetching
+  const loadedObjects = new Map();
+  const loadingIds = new Set();
+
   let selectedId = null;
   let selectCallback = null;
 
@@ -57,21 +61,24 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
 
         if (!svgContent) throw new Error('No SVG content found in file');
 
-        const objectGroup = document.createElementNS(ns, 'g');
-        objectGroup.id = id;
-        objectGroup.classList.add('scene-object');
+        const outerGroup = document.createElementNS(ns, 'g');
+        outerGroup.id = id;
+        outerGroup.classList.add('scene-object');
 
-        // Append all children from the loaded SVG into our new group
+        const innerGroup = document.createElementNS(ns, 'g');
         while (svgContent.firstChild) {
-            objectGroup.appendChild(svgContent.firstChild);
+            innerGroup.appendChild(svgContent.firstChild);
         }
+        const bbox = innerGroup.getBBox();
+        innerGroup.setAttribute('transform', `translate(${-bbox.x},${-bbox.y})`);
+        outerGroup.appendChild(innerGroup);
 
-        const bbox = objectGroup.getBBox();
         const width = bbox.width;
         const height = bbox.height;
 
-        (layer === 'front' ? frontLayer : backLayer).appendChild(objectGroup);
-        setupInteract(objectGroup, id);
+        (layer === 'front' ? frontLayer : backLayer).appendChild(outerGroup);
+        setupInteract(outerGroup, id);
+        loadedObjects.set(id, outerGroup);
 
         timeline.addObject(id, { x: 0, y: 0, scale: 1, rotate: 0, layer, attachedTo: null, src: path, width, height });
         selectObject(id);
@@ -276,14 +283,38 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
       const obj = timeline.getObject(id);
       if (!obj) return;
       if (!el) {
-        // This part is now mainly for re-creating objects on timeline import
-        el = document.createElementNS(ns, 'g');
-        el.id = id;
-        el.classList.add('scene-object');
-        // Note: The actual SVG content will be missing here.
-        // A full implementation would require re-fetching the SVG content.
-        (obj.layer === 'front' ? frontLayer : backLayer).appendChild(el);
-        setupInteract(el, id);
+        if (loadedObjects.has(id)) {
+          el = loadedObjects.get(id);
+          (obj.layer === 'front' ? frontLayer : backLayer).appendChild(el);
+        } else if (!loadingIds.has(id)) {
+          loadingIds.add(id);
+          fetch(obj.src)
+            .then(r => r.text())
+            .then(svgText => {
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(svgText, 'image/svg+xml');
+              const svgContent = doc.querySelector('svg');
+              if (!svgContent) throw new Error('No SVG content');
+              const outer = document.createElementNS(ns, 'g');
+              outer.id = id;
+              outer.classList.add('scene-object');
+              const inner = document.createElementNS(ns, 'g');
+              while (svgContent.firstChild) inner.appendChild(svgContent.firstChild);
+              const bb = inner.getBBox();
+              inner.setAttribute('transform', `translate(${-bb.x},${-bb.y})`);
+              outer.appendChild(inner);
+              loadedObjects.set(id, outer);
+              setupInteract(outer, id);
+              (obj.layer === 'front' ? frontLayer : backLayer).appendChild(outer);
+              loadingIds.delete(id);
+              onUpdate();
+            })
+            .catch(err => {
+              console.error('Error loading object:', err);
+              loadingIds.delete(id);
+            });
+        }
+        return;
       }
 
       if (obj.attachedTo) {
