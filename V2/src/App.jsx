@@ -1,14 +1,29 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './style.css';
 import { initApp } from './initApp.js';
 
 export default function App() {
+  const [inspectorCollapsed, setInspectorCollapsed] = useState(() => {
+    return localStorage.getItem('inspector-collapsed') === 'true';
+  });
+
   useEffect(() => {
     initApp();
   }, []);
 
+  const toggleInspector = () => {
+    setInspectorCollapsed(prev => {
+      const next = !prev;
+      localStorage.setItem('inspector-collapsed', next);
+      return next;
+    });
+  };
+
   return (
-    <div id="app-container" className="app-container">
+    <div
+      id="app-container"
+      className={`app-container${inspectorCollapsed ? ' inspector-collapsed' : ''}`}
+    >
       <aside id="inspector-panel" role="region" aria-label="Contrôles de l'inspecteur">
         <h3>Inspecteur</h3>
         <div id="selection-info">
@@ -102,7 +117,15 @@ export default function App() {
           <button type="button" id="delFrame" title="Supprimer l'image" aria-label="Supprimer l'image">🗑️</button>
         </div>
         <div id="app-actions">
-          <button type="button" id="inspector-toggle-btn" title="Afficher/Masquer l'inspecteur" aria-label="Afficher/Masquer l'inspecteur">↔️</button>
+          <button
+            type="button"
+            id="inspector-toggle-btn"
+            title="Afficher/Masquer l'inspecteur"
+            aria-label="Afficher/Masquer l'inspecteur"
+            onClick={toggleInspector}
+          >
+            ↔️
+          </button>
           <button type="button" id="exportAnim" title="Exporter l'animation" aria-label="Exporter l'animation">💾 Export</button>
           <label htmlFor="importAnim" id="importAnimBtn" className="button" tabIndex="0" aria-label="Importer l'animation">📂 Import</label>
           <input type="file" id="importAnim" accept=".json" style={{display: 'none'}} />

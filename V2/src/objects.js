@@ -106,7 +106,7 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
   }
 
   function attach(id, memberId) {
-    const frame = timeline.getCurrentFrame();
+    const _frame = timeline.getCurrentFrame();
     const objData = timeline.getObject(id);
     if (!objData) return;
 
@@ -129,8 +129,8 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
             const parentInverseMatrix = parentMatrix.inverse();
 
             // Get parent's properties
-            const parentRot = Math.atan2(parentMatrix.b, parentMatrix.a) * (180 / Math.PI);
-            const parentScale = Math.sqrt(parentMatrix.a * parentMatrix.a + parentMatrix.b * parentMatrix.b);
+            const _parentRot = Math.atan2(parentMatrix.b, parentMatrix.a) * (180 / Math.PI);
+            const _parentScale = Math.sqrt(parentMatrix.a * parentMatrix.a + parentMatrix.b * parentMatrix.b);
 
             // To keep the object visually in the same place, we calculate its new local
             // transform relative to the new parent.
@@ -212,7 +212,7 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
         if (obj.attachedTo) {
           const seg = pantinRoot.querySelector(`#${obj.attachedTo}`);
           if (seg) {
-            const inv = seg.getCTM().inverse();
+            const _inv = seg.getCTM().inverse();
             const pt = svgElement.createSVGPoint();
             pt.x = dx;
             pt.y = dy;

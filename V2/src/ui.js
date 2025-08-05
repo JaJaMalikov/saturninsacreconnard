@@ -36,21 +36,6 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
   const scaleValueEl = document.getElementById('scale-value');
   const rotateValueEl = document.getElementById('rotate-value');
 
-  // --- Panneau Inspecteur Escamotable ---
-  const appContainer = document.getElementById('app-container');
-  const inspectorToggleBtn = document.getElementById('inspector-toggle-btn');
-  const inspectorStateKey = 'inspector-collapsed';
-
-  if (localStorage.getItem(inspectorStateKey) === 'true') {
-    appContainer.classList.add('inspector-collapsed');
-  }
-
-  inspectorToggleBtn.addEventListener('click', () => {
-    debugLog("Inspector toggle button clicked.");
-    appContainer.classList.toggle('inspector-collapsed');
-    localStorage.setItem(inspectorStateKey, appContainer.classList.contains('inspector-collapsed'));
-  });
-
   objects.memberList.forEach(id => {
     const opt = document.createElement('option');
     opt.value = id;
@@ -225,7 +210,7 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     debugLog('Reset storage button clicked.');
     if (confirm('Voulez-vous vraiment réinitialiser le projet ?\nCette action est irréversible.')) {
       localStorage.removeItem('animation');
-      localStorage.removeItem(inspectorStateKey);
+      localStorage.removeItem('inspector-collapsed');
       window.location.reload();
     }
   });
