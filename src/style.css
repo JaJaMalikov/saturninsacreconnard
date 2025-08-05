@@ -1,0 +1,204 @@
+:root {
+  --bg-color: #1a1a1a;
+  --panel-bg-color: #2a2a2a;
+  --border-color: #3a3a3a;
+  --text-color: #eaeaea;
+  --accent-color: #2c6;
+  --accent-hover-color: #3ad;
+  --inspector-width: 250px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.app-container {
+  display: grid;
+  grid-template-columns: 1fr var(--inspector-width);
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    "theatre inspector"
+    "timeline timeline";
+  height: 100vh;
+  width: 100vw;
+  transition: grid-template-columns 0.3s ease-in-out;
+}
+
+.app-container.inspector-collapsed {
+  grid-template-columns: 1fr 0px;
+}
+
+#theatre {
+  grid-area: theatre;
+  background-color: var(--bg-color);
+  overflow: hidden;
+  touch-action: none;
+}
+
+#theatre svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+#inspector-panel {
+  grid-area: inspector;
+  background-color: var(--panel-bg-color);
+  border-left: 1px solid var(--border-color);
+  padding: 16px;
+  overflow-y: auto;
+}
+
+
+
+#selection-info {
+  margin-top: 16px;
+  padding: 8px;
+  background-color: var(--bg-color);
+  border-radius: 4px;
+}
+
+#selection-info label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 4px;
+}
+
+#selected-element-name {
+  color: var(--accent-color);
+}
+
+#object-controls select,
+#object-controls button {
+  width: 100%;
+}
+
+.scene-object.selected {
+  outline: 2px dashed var(--accent-color);
+}
+
+.control-group {
+  margin: 20px 0;
+}
+
+.control-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.9em;
+  color: #aaa;
+}
+
+.value-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.value-stepper button {
+  width: 30px;
+  height: 30px;
+  font-size: 1.2em;
+  padding: 0;
+}
+
+.value-stepper span {
+  font-size: 1.1em;
+  font-variant-numeric: tabular-nums;
+  padding: 0 10px;
+}
+
+#timeline-panel {
+  grid-area: timeline;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: var(--panel-bg-color);
+  border-top: 1px solid var(--border-color);
+  padding: 8px 16px;
+  height: 60px;
+}
+
+#timeline-slider-container {
+  flex-grow: 1;
+}
+
+input[type="range"] {
+  width: 100%;
+  cursor: pointer;
+}
+
+.fps-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.fps-control label {
+  margin: 0;
+}
+
+.fps-control input[type="number"] {
+  width: 60px;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 4px;
+}
+
+button, .button {
+  background-color: #333;
+  color: #eee;
+  border: 1px solid #555;
+  border-radius: 5px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+button:hover, .button:hover {
+  background-color: var(--accent-hover-color);
+  border-color: var(--accent-color);
+}
+
+#timeline-actions, #timeline-controls, #app-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#frameInfo {
+  font-variant-numeric: tabular-nums;
+  background-color: var(--bg-color);
+  padding: 4px 8px;
+  border-radius: 3px;
+}
+
+.onion-skin-ghost {
+  pointer-events: none; /* Make ghosts non-interactive */
+  opacity: 0.3; /* Semi-transparent */
+  transition: opacity 0.1s ease-out; /* Smooth fade */
+}
+
+.onion-skin-past {
+  /* Example color for past frames */
+  filter: hue-rotate(180deg) saturate(1.5); /* Blueish tint */
+}
+
+.onion-skin-future {
+  /* Example color for future frames */
+  filter: hue-rotate(90deg) saturate(1.5); /* Greenish tint */
+}
