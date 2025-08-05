@@ -221,6 +221,7 @@ export function initUI(timeline, onFrameChange, onSave, objects) {
     const src = objectAssetSelect.value;
     if (!src) return;
     await objects.addObject(src, objectLayerSelect.value);
+    updateUI(true);
   });
 
   objectList.addEventListener('change', () => {
