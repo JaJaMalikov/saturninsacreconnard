@@ -72,7 +72,7 @@ export async function initApp() {
 
     let objects;
 
-    const onFrameChange = () => {
+    const onFrameChange = async () => {
       debugLog("onFrameChange triggered. Current frame:", timeline.current);
       const frame = timeline.getCurrentFrame();
       if (!frame) return;
@@ -88,7 +88,7 @@ export async function initApp() {
       renderOnionSkins(timeline, applyFrameToPantinElement);
 
       // Render scene objects
-      objects && objects.renderObjects();
+      if (objects) await objects.renderObjects();
     };
 
     debugLog("Initializing Onion Skin...");

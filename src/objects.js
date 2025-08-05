@@ -150,11 +150,14 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
 
     // --- 3. Detach from parent ---
     if (!memberId) {
-        // When detaching, the object's new local transform is its old world transform.
-        newX = worldPos.x;
-        newY = worldPos.y;
-        newRotate = worldRot;
-        newScale = worldScale;
+        // When detaching, convert world transform back into the timeline's local
+        // coordinates so that re-rendering with the pantin transform keeps the
+        // object visually in the same place.
+        const frame = timeline.getCurrentFrame();
+        newX = worldPos.x - frame.transform.tx;
+        newY = worldPos.y - frame.transform.ty;
+        newRotate = worldRot - frame.transform.rotate;
+        newScale = worldScale / frame.transform.scale;
     }
 
     // --- 4. Update timeline ---
@@ -267,23 +270,37 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
     el.addEventListener('pointerleave', onPointerUp);
   }
 
-  function renderObjects() {
+  async function renderObjects() {
     const currentFrame = timeline.getCurrentFrame();
     const existing = new Set();
-    Object.keys(currentFrame.objects).forEach(id => {
+    for (const id of Object.keys(currentFrame.objects)) {
       existing.add(id);
       let el = svgElement.getElementById(id);
       const obj = timeline.getObject(id);
-      if (!obj) return;
+      if (!obj) continue;
       if (!el) {
-        // This part is now mainly for re-creating objects on timeline import
         el = document.createElementNS(ns, 'g');
         el.id = id;
         el.classList.add('scene-object');
-        // Note: The actual SVG content will be missing here.
-        // A full implementation would require re-fetching the SVG content.
         (obj.layer === 'front' ? frontLayer : backLayer).appendChild(el);
         setupInteract(el, id);
+        if (obj.src) {
+          try {
+            const response = await fetch(obj.src);
+            if (!response.ok) throw new Error(`Failed to fetch ${obj.src}`);
+            const svgText = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(svgText, 'image/svg+xml');
+            const svgContent = doc.querySelector('svg');
+            if (svgContent) {
+              while (svgContent.firstChild) {
+                el.appendChild(svgContent.firstChild);
+              }
+            }
+          } catch (err) {
+            console.error('Error loading object:', err);
+          }
+        }
       }
 
       if (obj.attachedTo) {
@@ -304,7 +321,7 @@ export function initObjects(svgElement, pantinRootId, timeline, memberList, onUp
 
       if (selectedId === id) el.classList.add('selected');
       else el.classList.remove('selected');
-    });
+    }
     [frontLayer, backLayer, pantinRoot].forEach(layer => {
       layer.querySelectorAll('.scene-object').forEach(el => {
         if (!existing.has(el.id)) el.remove();
