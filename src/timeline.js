@@ -258,6 +258,14 @@ export class Timeline {
     this.emit('playToggle', false);
   }
 
+  reset() {
+    this.stop();
+    this.frames = [this.createEmptyFrame()];
+    this.current = 0;
+    this.objectStore = {};
+    this.emit('frameChange', this.current);
+  }
+
   exportJSON() {
     return JSON.stringify({ frames: this.frames, objects: this.objectStore }, null, 2);
   }

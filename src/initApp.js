@@ -66,6 +66,8 @@ export async function initApp() {
     }
 
     let objects;
+    const scaleValueEl = document.getElementById('scaleValue');
+    const rotateValueEl = document.getElementById('rotateValue');
 
     timeline.on('frameChange', () => {
       const frame = timeline.getCurrentFrame();
@@ -86,7 +88,7 @@ export async function initApp() {
     });
 
     // Quand un membre est mis à jour (scale / rotate)…
-timeline.on('memberTransform', ({ id, scale, rotate }) => {
+    timeline.on('memberTransform', () => {
   // On récupère la frame courante et on ré-applique tout
   const frame = timeline.getCurrentFrame();
   if (!frame) return;
@@ -117,7 +119,15 @@ timeline.on('transformChange', transform => {
       grabId: GRAB_ID,
     };
 
-    objects = initObjects(svgElement, PANTIN_ROOT_ID, timeline, attachableMembers);
+    const onObjectsUpdate = () => {};
+    objects = initObjects(
+      svgElement,
+      PANTIN_ROOT_ID,
+      timeline,
+      attachableMembers,
+      onObjectsUpdate,
+      onSave
+    );
 
     debugLog("Setting up member interactions...");
     const teardownMembers = setupInteractions(svgElement, memberList, pivots, timeline);
