@@ -50,11 +50,6 @@ export async function initApp() {
       });
     };
 
-    const onSave = () => {
-      localStorage.setItem('animation', timeline.exportJSON());
-      debugLog("Animation sauvegardée.");
-    };
-
     const savedData = localStorage.getItem('animation');
     if (savedData) {
       try {
@@ -74,10 +69,6 @@ export async function initApp() {
       // Apply to main pantin
       applyFrameToPantinElement(frame, pantinRootGroup);
 
-      // Update inspector values
-      scaleValueEl.value = frame.transform.scale.toFixed(2);
-      rotateValueEl.value = Math.round(frame.transform.rotate);
-
       // Render onion skins
       renderOnionSkins(timeline, applyFrameToPantinElement);
 
@@ -86,14 +77,14 @@ export async function initApp() {
     });
 
     // Quand un membre est mis à jour (scale / rotate)…
-timeline.on('memberTransform', ({ id, scale, rotate }) => {
-  // On récupère la frame courante et on ré-applique tout
-  const frame = timeline.getCurrentFrame();
-  if (!frame) return;
-  applyFrameToPantinElement(frame, pantinRootGroup);
-  renderOnionSkins(timeline, applyFrameToPantinElement);
-  objects && objects.renderObjects();
-});
+    timeline.on('memberTransform', () => {
+      // On récupère la frame courante et on ré-applique tout
+      const frame = timeline.getCurrentFrame();
+      if (!frame) return;
+      applyFrameToPantinElement(frame, pantinRootGroup);
+      renderOnionSkins(timeline, applyFrameToPantinElement);
+      objects && objects.renderObjects();
+    });
 
 // Quand la transformation globale change (translate / scale / rotate)…
 timeline.on('transformChange', transform => {
